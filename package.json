@@ -1,11 +1,10 @@
 {
-  "name": "yourapp",
+  "name": "justsaleonline",
   "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "eject": "expo eject"
   },
@@ -24,6 +23,7 @@
     "@stripe/stripe-react-native": "0.2.2",
     "apisauce": "^2.0.1",
     "expo": "^43.0.4",
+    "expo-ads-admob": "~11.0.3",
     "expo-apple-authentication": "~4.0.3",
     "expo-device": "~4.0.3",
     "expo-facebook": "~12.0.3",
@@ -35,7 +35,9 @@
     "expo-permissions": "~13.0.3",
     "expo-random": "~12.0.1",
     "expo-secure-store": "~11.0.3",
+    "expo-splash-screen": "~0.13.5",
     "expo-status-bar": "~1.1.0",
+    "expo-updates": "~0.10.13",
     "expo-web-browser": "~10.0.3",
     "formik": "^2.1.5",
     "html-entities": "^1.4.0",
@@ -47,11 +49,13 @@
     "qs": "^6.9.6",
     "react": "17.0.1",
     "react-dom": "17.0.1",
+    "react-facebook-login": "^4.1.1",
     "react-native": "0.64.3",
     "react-native-credit-card-input": "^0.4.1",
     "react-native-datepicker": "git+https://github.com/codynguyen/react-native-datepicker.git#ios-datepicker-component",
     "react-native-detect-navbar-android": "^0.3.0",
     "react-native-draggable-flatlist": "^2.6.2",
+    "react-native-fbsdk": "^3.0.0",
     "react-native-geocoding": "^0.5.0",
     "react-native-gesture-handler": "~1.10.2",
     "react-native-i18n": "^2.0.15",
@@ -69,8 +73,7 @@
     "react-native-webview-leaflet": "^5.0.2",
     "react-native-youtube-iframe": "^2.0.1",
     "react-navigation": "^4.4.2",
-    "yup": "^0.29.3",
-    "expo-ads-admob": "~11.0.3"
+    "yup": "^0.29.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

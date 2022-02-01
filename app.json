@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Your App",
-    "slug": "yourapp",
+    "name": "Just Sale online",
+    "slug": "justsaleonline",
     "version": "1.21.4",
     "plugins": [
       [
@@ -39,7 +39,7 @@
     "ios": {
       "usesAppleSignIn": true,
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourdomain",
+      "bundleIdentifier": "com.justsaleonline.com",
       "buildNumber": "1",
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to capture and upload user profile image and Listing Image to the server.",
@@ -50,17 +50,17 @@
         "UIBackgroundModes": ["remote-notification"]
       },
       "config": {
-        "googleMapsApiKey": "AIzaSyCs0TJfggT2wARP0noZInG_2bLSVyGX5GE"
+        "googleMapsApiKey": "AIzaSyBxK7ZTcIb2F-9FgTyLVYNdIS0dxchBHvU"
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "android": {
-      "package": "com.classima.radiustheme",
+      "package": "com.justsaleonline.com",
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyCs0TJfggT2wARP0noZInG_2bLSVyGX5GE"
+          "apiKey": "AIzaSyBxK7ZTcIb2F-9FgTyLVYNdIS0dxchBHvU"
         }
       },
       "adaptiveIcon": {
@@ -83,9 +83,9 @@
       ],
       "versionCode": 10
     },
-    "facebookScheme": "fb248887017031234",
-    "facebookAppId": "248887017031234",
-    "facebookDisplayName": "Your App",
-    "scheme": "yourapp"
+    "facebookScheme": "fb351236990180813",
+    "facebookAppId": "351236990180813",
+    "facebookDisplayName": "Just Sale Online",
+    "scheme": "justsaleonline"
   }
 }

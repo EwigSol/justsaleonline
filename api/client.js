@@ -2,8 +2,8 @@
 import { create } from "apisauce";
 //  Do not change anything above this line if you're not sure about what you're doing.
 
-const domain = "https://www.yourdomain.com";
-const apiKey = "95b66472-6cb7-32a0-aa73-123456";
+const domain = "https://justsaleonline.com/";
+const apiKey = "614212ec-d986-4db2-84cd-70a4f6c71998";
 
 const apiRequestTimeOut = 60000; // 30 secs
 
