@@ -1,14 +1,14 @@
 export const COLORS = {
-  primary: "#f85c70",
+  primary: "#ffa110",
   primary_soft: "#ff8f9d",
   bg_primary: "#ffd1d6",
 
   button: {
     disabled: "#f797a3",
-    active: "#f85c70",
+    active: "#ffa110",
   },
 
-  bg_splash: "#f85c70",
+  bg_splash: "#ffffff",
 
   badges: {
     _top: "#f39f0a",
