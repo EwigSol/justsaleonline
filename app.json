@@ -50,6 +50,9 @@
         "UIBackgroundModes": ["remote-notification"]
       },
       "config": {
+        "googleSignIn":{
+          "reservedClientId": "com.googleusercontent.apps.845992057495-5ahf6cddnpep4s3tlf7ph9ctrhe6f3bm"
+        },
         "googleMapsApiKey": "AIzaSyBxK7ZTcIb2F-9FgTyLVYNdIS0dxchBHvU"
       }
     },
@@ -58,6 +61,7 @@
     },
     "android": {
       "package": "com.justsaleonline.com",
+      "googleServicesFile": "./google-services.json",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBxK7ZTcIb2F-9FgTyLVYNdIS0dxchBHvU"

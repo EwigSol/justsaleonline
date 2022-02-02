@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "845992057495",
+    "project_id": "justsaleonline-2022app",
+    "storage_bucket": "justsaleonline-2022app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845992057495:android:e929eed7c4ad98508367d2",
+        "android_client_info": {
+          "package_name": "com.justsaleonline.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "845992057495-jjjfg7rb1qtpbcsqf0jgcbr2q72aoklp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.justsaleonline.com",
+            "certificate_hash": "6d391a815151445966456fe5d63ba069a44d0efe"
+          }
+        },
+        {
+          "client_id": "845992057495-tboapvm5chbdsa3ptfusdb8ip1kr4sg6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXVsz6bgW9Eodsoho7ytDQ5dcLBu8uLOo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "845992057495-tboapvm5chbdsa3ptfusdb8ip1kr4sg6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "845992057495-5ahf6cddnpep4s3tlf7ph9ctrhe6f3bm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.justsaleonline.com"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
