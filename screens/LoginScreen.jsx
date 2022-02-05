@@ -115,8 +115,7 @@ const LoginScreen = ({ navigation }) => {
       // clientId: "<YOUR_IOS_CLIENT_ID>",
       scopes: ["PROFILE", "EMAIL"],
       isOfflineEnabled: true,
-      webClientId:
-        "1009577039302-7uod8j8lcnp94u1a2so9n05g5m0gsqqd.apps.googleusercontent.com",
+      webClientId: socialConfig.google.webClientId,
     });
   };
   const _syncUserWithStateAsync = async () => {
