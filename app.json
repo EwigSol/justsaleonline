@@ -53,7 +53,7 @@
         "googleSignIn":{
           "reservedClientId": "com.googleusercontent.apps.845992057495-5ahf6cddnpep4s3tlf7ph9ctrhe6f3bm"
         },
-        "googleMapsApiKey": "AIzaSyBxK7ZTcIb2F-9FgTyLVYNdIS0dxchBHvU"
+        "googleMapsApiKey": "AIzaSyCM9loQN_cO8mTuPEZf6hn6HOo0U_XH1Ik"
       }
     },
     "web": {
@@ -64,7 +64,7 @@
       "googleServicesFile": "./google-services.json",
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyBxK7ZTcIb2F-9FgTyLVYNdIS0dxchBHvU"
+          "apiKey": "AIzaSyCM9loQN_cO8mTuPEZf6hn6HOo0U_XH1Ik"
         }
       },
       "adaptiveIcon": {
@@ -85,7 +85,7 @@
         "ACCESS_FINE_LOCATION",
         "RECEIVE_BOOT_COMPLETED"
       ],
-      "versionCode": 10
+      "versionCode": 1
     },
     "facebookScheme": "fb351236990180813",
     "facebookAppId": "351236990180813",
