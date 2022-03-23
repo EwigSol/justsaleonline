@@ -4,11 +4,12 @@ export const COLORS = {
   bg_primary: "#ffd1d6",
 
   button: {
-    disabled: "#f797a3",
-    active: "#ffa110",
+    disabled: "red",
+    active: "red",
+    login: "#ffa110"
   },
 
-  bg_splash: "#ffffff",
+  bg_splash: "#ffa110",
 
   badges: {
     _top: "#f39f0a",
