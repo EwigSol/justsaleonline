@@ -1,6 +1,6 @@
 export const socialConfig = {
   enabled: true,
-  socialPlatforms: ["google"], // Currently we only support Facebook and Google signin. We'll add more in future
+  socialPlatforms: ["google", "facebook"], // Currently we only support Facebook and Google signin. We'll add more in future
   google: {
     webClientId:
       "845992057495-tboapvm5chbdsa3ptfusdb8ip1kr4sg6.apps.googleusercontent.com",
