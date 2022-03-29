@@ -3,7 +3,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import { LogBox } from "react-native";
 import * as Linking from "expo-linking";
 import * as Notifications from "expo-notifications";
-
 // Custom Components
 import Screen from "./components/Screen";
 import HomeNavigator from "./navigation/HomeNavigator";

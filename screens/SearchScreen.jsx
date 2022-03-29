@@ -666,7 +666,7 @@ const SearchScreen = ({ navigation }) => {
   const emptyComponent = () => {
     return (
       <View style={styles.noListingsWrap}>
-        <Fontisto name="frowning" size={100} color={COLORS.primary_soft} />
+        <Fontisto name="dizzy" size={100} color={COLORS.primary_soft} />
         <Text style={styles.noListingsMessage}>
           {__("searchScreenTexts.noListingFoundMessage", appSettings.lng)}
         </Text>
@@ -986,7 +986,7 @@ const SearchScreen = ({ navigation }) => {
                 windowSize={appSettings?.listView ? 41 : 61}
                 keyExtractor={keyExtractor}
                 horizontal={false}
-                numColumns={2}
+                // numColumns={2}
                 showsVerticalScrollIndicator={false}
                 onEndReached={handleNextPageLoading}
                 onEndReachedThreshold={1}
@@ -1002,7 +1002,7 @@ const SearchScreen = ({ navigation }) => {
           {bottomLevel && !listingsData.length && noListingFound && (
             <View style={styles.noListingsWrap}>
               <Fontisto
-                name="frowning"
+                name="dizzy"
                 size={100}
                 color={COLORS.primary_soft}
               />
