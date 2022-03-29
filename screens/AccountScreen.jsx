@@ -207,6 +207,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   loginButton: {
+    backgroundColor: "#ffa110",
     paddingVertical: 10,
     borderRadius: 3,
   },

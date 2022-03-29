@@ -473,7 +473,7 @@ const HomeNavigator = () => {
       <View
         style={{
           flex: 1,
-          backgroundColor: COLORS.bg_splash,
+          backgroundColor: "#ffa110",
           alignItems: "center",
           justifyContent: "center",
         }}
