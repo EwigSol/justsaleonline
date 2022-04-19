@@ -881,7 +881,7 @@ const HomeScreen = ({ navigation }) => {
           {!listingsData.length && !timedOut && !networkError && (
             <View style={styles.noListingsWrap}>
               <Fontisto
-                name="dizzy"
+                name="frowning"
                 size={100}
                 color={COLORS.primary_soft}
               />
@@ -894,7 +894,7 @@ const HomeScreen = ({ navigation }) => {
           {!listingsData.length && (!!timedOut || !!networkError) && (
             <View style={styles.noListingsWrap}>
               <Fontisto
-                name="dizzy"
+                name="frowning"
                 size={100}
                 color={COLORS.primary_soft}
               />

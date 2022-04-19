@@ -65,12 +65,12 @@ const renderLisenseItem = ({ item }) => <LisenseCard item={item} />;
 const ThirdPartyLicensesScreen = () => {
   return (
     <View style={styles.container}>
-      {/* <FlatList
+      <FlatList
         data={licenses}
         renderItem={renderLisenseItem}
         keyExtractor={(item) => item.key}
         contentContainerStyle={{ paddingVertical: 10 }}
-      /> */}
+      />
     </View>
   );
 };
