@@ -2,7 +2,7 @@
   "expo": {
     "name": "Just Sale online",
     "slug": "justsaleonline",
-    "version": "2.0.0",
+    "version": "1.0.2",
     "plugins": [
       [
         "expo-notifications",
@@ -40,7 +40,7 @@
       "usesAppleSignIn": true,
       "supportsTablet": true,
       "bundleIdentifier": "com.justsaleonline.com",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to capture and upload user profile image and Listing Image to the server.",
         "NSPhotoLibraryUsageDescription": "This app needs access to the photo library to select and upload user profile image and Listing Image to the server.",
@@ -85,7 +85,7 @@
         "ACCESS_FINE_LOCATION",
         "RECEIVE_BOOT_COMPLETED"
       ],
-      "versionCode": 1
+      "versionCode": 2
     },
     "facebookScheme": "fb351236990180813",
     "facebookAppId": "351236990180813",
