@@ -1,6 +1,7 @@
 import { appName } from "../app/services/appName";
 export const routes = {
   tabNavigator: "Tabs",
+  drawerNavigator: "Drawer",
   homeScreen: "Home",
   searchScreen: "Search",
   newListingScreen: "New Listing",
@@ -26,13 +27,11 @@ export const routes = {
   aboutAppScreen: appName,
   selectcategoryScreen: "Select category",
   privacyPolicyScreen: "Privacy Policy",
-  thirdPartyLicensesScreen: "Licenses",
   Screen: "Licenses",
   tnCScreen: "TnC",
   editPersonalDetailScreen: "Edit Personal Detail",
   editListingScreen: "Edit Listing",
   storeDetailsScreen: "Store Details",
-  storeMoreDetailsScreen: "More Details Store",
   allStoresScreen: "Stores",
   myStoreScreen: "My Store Settings",
   membershipsScreen: "Membership Packages",
@@ -40,4 +39,7 @@ export const routes = {
   promoteScreen: "Promote Ad",
   paymentsScreen: "Payments",
   paymentDetailScreen: "Payment Detail",
+  forgotPassScreen: "Forgot Password",
+  oTPScreen: "Verification",
+  documentsScreen: "My Documents",
 };

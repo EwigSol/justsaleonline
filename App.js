@@ -20,7 +20,10 @@ const App = () => {
     }),
   });
   // TODO: This is a temporary fix for the "Componentwillreceiveprops has been renamed" development warning
-  LogBox.ignoreLogs(["componentWillReceiveProps"]);
+  LogBox.ignoreLogs([
+    "componentWillReceiveProps",
+    "AsyncStorage has been extracted from react-native core and will be removed in a future release",
+  ]);
   return (
     <StateProvider initialState={initialState} reducer={reducer}>
       <Screen>

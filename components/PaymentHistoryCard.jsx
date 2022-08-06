@@ -24,13 +24,28 @@ const PaymentHistoryCard = ({ item, onCardPress }) => {
     } else if (["Cancelled", "Failed"].includes(item.status)) {
       return COLORS.red;
     } else if (item.status === "Completed") {
-      return COLORS.green;
+      return COLORS.primary;
     } else if (["Pending", "On hold"].includes(item.status)) {
       return COLORS.yellow_dark;
     } else if (["Created", "Processing"].includes(item.status)) {
       return COLORS.dodgerblue;
     } else {
       return COLORS.text_dark;
+    }
+  };
+  const getStatusBgColor = () => {
+    if (item.status === "Refunded") {
+      return COLORS.bg_light;
+    } else if (["Cancelled", "Failed"].includes(item.status)) {
+      return "#f2bfbf";
+    } else if (item.status === "Completed") {
+      return COLORS.bg_primary;
+    } else if (["Pending", "On hold"].includes(item.status)) {
+      return "FFF9EC";
+    } else if (["Created", "Processing"].includes(item.status)) {
+      return "#d4e4ff";
+    } else {
+      return COLORS.white;
     }
   };
   return (
@@ -41,7 +56,7 @@ const PaymentHistoryCard = ({ item, onCardPress }) => {
             <View style={styles.methodWrap}>
               <Text style={[styles.method, rtlTextA]}>
                 {__("paymentsScreenTexts.paymentMethodPrefix", appSettings.lng)}{" "}
-                <Text style={{ fontStyle: "italic" }}>{item.method}</Text>
+                {item.method}
               </Text>
             </View>
             <View style={styles.dateWrap}>
@@ -49,7 +64,7 @@ const PaymentHistoryCard = ({ item, onCardPress }) => {
                 {moment(
                   item?.paid_date || item?.created_date,
                   "YYYY-MM-DD H-mm-ss"
-                ).format("MMM Do, YY h:mm: a")}
+                ).format("Do MMM YYYY | h:mm a")}
               </Text>
             </View>
           </View>
@@ -72,7 +87,13 @@ const PaymentHistoryCard = ({ item, onCardPress }) => {
             <View
               style={[
                 styles.statusWrap,
-                ,
+                {
+                  backgroundColor: getStatusBgColor(),
+                  paddingHorizontal: 12,
+                  paddingVertical: 5,
+                  borderRadius: 20,
+                  marginTop: 5,
+                },
                 { alignItems: rtl_support ? "flex-start" : "flex-end" },
               ]}
             >
@@ -109,9 +130,9 @@ const styles = StyleSheet.create({
     marginVertical: "2%",
     padding: 15,
     borderRadius: 10,
-    elevation: 4,
+    elevation: 3,
     shadowColor: COLORS.black,
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowOffset: { height: 0, width: 0 },
     shadowRadius: 3,
   },
@@ -119,8 +140,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   date: {
-    fontSize: 13,
-    fontWeight: "bold",
+    fontSize: 14.5,
     color: COLORS.text_gray,
   },
   methodWrap: {
@@ -129,11 +149,15 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     fontWeight: "bold",
-    color: COLORS.primary,
+    color: COLORS.text_dark,
+  },
+  method: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: COLORS.text_dark,
   },
   status: {
     fontSize: 12,
-    fontWeight: "bold",
     color: COLORS.text_dark,
   },
 });

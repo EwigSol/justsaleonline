@@ -5,7 +5,7 @@ const routes = {
   about_us: appName,
   tnc: "TnC",
   pp: "Privacy Policy",
-  licenses: "Licenses",
+  // licenses: "Licenses",
 };
 
 export function getMoreRoutes() {

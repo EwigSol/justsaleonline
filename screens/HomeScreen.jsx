@@ -13,19 +13,17 @@ import {
   Animated,
   ActivityIndicator,
   Keyboard,
-  RefreshControl,
-  Modal,
   Alert,
 } from "react-native";
 
-// Expo Libraries
-import Constants from "expo-constants";
-
 // Vector Fonts
-import { FontAwesome } from "@expo/vector-icons";
-import { SimpleLineIcons } from "@expo/vector-icons";
-import { Feather } from "@expo/vector-icons";
-import { Fontisto } from "@expo/vector-icons";
+import {
+  FontAwesome,
+  FontAwesome5,
+  Ionicons,
+  Fontisto,
+  Feather,
+} from "@expo/vector-icons";
 import { Formik } from "formik";
 
 // Custom Components & Constants
@@ -44,6 +42,9 @@ import CategoryImage from "../components/CategoryImage";
 import { __ } from "../language/stringPicker";
 import { admobConfig } from "../app/services/adMobConfig";
 import { routes } from "../navigation/routes";
+import settingsStorage from "../app/settings/settingsStorage";
+import { useScrollToTop } from "@react-navigation/native";
+import { miscConfig } from "../app/services/miscConfig";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("screen");
 const { height: windowHeight } = Dimensions.get("window");
@@ -58,11 +59,11 @@ const HomeScreen = ({ navigation }) => {
       ios,
       appSettings,
       rtl_support,
-      admobPermission,
     },
     dispatch,
   ] = useStateValue();
   const [topCategoriesData, setTopCategoriesData] = useState([]);
+  const [allCategoriesData, setAllCategoriesData] = useState([]);
   const [pagination, setPagination] = useState({});
   const [searchData, setSearchData] = useState(() => {
     return {
@@ -88,7 +89,22 @@ const HomeScreen = ({ navigation }) => {
   const [retry, setRetry] = useState(false);
   const [scrollButtonVisible, setScrollButtonVisible] = useState(false);
 
-  const iosFlatList = useRef(null);
+  const iosFlatList = useRef();
+  useScrollToTop(iosFlatList);
+
+  useEffect(() => {
+    if (!miscConfig?.enableHomeButtonRefreshAction) return;
+    const unsubscribe = navigation.addListener("tabPress", (e) => {
+      if (
+        searchData.categories ||
+        searchData.locations?.length ||
+        searchData.search
+      ) {
+        handleReset();
+      }
+    });
+    return unsubscribe;
+  }, [navigation, searchData]);
 
   // Search on Location Change
   useEffect(() => {
@@ -130,7 +146,7 @@ const HomeScreen = ({ navigation }) => {
       handleLoadLocations();
     }
     handleLoadListingsData();
-  }, [initial]);
+  }, [initial, config, appSettings.lng]);
 
   useEffect(() => {
     if (!loading) return;
@@ -162,11 +178,22 @@ const HomeScreen = ({ navigation }) => {
     handleLoadListingsData();
   }, [refreshing]);
 
-  // useEffect(() => {
-  //   if (ios && admobConfig?.admobEnabled) {
-  //     getper();
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (ios && admobConfig?.admobEnabled) {
+      getper();
+    }
+  }, []);
+
+  // useEffect(
+  //   useCallback(() => {
+  //     if (!loading && listingsData?.length && isFocused) {
+  //       iosFlatList.current.scrollToOffset({
+  //         animated: true,
+  //         offset: 0,
+  //       });
+  //     }
+  //   }, [isFocused])
+  // );
 
   const getper = async () => {
     const { status } = await getPermissionsAsync();
@@ -177,24 +204,11 @@ const HomeScreen = ({ navigation }) => {
           {
             text: __("adMobTexts.okButton", appSettings.lng),
             onPress: () => {
-              dispatch({
-                type: "SET_ADMOB_PERMISSION",
-                admobPermission: false,
-              });
+              return;
             },
           },
         ]);
-      } else {
-        dispatch({
-          type: "SET_ADMOB_PERMISSION",
-          admobPermission: true,
-        });
       }
-    } else {
-      dispatch({
-        type: "SET_ADMOB_PERMISSION",
-        admobPermission: true,
-      });
     }
   };
 
@@ -304,7 +318,9 @@ const HomeScreen = ({ navigation }) => {
   const handleLoadTopCategories = () => {
     api.get("categories").then((res) => {
       if (res.ok) {
-        setTopCategoriesData(res.data);
+        const tempTopCatData = res.data.slice(0, 9);
+        setTopCategoriesData(tempTopCatData);
+        setAllCategoriesData(res.data);
         dispatch({
           type: "SET_CATEGORIES_DATA",
           categories_data: res.data,
@@ -329,49 +345,77 @@ const HomeScreen = ({ navigation }) => {
     setLoading(true);
   };
 
-  const scrollY = new Animated.Value(0);
-  const diffClamp = Animated.diffClamp(scrollY, 0, 100);
-  const translateY = diffClamp.interpolate({
-    inputRange: [0, 100],
-    outputRange: [0, -100],
-  });
+  const handleLayoutToggle = (layout) => {
+    if (appSettings?.listView === layout) {
+      return;
+    }
+    const tempSettings = { ...appSettings, listView: layout };
+    dispatch({
+      type: "SET_SETTINGS",
+      appSettings: tempSettings,
+    });
+    settingsStorage.storeAppSettings(JSON.stringify(tempSettings));
+  };
 
   const Category = ({ onPress, item }) => (
     <TouchableOpacity
       onPress={() => onPress(item)}
       style={{
-        justifyContent: "center",
-        alignItems: "center",
-        width: screenWidth / 5,
-        padding: 5,
+        backgroundColor: COLORS.white,
+        marginHorizontal: screenWidth * 0.015,
+        marginBottom: screenWidth * 0.03,
+        shadowColor: COLORS.border_light,
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        shadowOffset: {
+          height: 0,
+          width: 0,
+        },
+        elevation: 1,
+        borderRadius: 5,
       }}
     >
       <View
         style={{
+          borderRadius: 5,
+          alignItems: "center",
+          paddingTop: "5%",
           justifyContent: "center",
           alignItems: "center",
+          height: (screenWidth * 0.88 * 1.04) / 3,
+          width: (screenWidth * 0.88) / 3,
+          overflow: "hidden",
         }}
       >
         {item?.icon?.url ? (
-          <CategoryImage size={27} uri={item.icon.url} />
+          <CategoryImage size={(screenWidth * 0.88) / 9} uri={item.icon.url} />
         ) : (
           <CategoryIcon
             iconName={item.icon.class}
-            iconSize={27}
+            iconSize={(screenWidth * 0.88) / 9}
             iconColor={COLORS.primary}
           />
         )}
-        <Text
+        <View
           style={{
-            marginTop: 5,
-            color: COLORS.text_gray,
-            fontWeight: "bold",
-            fontSize: 13,
+            paddingTop: "12%",
+            alignItems: "center",
+            paddingHorizontal: 5,
           }}
-          numberOfLines={1}
         >
-          {decodeString(item.name).split(" ")[0]}
-        </Text>
+          <Text
+            style={{
+              color: COLORS.text_dark,
+              fontWeight: "bold",
+              fontSize: 13,
+              textAlign: "center",
+            }}
+            numberOfLines={2}
+          >
+            {decodeString(item.name)}
+            {/* {decodeString(item.name).split(" ")[0]} */}
+          </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -421,88 +465,252 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  const FeaturedListIosHeader = () => (
+  const ListingListHeader = () => (
     <Animated.View>
-      <View
-        style={{
-          flexDirection: rtl_support ? "row-reverse" : "row",
-          alignItems: "center",
-          paddingHorizontal: screenWidth * 0.015,
-
-          paddingVertical: 10,
-          width: screenWidth,
-          justifyContent: "space-between",
-
-          width: screenWidth * 0.97,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 15,
-            fontWeight: "bold",
-          }}
-        >
-          {__("homeScreenTexts.topCategoriesText", appSettings.lng)}
-        </Text>
-        <TouchableOpacity onPress={handleSeeAll}>
-          <Text
+      {!searchData?.categories && (
+        <>
+          <View
             style={{
-              fontSize: 15,
-              fontWeight: "bold",
-              color: COLORS.primary,
+              marginHorizontal: screenWidth * 0.015,
+              paddingVertical: 10,
             }}
           >
-            {__("homeScreenTexts.seAllButtonText", appSettings.lng)}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      {/* categories flatlist */}
-      <FlatList
-        data={topCategoriesData}
-        renderItem={renderCategory}
-        keyExtractor={keyExtractor}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        inverted={rtl_support}
-      />
-
-      {rtl_support ? (
-        <View style={[styles.featuredListingTop, rtlView]}>
-          <Text
-            style={[
-              {
+            <Text
+              style={{
                 fontSize: 15,
                 fontWeight: "bold",
-              },
-              // rtlText,
-            ]}
-          >
-            {searchData.categories && cat_name && (
-              <Text style={[styles.selectedCat]} numberOfLines={1}>
-                ({getSelectedCat(cat_name[0])})
+              }}
+            >
+              {__("homeScreenTexts.topCategoriesText", appSettings.lng)}
+            </Text>
+          </View>
+          {/* categories flatlist */}
+          <FlatList
+            data={topCategoriesData}
+            renderItem={renderCategory}
+            keyExtractor={keyExtractor}
+            showsHorizontalScrollIndicator={false}
+            inverted={rtl_support}
+            numColumns={3}
+          />
+          {allCategoriesData?.length > 9 && (
+            <TouchableOpacity
+              onPress={handleSeeAll}
+              style={{
+                backgroundColor: COLORS.primary,
+                alignItems: "center",
+                padding: 10,
+                marginVertical: 10,
+                borderRadius: 5,
+                marginHorizontal: screenWidth * 0.015,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: COLORS.white,
+                }}
+              >
+                {__("homeScreenTexts.seAllButtonText", appSettings.lng)}
               </Text>
-            )}{" "}
-            {__("homeScreenTexts.latestAdsText", appSettings.lng)}
-          </Text>
+            </TouchableOpacity>
+          )}
+        </>
+      )}
+      {rtl_support ? (
+        <View
+          style={[
+            styles.featuredListingTop,
+            { marginTop: searchData?.categories ? 10 : 0 },
+            rtlView,
+          ]}
+        >
+          <View style={[{ flex: 1, alignItems: "center" }, rtlView]}>
+            <Text
+              style={{
+                fontSize: 15,
+                fontWeight: "bold",
+              }}
+              numberOfLines={1}
+            >
+              {searchData?.categories
+                ? getSelectedCat(cat_name[0])
+                : __("homeScreenTexts.latestAdsText", appSettings.lng)}
+            </Text>
+            {!!searchData?.categories && (
+              <TouchableOpacity
+                style={{
+                  paddingHorizontal: 5,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={handleSeeAll}
+              >
+                <Text
+                  style={{
+                    fontSize: 12.5,
+                    fontWeight: "bold",
+                    color: COLORS.primary,
+                  }}
+                  numberOfLines={1}
+                >
+                  {__("homeScreenTexts.selectCatBtn", appSettings.lng)}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => handleLayoutToggle(false)}
+              style={{
+                padding: 4,
+                borderRadius: 3,
+                borderWidth: 1,
+                backgroundColor: appSettings?.listView
+                  ? COLORS.white
+                  : COLORS.primary,
+                marginRight: 10,
+                borderColor: appSettings?.listView
+                  ? COLORS.white
+                  : COLORS.primary,
+              }}
+            >
+              <Ionicons
+                name="grid"
+                size={15}
+                color={appSettings?.listView ? COLORS.gray : COLORS.white}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => handleLayoutToggle(true)}
+              style={{
+                padding: 4,
+                borderRadius: 3,
+                borderWidth: 1,
+                backgroundColor: appSettings?.listView
+                  ? COLORS.primary
+                  : COLORS.white,
+                borderColor: appSettings?.listView
+                  ? COLORS.primary
+                  : COLORS.white,
+              }}
+            >
+              <Ionicons
+                name="list-sharp"
+                size={15}
+                color={appSettings?.listView ? COLORS.white : COLORS.gray}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       ) : (
-        <View style={[styles.featuredListingTop, rtlView]}>
-          <Text
-            style={[
-              {
-                fontSize: 15,
-                fontWeight: "bold",
-              },
-              rtlText,
-            ]}
-          >
-            {__("homeScreenTexts.latestAdsText", appSettings.lng)}{" "}
-            {searchData.categories && cat_name && (
-              <Text style={[styles.selectedCat, rtlText]} numberOfLines={1}>
-                ({getSelectedCat(cat_name[0])})
-              </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flex: 1,
+            paddingHorizontal: screenWidth * 0.015,
+            paddingBottom: 15,
+            paddingTop: 5,
+            // marginTop: searchData?.categories ? 10 : 0,
+          }}
+        >
+          <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+            <Text
+              style={[
+                {
+                  fontSize: 15,
+                  fontWeight: "bold",
+                },
+                // rtlText,
+              ]}
+              numberOfLines={1}
+            >
+              {searchData?.categories
+                ? getSelectedCat(cat_name[0])
+                : __("homeScreenTexts.latestAdsText", appSettings.lng)}
+            </Text>
+            {!!searchData?.categories && (
+              <TouchableOpacity
+                style={{
+                  paddingHorizontal: 5,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={handleSeeAll}
+              >
+                <Text
+                  style={[
+                    {
+                      fontSize: 12.5,
+                      fontWeight: "bold",
+                      color: COLORS.primary,
+                    },
+                    // rtlText,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {__("homeScreenTexts.selectCatBtn", appSettings.lng)}
+                </Text>
+              </TouchableOpacity>
             )}
-          </Text>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => handleLayoutToggle(false)}
+              style={{
+                padding: 4,
+                borderRadius: 3,
+                borderWidth: 1,
+                backgroundColor: appSettings?.listView
+                  ? COLORS.white
+                  : COLORS.primary,
+                marginRight: 10,
+                borderColor: appSettings?.listView
+                  ? COLORS.white
+                  : COLORS.primary,
+              }}
+            >
+              <Ionicons
+                name="grid"
+                size={15}
+                color={appSettings?.listView ? COLORS.gray : COLORS.white}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => handleLayoutToggle(true)}
+              style={{
+                padding: 4,
+                borderRadius: 3,
+                borderWidth: 1,
+                backgroundColor: appSettings?.listView
+                  ? COLORS.primary
+                  : COLORS.white,
+                borderColor: appSettings?.listView
+                  ? COLORS.primary
+                  : COLORS.white,
+              }}
+            >
+              <Ionicons
+                name="list-sharp"
+                size={15}
+                color={appSettings?.listView ? COLORS.white : COLORS.gray}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     </Animated.View>
@@ -522,7 +730,7 @@ const HomeScreen = ({ navigation }) => {
       locations: "",
       onScroll: false,
       page: 1,
-      per_page: 20,
+      per_page: paginationData?.home?.per_page || 20,
       search: "",
     });
     dispatch({
@@ -535,14 +743,17 @@ const HomeScreen = ({ navigation }) => {
     });
   };
 
-  const onAndroidFeaturedListingScroll = (e) => {
-    scrollY.setValue(e.nativeEvent.contentOffset.y);
-  };
   const onIOSFeaturedListingScroll = (e) => {
-    if (!scrollButtonVisible && e.nativeEvent.contentOffset.y > 300) {
+    if (
+      !scrollButtonVisible &&
+      e.nativeEvent.contentOffset.y > screenHeight * 2
+    ) {
       setScrollButtonVisible(true);
     }
-    if (scrollButtonVisible && e.nativeEvent.contentOffset.y < 300) {
+    if (
+      scrollButtonVisible &&
+      e.nativeEvent.contentOffset.y < screenHeight * 2
+    ) {
       setScrollButtonVisible(false);
     }
   };
@@ -551,49 +762,9 @@ const HomeScreen = ({ navigation }) => {
     return decodeString(urg);
   };
 
-  const ListHeader = () => {
-    return (
-      <View style={[styles.featuredListingTop, rtlView]}>
-        {rtl_support ? (
-          <>
-            <Text
-              style={{
-                fontSize: 15,
-                fontWeight: "bold",
-              }}
-            >
-              {searchData?.categories && cat_name && (
-                <Text style={styles.selectedCat} numberOfLines={1}>
-                  ({getSelectedCat(cat_name[0])})
-                </Text>
-              )}{" "}
-              {__("homeScreenTexts.latestAdsText", appSettings.lng)}
-            </Text>
-          </>
-        ) : (
-          <>
-            <Text
-              style={{
-                fontSize: 15,
-                fontWeight: "bold",
-              }}
-            >
-              {__("homeScreenTexts.latestAdsText", appSettings.lng)}{" "}
-              {searchData?.categories && cat_name && (
-                <Text style={styles.selectedCat} numberOfLines={1}>
-                  ({getSelectedCat(cat_name[0])})
-                </Text>
-              )}
-            </Text>
-          </>
-        )}
-      </View>
-    );
-  };
-
   const handleSeeAll = () => {
     navigation.navigate(routes.selectcategoryScreen, {
-      data: topCategoriesData,
+      data: allCategoriesData,
     });
   };
 
@@ -604,20 +775,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {ios && admobConfig?.admobEnabled && (
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={!admobPermission}
-        >
-          <View style={styles.admobOverLay}>
-            <Text style={styles.admobOverLayText}>
-              {__("adMobTexts.appDisabledText", appSettings.lng)}
-            </Text>
-          </View>
-        </Modal>
-      )}
-      <TabScreenHeader style={{ elevation: 0, zIndex: 2 }} />
+      <TabScreenHeader style={{ elevation: 0, zIndex: 2 }} sideBar />
       {/* Loading Animation */}
       {loading ? (
         <View style={styles.loading}>
@@ -642,9 +800,9 @@ const HomeScreen = ({ navigation }) => {
                 }
               >
                 <View style={[styles.locationContent, rtlView]}>
-                  <FontAwesome
-                    name="map-marker"
-                    size={18}
+                  <FontAwesome5
+                    name="map-marker-alt"
+                    size={16}
                     color={COLORS.primary}
                   />
                   <Text
@@ -665,7 +823,25 @@ const HomeScreen = ({ navigation }) => {
             )}
             <Formik initialValues={{ search: "" }} onSubmit={handleSearch}>
               {({ handleChange, handleBlur, handleSubmit, values }) => (
-                <View style={styles.ListingSearchContainer}>
+                <View
+                  style={[
+                    styles.ListingSearchContainer,
+                    config?.location_type === "geo" && {
+                      marginLeft: screenWidth * 0.015,
+                    },
+                  ]}
+                >
+                  <TouchableOpacity
+                    onPress={handleSubmit}
+                    disabled={!values.search || timedOut || networkError}
+                    style={styles.listingSearchBtnContainer}
+                  >
+                    <Feather
+                      name="search"
+                      size={20}
+                      color={values.search ? COLORS.primary : COLORS.primary}
+                    />
+                  </TouchableOpacity>
                   <TextInput
                     style={[styles.searchInput, rtlTextA]}
                     placeholder={
@@ -684,198 +860,88 @@ const HomeScreen = ({ navigation }) => {
                     returnKeyType="search"
                     onSubmitEditing={handleSubmit}
                   />
-
-                  <TouchableOpacity
-                    onPress={handleSubmit}
-                    disabled={!values.search || timedOut || networkError}
-                    style={styles.listingSearchBtnContainer}
-                  >
-                    <Feather
-                      name="search"
-                      size={20}
-                      color={values.search ? COLORS.primary : COLORS.primary}
-                    />
-                  </TouchableOpacity>
                 </View>
               )}
             </Formik>
             <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-              <SimpleLineIcons name="refresh" size={18} color={COLORS.white} />
+              <FontAwesome name="refresh" size={18} color={COLORS.primary} />
             </TouchableOpacity>
           </View>
-          {/* Category Slider */}
-          {!!topCategoriesData.length && !ios && (
-            <Animated.View
-              style={[
-                {
-                  transform: [{ translateY: translateY }],
-                },
-                styles.topCatSliderWrap,
-              ]}
-            >
-              <View
-                style={{
-                  flexDirection: rtl_support ? "row-reverse" : "row",
-                  alignItems: "center",
-                  paddingHorizontal: "3%",
-                  paddingVertical: 10,
-                  width: screenWidth,
-                  justifyContent: "space-between",
-                }}
-              >
-                <View style={{ alignItems: "center", flexDirection: "row" }}>
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {__("homeScreenTexts.topCategoriesText", appSettings.lng)}
-                  </Text>
-                </View>
-                <TouchableOpacity onPress={handleSeeAll}>
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: "bold",
-                      color: COLORS.primary,
-                    }}
-                  >
-                    {__("homeScreenTexts.seAllButtonText", appSettings.lng)}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              {/* categories flatlist */}
-              <FlatList
-                data={topCategoriesData}
-                renderItem={renderCategory}
-                keyExtractor={keyExtractor}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                inverted={rtl_support}
-              />
-            </Animated.View>
-          )}
-
           {/* FlatList */}
           {!!listingsData.length && (
-            <>
-              {ios ? (
-                <View
-                  style={{
-                    paddingHorizontal: screenWidth * 0.015,
+            <View
+              style={{
+                paddingHorizontal: screenWidth * 0.015,
 
-                    flex: 1,
-                  }}
-                >
-                  {
-                    <FlatList
-                      key={appSettings?.listView ? "list" : "grid"}
-                      data={listingsData}
-                      renderItem={
-                        appSettings?.listView
-                          ? renderFeaturedItemList
-                          : renderFeaturedItem
-                      }
-                      keyExtractor={keyExtractor}
-                      horizontal={false}
-                      showsVerticalScrollIndicator={false}
-                      onEndReached={handleNextPageLoading}
-                      onEndReachedThreshold={1}
-                      ListFooterComponent={featuredListFooter}
-                      numColumns={appSettings?.listView ? 1 : 2}
-                      maxToRenderPerBatch={appSettings?.listView ? 15 : 8}
-                      windowSize={appSettings?.listView ? 41 : 61}
-                      onScroll={onIOSFeaturedListingScroll}
-                      refreshing={refreshing}
-                      onRefresh={onRefresh}
-                      contentContainerStyle={{
-                        paddingBottom: screenHeight - windowHeight,
-                      }}
-                      ListHeaderComponent={FeaturedListIosHeader}
-                      scrollEventThrottle={1}
-                      ref={iosFlatList}
-                    />
+                flex: 1,
+              }}
+            >
+              {
+                <FlatList
+                  key={appSettings?.listView ? "list" : "grid"}
+                  data={listingsData}
+                  renderItem={
+                    appSettings?.listView
+                      ? renderFeaturedItemList
+                      : renderFeaturedItem
                   }
-                  <TouchableOpacity
-                    style={{
-                      display: scrollButtonVisible ? "flex" : "none",
-                      height: 40,
-                      width: 40,
-                      backgroundColor: COLORS.bg_dark,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      position: "absolute",
-                      bottom: 10,
-                      right: 15,
-                      borderRadius: 40 / 2,
-                      shadowRadius: 5,
-                      shadowOpacity: 0.3,
-                      shadowOffset: {
-                        height: 2,
-                        width: 2,
-                      },
-                      shadowColor: "#000",
-                      paddingBottom: 3,
-                    }}
-                    onPress={() =>
-                      iosFlatList.current.scrollToOffset({
-                        animated: true,
-                        offset: 0,
-                      })
-                    }
-                  >
-                    <FontAwesome
-                      name="chevron-up"
-                      size={20}
-                      color={COLORS.primary}
-                    />
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <View
-                  style={{
-                    paddingHorizontal: screenWidth * 0.015,
-                    height:
-                      screenHeight - Constants.statusBarHeight - 50 - 45 - 50,
+                  keyExtractor={keyExtractor}
+                  horizontal={false}
+                  showsVerticalScrollIndicator={false}
+                  onEndReached={handleNextPageLoading}
+                  onEndReachedThreshold={1}
+                  ListFooterComponent={featuredListFooter}
+                  numColumns={appSettings?.listView ? 1 : 2}
+                  maxToRenderPerBatch={appSettings?.listView ? 15 : 8}
+                  windowSize={appSettings?.listView ? 41 : 61}
+                  onScroll={onIOSFeaturedListingScroll}
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  contentContainerStyle={{
+                    paddingBottom: screenHeight - windowHeight,
                   }}
+                  ListHeaderComponent={ListingListHeader}
+                  scrollEventThrottle={1}
+                  ref={iosFlatList}
+                />
+              }
+              {scrollButtonVisible && (
+                <TouchableOpacity
+                  style={{
+                    height: 40,
+                    width: 40,
+                    backgroundColor: COLORS.bg_dark,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    position: "absolute",
+                    bottom: 10,
+                    right: 15,
+                    borderRadius: 40 / 2,
+                    shadowRadius: 5,
+                    shadowOpacity: 0.3,
+                    shadowOffset: {
+                      height: 2,
+                      width: 2,
+                    },
+                    shadowColor: "#000",
+                    paddingBottom: 3,
+                    elevation: 5,
+                  }}
+                  onPress={() =>
+                    iosFlatList.current.scrollToOffset({
+                      animated: true,
+                      offset: 0,
+                    })
+                  }
                 >
-                  <Animated.FlatList
-                    key={appSettings?.listView ? "list" : "grid"}
-                    data={listingsData}
-                    renderItem={
-                      appSettings?.listView
-                        ? renderFeaturedItemList
-                        : renderFeaturedItem
-                    }
-                    keyExtractor={keyExtractor}
-                    horizontal={false}
-                    numColumns={appSettings?.listView ? 1 : 2}
-                    showsVerticalScrollIndicator={false}
-                    onEndReached={handleNextPageLoading}
-                    onEndReachedThreshold={1}
-                    ListFooterComponent={featuredListFooter}
-                    maxToRenderPerBatch={appSettings?.listView ? 15 : 8}
-                    windowSize={appSettings?.listView ? 41 : 61}
-                    onScroll={onAndroidFeaturedListingScroll}
-                    refreshControl={
-                      <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                        progressViewOffset={100}
-                      />
-                    }
-                    contentContainerStyle={{
-                      paddingBottom: screenHeight - windowHeight,
-                      paddingTop: 100,
-                    }}
-                    ListHeaderComponent={ListHeader}
-                    scrollEventThrottle={1}
-                    bounces={false}
+                  <FontAwesome
+                    name="chevron-up"
+                    size={20}
+                    color={COLORS.primary}
                   />
-                </View>
+                </TouchableOpacity>
               )}
-            </>
+            </View>
           )}
           {/* No Listing Found */}
           {!listingsData.length && !timedOut && !networkError && (
@@ -939,7 +1005,7 @@ const styles = StyleSheet.create({
   categoriesRowWrap: {},
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.bg_dark,
   },
   featuredListingTop: {
     flexDirection: "row",
@@ -954,7 +1020,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.bg_dark,
   },
   listingSearchBtnContainer: {
-    marginLeft: 7,
+    marginRight: 7,
   },
   ListingSearchContainer: {
     flex: 1,
@@ -970,12 +1036,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     width: "100%",
     marginTop: -1,
-    paddingTop: 1,
+    paddingTop: 5,
     zIndex: 2,
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: screenWidth * 0.015,
-    paddingBottom: 10,
+    paddingBottom: 15,
   },
   locationWrap: {
     maxWidth: screenWidth * 0.25,
@@ -1013,8 +1079,7 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     borderRadius: 5,
-    borderWidth: 1,
-    borderColor: COLORS.white,
+    backgroundColor: COLORS.white,
     paddingVertical: 6,
     paddingHorizontal: 12,
     marginHorizontal: screenWidth * 0.015,

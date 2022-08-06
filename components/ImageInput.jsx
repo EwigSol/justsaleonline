@@ -13,7 +13,7 @@ import {
 
 // Expo Libraries
 import * as ImagePicker from "expo-image-picker";
-import { Ionicons } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 
 // Vector Icons
 import { FontAwesome } from "@expo/vector-icons";
@@ -23,6 +23,8 @@ import { COLORS } from "../variables/color";
 import AppTextButton from "./AppTextButton";
 import { useStateValue } from "../StateProvider";
 import { __ } from "../language/stringPicker";
+import CameraButtonIcon from "./svgComponents/CameraButtonIcon";
+import GalleryButtonIcon from "./svgComponents/GalleryButtonIcon";
 
 const { width: deviceWidth } = Dimensions.get("screen");
 
@@ -34,6 +36,7 @@ const ImageInput = ({
   addingImage,
   closePhotoModal,
   display,
+  index,
 }) => {
   const [{ appSettings }] = useStateValue();
   const [modalVisible, setModalVisible] = useState(false);
@@ -132,6 +135,11 @@ const ImageInput = ({
           )}
         </View>
       </TouchableWithoutFeedback>
+      {index === 0 && (
+        <TouchableOpacity style={styles.titleImgWrap} onPress={handleDelete}>
+          <Entypo name="check" size={12} color={COLORS.white} />
+        </TouchableOpacity>
+      )}
       {imageUri && (
         <TouchableOpacity style={styles.deleteImgWrap} onPress={handleDelete}>
           <View
@@ -139,7 +147,12 @@ const ImageInput = ({
           />
         </TouchableOpacity>
       )}
-      <Modal animationType="fade" transparent={true} visible={modalVisible}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        statusBarTranslucent
+      >
         <TouchableWithoutFeedback
           onPress={() => {
             setModalVisible((modalVisible) => !modalVisible);
@@ -160,10 +173,10 @@ const ImageInput = ({
                 style={styles.libraryWrap}
                 onPress={() => requestCameraParmission()}
               >
-                <FontAwesome
-                  name="camera-retro"
-                  size={40}
-                  color={COLORS.primary}
+                <CameraButtonIcon
+                  fillColor={COLORS.bg_primary}
+                  strokeColor={COLORS.primary}
+                  iconColor={COLORS.primary}
                 />
                 <Text style={styles.libraryText}>
                   {__("imageInputTexts.takePhoto", appSettings.lng)}
@@ -173,7 +186,11 @@ const ImageInput = ({
                 style={styles.libraryWrap}
                 onPress={() => requestGalleryParmission()}
               >
-                <Ionicons name="md-images" size={40} color={COLORS.primary} />
+                <GalleryButtonIcon
+                  fillColor="#EBF9FF"
+                  strokeColor="#2267ED"
+                  iconColor="#2267ED"
+                />
                 <Text style={styles.libraryText}>
                   {__("imageInputTexts.fromGallery", appSettings.lng)}
                 </Text>
@@ -186,6 +203,7 @@ const ImageInput = ({
                 setModalVisible((modalVisible) => !modalVisible);
                 closePhotoModal();
               }}
+              textStyle={{ color: COLORS.text_dark, fontWeight: "bold" }}
             />
           </View>
         </View>
@@ -208,7 +226,11 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   cancelButton: {
-    marginTop: 20,
+    marginTop: 10,
+    backgroundColor: "#e5e5e5",
+    paddingHorizontal: 15,
+    paddingVertical: 7,
+    borderRadius: 6,
   },
   centeredView: {
     flex: 1,
@@ -239,12 +261,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: COLORS.red,
   },
+  titleImgWrap: {
+    position: "absolute",
+    height: 18,
+    width: 18,
+    borderRadius: 9,
+    top: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.green,
+  },
   image: {
     height: "100%",
     width: "100%",
   },
   libraryText: {
-    fontSize: 16,
+    fontSize: 14.5,
     color: COLORS.text_gray,
     marginVertical: 10,
   },
@@ -258,29 +290,20 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "rgba(0,0,0,0.2)",
+    backgroundColor: "rgba(0,0,0,0.7)",
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "bold",
-    color: COLORS.text_gray,
-    marginBottom: 25,
+    color: COLORS.text_dark,
+    marginBottom: 15,
   },
   modalView: {
-    // margin: 20,
     backgroundColor: "white",
-    borderRadius: 5,
-    paddingVertical: 30,
-    paddingHorizontal: 15,
+    borderRadius: 12,
+    paddingVertical: 20,
+    paddingHorizontal: 25,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
 });
 

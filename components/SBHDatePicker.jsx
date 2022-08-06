@@ -45,7 +45,10 @@ const SBHDatePicker = ({ day, onSelectDate, value }) => {
   };
   return ios ? (
     <View style={styles.container}>
-      <Text style={[styles.text, rtlTextA]} onPress={showDatepicker}>
+      <Text
+        style={[{ color: COLORS.text_gray }, rtlTextA]}
+        onPress={showDatepicker}
+      >
         {value}
       </Text>
 

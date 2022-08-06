@@ -14,8 +14,8 @@ const AppTextButton = ({ title, style, textStyle, onPress, disabled }) => {
       <Text
         style={[
           styles.text,
-          textStyle,
           { color: disabled ? COLORS.button.disabled : COLORS.button.active },
+          textStyle,
         ]}
       >
         {title}

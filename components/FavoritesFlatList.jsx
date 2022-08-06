@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -13,19 +13,19 @@ import moment from "moment";
 
 // Vector Icons
 import { FontAwesome5 } from "@expo/vector-icons";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { FontAwesome } from "@expo/vector-icons";
 
 // Custom Components
 import { COLORS } from "../variables/color";
 import { getPrice, decodeString } from "../helper/helper";
 import { useStateValue } from "../StateProvider";
 import { __ } from "../language/stringPicker";
+import DeleteIcon from "./svgComponents/DeleteIcon";
 
 const favouritesItemfallbackImageUrl = "../assets/200X150.png";
 
 const FavoritesFlatList = ({ onDelete, item, onClick }) => {
   const [{ config, ios, appSettings, rtl_support }] = useStateValue();
+  const [badgeDim, setBadgeDim] = useState(0);
   const getTaxonomy = (data) => {
     if (data) {
       return decodeString(data);
@@ -46,110 +46,215 @@ const FavoritesFlatList = ({ onDelete, item, onClick }) => {
   const rtlView = rtl_support && {
     flexDirection: "row-reverse",
   };
-  return (
-    <View style={[styles.listAd, rtlView]}>
-      <TouchableWithoutFeedback onPress={onClick}>
-        <View style={styles.imageWrap}>
-          <Image
-            style={styles.image}
-            source={
-              item.images.length
-                ? {
-                    uri: getImageURL(),
-                  }
-                : require(favouritesItemfallbackImageUrl)
-            }
-          />
-        </View>
-      </TouchableWithoutFeedback>
-      <View style={[styles.details, rtlView]}>
-        <View
-          style={[
-            styles.detailsLeft,
-            {
-              paddingLeft: rtl_support ? 0 : 10,
-              paddingRight: rtl_support ? 10 : 0,
-            },
-          ]}
-        >
-          <TouchableWithoutFeedback onPress={onClick}>
-            <View style={{ flex: 1, justifyContent: "flex-start" }}>
-              <View
-                style={{ alignItems: rtl_support ? "flex-end" : "flex-start" }}
-              >
-                <Text
-                  style={[styles.title, { marginBottom: ios ? 3 : 2 }]}
-                  numberOfLines={1}
-                >
-                  {getTaxonomy(item.title)}
-                </Text>
-              </View>
+  const handleHeaderLayout = (e) => {
+    setBadgeDim(e.nativeEvent.layout);
+  };
 
-              <View style={[styles.detailsLeftRow, rtlView]}>
-                <View
-                  style={[
-                    styles.iconWrap,
-                    {
-                      paddingRight: rtl_support ? 0 : 5,
-                      paddingLeft: rtl_support ? 5 : 0,
-                    },
-                  ]}
-                >
-                  <MaterialCommunityIcons
-                    name="clock"
-                    size={12}
-                    color={COLORS.text_gray}
-                  />
-                </View>
-                <Text style={[styles.detailsLeftRowText, rtlTextA]}>
-                  {moment(item.created_at).fromNow()}
+  return (
+    <View style={[styles.listAd]}>
+      <View
+        style={[
+          {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            overflow: "hidden",
+            padding: "3%",
+            overflow: "hidden",
+          },
+          rtlView,
+        ]}
+      >
+        {item?.badges?.includes("is-sold") && !rtl_support && (
+          <>
+            {badgeDim ? (
+              <View
+                style={{
+                  position: "absolute",
+                  zIndex: 1,
+                  backgroundColor: COLORS.primary,
+                  paddingHorizontal: 50,
+                  paddingVertical: ios ? 4 : 2,
+                  right: -50,
+                  top: (badgeDim.width - 100) / 2 - badgeDim.height / 2 || 0,
+                  transform: [{ rotate: "45deg" }],
+                }}
+              >
+                <Text style={styles.soldOutText}>
+                  {__("listingCardTexts.soldOutBadgeMessage", appSettings.lng)}
                 </Text>
               </View>
-              <View style={[styles.detailsLeftRow, rtlView]}>
-                <View
-                  style={[
-                    styles.iconWrap,
-                    {
-                      paddingRight: rtl_support ? 0 : 5,
-                      paddingLeft: rtl_support ? 5 : 0,
-                    },
-                  ]}
-                >
-                  <FontAwesome5 name="eye" size={12} color={COLORS.text_gray} />
-                </View>
-                <Text style={[styles.detailsLeftRowText, rtlTextA]}>
-                  {__("favouritesItemTexts.viewsText", appSettings.lng)}{" "}
-                  {item.view_count}
+            ) : (
+              <View
+                onLayout={(event) => handleHeaderLayout(event)}
+                style={{
+                  position: "absolute",
+                  zIndex: 1,
+                  backgroundColor: COLORS.primary,
+                  paddingVertical: ios ? 3 : 1.5,
+                  paddingHorizontal: 50,
+                  right: -48,
+                  top: 18,
+                  transform: [{ rotate: "45deg" }],
+                }}
+              >
+                <Text style={styles.soldOutText}>
+                  {__("listingCardTexts.soldOutBadgeMessage", appSettings.lng)}
                 </Text>
               </View>
-              <View style={[styles.detailsLeftRow, rtlView]}>
-                <Text style={styles.price} numberOfLines={1}>
-                  {getPrice(
-                    config.currency,
-                    {
-                      pricing_type: item.pricing_type,
-                      price_type: item.price_type,
-                      price: item.price,
-                      max_price: item.max_price,
-                    },
-                    appSettings.lng
-                  )}
+            )}
+          </>
+        )}
+        {item?.badges?.includes("is-sold") && rtl_support && (
+          <>
+            {badgeDim ? (
+              <View
+                style={{
+                  position: "absolute",
+                  zIndex: 1,
+                  backgroundColor: COLORS.primary,
+                  paddingHorizontal: 50,
+                  paddingVertical: ios ? 4 : 2,
+                  right: -50,
+                  top: (badgeDim.width - 100) / 2 - badgeDim.height / 2 || 0,
+                  transform: [{ rotate: "-45deg" }],
+                }}
+              >
+                <Text style={styles.soldOutText}>
+                  {__("listingCardTexts.soldOutBadgeMessage", appSettings.lng)}
                 </Text>
               </View>
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-        <View style={styles.detailsRight}>
+            ) : (
+              <View
+                onLayout={(event) => handleHeaderLayout(event)}
+                style={{
+                  position: "absolute",
+                  zIndex: 1,
+                  backgroundColor: COLORS.primary,
+                  paddingVertical: ios ? 3 : 1.5,
+                  paddingHorizontal: 50,
+                  right: -48,
+                  top: 18,
+                  transform: [{ rotate: "-45deg" }],
+                }}
+              >
+                <Text style={styles.soldOutText}>
+                  {__("listingCardTexts.soldOutBadgeMessage", appSettings.lng)}
+                </Text>
+              </View>
+            )}
+          </>
+        )}
+        <TouchableWithoutFeedback onPress={onClick}>
+          <View style={styles.imageWrap}>
+            <Image
+              style={styles.image}
+              source={
+                item.images.length
+                  ? {
+                      uri: getImageURL(),
+                    }
+                  : require(favouritesItemfallbackImageUrl)
+              }
+            />
+          </View>
+        </TouchableWithoutFeedback>
+        <View style={[styles.details, rtlView]}>
           <View
-            style={{
-              flex: 1,
-              alignItems: "flex-end",
-              justifyContent: "space-between",
-            }}
+            style={[
+              styles.detailsLeft,
+              {
+                paddingLeft: rtl_support ? 0 : 10,
+                paddingRight: rtl_support ? 10 : 0,
+              },
+            ]}
           >
-            <TouchableOpacity style={styles.iconButton} onPress={onDelete}>
-              <FontAwesome name="trash-o" size={20} color={COLORS.red} />
-            </TouchableOpacity>
+            <TouchableWithoutFeedback onPress={onClick}>
+              <View style={{ flex: 1, justifyContent: "flex-start" }}>
+                <View
+                  style={{
+                    alignItems: rtl_support ? "flex-end" : "flex-start",
+                  }}
+                >
+                  <Text
+                    style={[styles.title, { marginBottom: ios ? 3 : 2 }]}
+                    numberOfLines={2}
+                  >
+                    {getTaxonomy(item.title)}
+                  </Text>
+                </View>
+
+                <View style={[styles.detailsLeftRow, rtlView]}>
+                  <View
+                    style={[
+                      styles.iconWrap,
+                      {
+                        paddingRight: rtl_support ? 0 : 5,
+                        paddingLeft: rtl_support ? 5 : 0,
+                      },
+                    ]}
+                  >
+                    <FontAwesome5
+                      name="clock"
+                      size={12}
+                      color={COLORS.text_gray}
+                    />
+                  </View>
+                  <Text style={[styles.detailsLeftRowText, rtlTextA]}>
+                    {moment(item.created_at).fromNow()}
+                  </Text>
+                </View>
+                <View style={[styles.detailsLeftRow, rtlView]}>
+                  <View
+                    style={[
+                      styles.iconWrap,
+                      {
+                        paddingRight: rtl_support ? 0 : 5,
+                        paddingLeft: rtl_support ? 5 : 0,
+                      },
+                    ]}
+                  >
+                    <FontAwesome5
+                      name="eye"
+                      size={12}
+                      color={COLORS.text_gray}
+                    />
+                  </View>
+                  <Text style={[styles.detailsLeftRowText, rtlTextA]}>
+                    {__("favouritesItemTexts.viewsText", appSettings.lng)}{" "}
+                    {item.view_count}
+                  </Text>
+                </View>
+                <View style={[styles.detailsLeftRow, rtlView]}>
+                  <Text style={styles.price} numberOfLines={1}>
+                    {getPrice(
+                      config.currency,
+                      {
+                        pricing_type: item.pricing_type,
+                        price_type: item.price_type,
+                        price: item.price,
+                        max_price: item.max_price,
+                      },
+                      appSettings.lng
+                    )}
+                  </Text>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+          <View style={styles.detailsRight}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "flex-end",
+              }}
+            >
+              <TouchableOpacity style={styles.iconButton} onPress={onDelete}>
+                <View style={styles.dltIconWrap}>
+                  <DeleteIcon fillColor={COLORS.primary} />
+                </View>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
@@ -170,6 +275,15 @@ const styles = StyleSheet.create({
   },
   buttonWrap: {
     alignItems: "center",
+  },
+  dltIcon: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+  dltIconWrap: {
+    width: 15,
+    height: 15,
   },
   details: {
     flexDirection: "row",
@@ -194,8 +308,10 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   iconButton: {
-    flex: 1,
-    alignItems: "flex-end",
+    padding: 5,
+    borderRadius: 3,
+    backgroundColor: COLORS.bg_primary,
+    zIndex: 2,
   },
   iconWrap: {
     width: 20,
@@ -203,7 +319,7 @@ const styles = StyleSheet.create({
   },
   image: {
     height: 80,
-    width: "100%",
+    width: 80,
     resizeMode: "cover",
   },
   imageWrap: {
@@ -212,7 +328,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 5,
     height: 80,
-    // width: 70,
+    width: 80,
     overflow: "hidden",
   },
   price: {
@@ -220,16 +336,31 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   listAd: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: COLORS.bg_light,
-    padding: "3%",
-    alignItems: "center",
+    // width: "100%",
+    // flexDirection: "row",
+    // justifyContent: "space-between",
+    // alignItems: "center",
+    // overflow: "hidden",
+    backgroundColor: COLORS.white,
+    // padding: "3%",
     borderWidth: 1,
     borderColor: COLORS.bg_dark,
     borderRadius: 5,
     marginVertical: 5,
+    marginHorizontal: "3%",
+    elevation: 2,
+    shadowColor: COLORS.black,
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+  },
+  soldOutText: {
+    fontSize: 11.5,
+    color: COLORS.white,
+    fontWeight: "bold",
   },
   title: {
     fontWeight: "bold",

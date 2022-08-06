@@ -22,7 +22,22 @@ const FAQ = ({ isLast, item }) => {
   };
   return (
     <TouchableWithoutFeedback onPress={() => setFaqToggle(!faqToggle)}>
-      <View style={styles.container}>
+      <View
+        style={{
+          paddingVertical: 10,
+          marginVertical: 5,
+          backgroundColor: COLORS.white,
+          borderRadius: 5,
+          elevation: 1,
+          shadowColor: COLORS.text_light,
+          shadowOffset: {
+            height: 1,
+            window: 1,
+          },
+          shadowOpacity: 0.1,
+          shadowRadius: 1,
+        }}
+      >
         <View style={[styles.faqHeader, rtlView]}>
           <View style={styles.questionWrap}>
             <Text
@@ -51,9 +66,6 @@ const FAQ = ({ isLast, item }) => {
             {item.answer}
           </Text>
         </View>
-        {isLast === false && (
-          <AppSeparator style={{ width: "100%", marginVertical: 15 }} />
-        )}
       </View>
     </TouchableWithoutFeedback>
   );

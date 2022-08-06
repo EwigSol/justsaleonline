@@ -47,7 +47,9 @@ const Badge = ({ badgeName, badgeStyle, badgeTextStyle, type }) => {
             badgeStyle,
           ]}
         >
-          <Text style={[badgeTextStyle, rtlText]}>{displayName}</Text>
+          <Text style={[badgeTextStyle, rtlText]} numberOfLines={1}>
+            {displayName}
+          </Text>
         </View>
       );
     }

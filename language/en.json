@@ -15,29 +15,29 @@
     "moreScreen": "More Options",
     "myProfileScreen": "My Profile",
     "editPersonalDetailScreen": "Edit Personal Detail",
-    "aboutAppScreen": "Just Sale Online",
+    "aboutAppScreen": "Classima",
     "tNCScreen": "Terms & Conditions",
     "privacyPolicyScreen": "Privacy Policy",
-    "thirdPartyLicensesScreen": "",
     "editListingScreen": "Edit Listing",
     "selectLocationScreen": "Select Location",
     "sendEmailScreen": "Send Email",
     "selectCategoryScreen": "Select Category",
     "storeDetailsScreen": "Store Details",
-    "storeMoreDetailsScreen": "More Details",
     "allStores": "All Stores",
     "myStoreScreen": "My Store",
     "membershipsScreen": "Membership Packages",
     "paymentMethodScreen": "Payment Detail",
     "promoteScreen": "Promote Listing",
     "paymentsScreen": "Payments",
-    "paymentDetailScreen": "Payment Detail"
+    "paymentDetailScreen": "Payment Detail",
+    "forgotPassScreen": "Forgot Password",
+    "oTPScreen": "OTP Verification",
+    "documentsScreen": "My Documents"
   },
 
   "adMobTexts": {
     "okButton": "OK",
-    "appDisabledAlert": "This app delivers you ads using google AdMob. You need to enable tracking permission in order to use this app. Go to permission settings and allow tracking for this app",
-    "appDisabledText": "You can not use this app without viewing Ads. To use this app, please go to settings and enable tracking permission for this app"
+    "appDisabledAlert": "This app delivers you ads using google AdMob. You need to enable tracking permission in order to get personalised ads. Go to permission settings and allow tracking for this app if you want to enable personalised ads."
   },
 
   "weekDayNames": {
@@ -59,6 +59,7 @@
   "tabTitles": {
     "home": "Home",
     "search": "Search",
+    "newListing": "Post Ad",
     "chatList": "Chats",
     "account": "Account"
   },
@@ -68,7 +69,15 @@
   "accountScreenTexts": {
     "loginButtonText": "Log in / Sign up",
     "logOutButtonText": "Log out",
-    "successMessage": "SuccessFully logged out"
+    "successMessage": "SuccessFully logged out",
+    "loginTitle": "You must login to continue",
+    "deleteAccountBtn": "Delete Account",
+    "deleteAccountPrompt": "Do you want to delete your account?",
+    "okBtnTitle": "Ok",
+    "deleteAccountMessageTitle": "Warning!",
+    "deleteAccountMessage": "Are you sure you want to delete your account? This action can not be undone.",
+    "cancelBtnTitle": "Cancel",
+    "confirmBtnTitle": "Conform Delete Action"
   },
 
   "settingsScreenTexts": {
@@ -94,6 +103,16 @@
     "loadingText": "Getting store data",
     "noShopText": "Sorry, No shop has been registered yet.",
     "storeAdCount": "ads"
+  },
+
+  "forgotScreenTexts": {
+    "title": "Email Address",
+    "message": "Enter your email address to reset password.",
+    "placeholder": "Username / Email Address",
+    "buttonTitle": "Continue",
+
+    "passwordReset": "You will receive an email with a link to reset your password.",
+    "resetSuccessMessage": "A Link to reset your password was sent to your email"
   },
 
   "chatListScreenTexts": {
@@ -209,7 +228,7 @@
   "editPersonalDetailScreenTexts": {
     "screenTitle": "Personal Detail",
     "changePhotoButtonTitle": "Change Photo",
-    "updateDetailsButtonTitle": "Update Detail",
+    "updateDetailsButtonTitle": "Save Information",
     "passwordToggleText": "Change Password",
     "passwordNotSameMessage": "Password didn't match",
     "successText": "Successfully updated",
@@ -248,8 +267,8 @@
     "removePromptMessage": "Do You want to remove this ad from your favorites?",
     "cancelButtonTitle": "Cancel",
     "removeButtonTitle": "Remove",
-    "noFavoriteMessage": "Currently you don't have any favorite ad!",
-    "postAdButtonTitle": "Post an ad now!",
+    "noFavoriteMessage": "You don’t have any ads in your favorites yet.",
+    "exploreTitle": "See All Ads",
     "loadingMessage": "Getting favorite listings",
     "favRemoveSuccessMessage": "Successfully removed",
     "favRemoveErrorCustomMessage": "Error! Please try again",
@@ -258,13 +277,14 @@
   },
 
   "homeScreenTexts": {
-    "seAllButtonText": "See all",
+    "selectCatBtn": "Change",
+    "seAllButtonText": "View All Categories",
     "loadingMessage": "Getting listings from server",
     "listingSearchPlaceholder": "Search...",
-    "noListingsMessage": "Sorry No Listings were found.",
+    "noListingsMessage": "Sorry...No Listings were found.",
     "selectLocationText": "Location",
     "latestAdsText": "Latest Ads",
-    "topCategoriesText": "Top Categories",
+    "topCategoriesText": "Categories",
     "requestTimedOut": "Request Timed Out!"
   },
 
@@ -340,23 +360,22 @@
     "reviewNotice": "Your review has been successfully submitted. Once it gets approved, it'll be shown with the other reviews.",
     "reviewApproved": "Review was successful.",
     "postTimePrefix": "Posted on ",
-    "deletedValue": "[Value removed by admin]"
+    "deletedValue": "[Value removed by admin]",
+    "seeAllAds": "See All Ads",
+    "verified": "Verified Seller"
   },
 
   "loginScreenTexts": {
-    "signUpPrompt": "Don't have an account?",
-    "loginTitle": "Log in to your account",
+    "signUpPrompt": "Don't have account?",
+    "loginTitle": "Sign In",
     "formFieldsPlaceholder": {
       "username": "Username / Email",
       "password": "Password"
     },
-    "forgotPassword": "Forgot your password?",
-    "passwordReset": "You will receive an email with a link to reset your password.",
+    "forgotPassword": "Forgot password?",
     "cancelButtonTitle": "Cancel",
-    "passwordResetButton": "Send me a link",
-    "resetSuccessMessage": "A Link to reset your password was sent to your email",
-    "signUpButtonTitle": "Sign up now",
-    "loginButtonTitle": "Login",
+    "signUpButtonTitle": "Create Account",
+    "loginButtonTitle": "Sign In",
     "loginSuccessMessage": "Successfully loged in",
     "formFieldsLabel": {
       "username": "Username",
@@ -369,14 +388,30 @@
     },
     "customResponseError": "Server error",
     "socialButtonTitle": {
-      "facebook": "Login with Facebook",
-      "google": "Login with Google"
+      "facebook": "Facebook",
+      "google": "Google"
     },
-    "pleaseWaitText": "Please Wait!"
+    "pleaseWaitText": "Please Wait!",
+    "socialLoginText": "Or Login With"
   },
 
   "membershipsScreenTexts": {
     "makePayment": "Make Payment"
+  },
+
+  "oTPScreenText": {
+    "phoneInputTitle": "Enter Phone Number",
+    "oTPInputTitle": "Enter OTP",
+    "phoneInputPlaceHolder": "Phone number",
+    "getOTPButtonTitle": "Send OTP",
+    "verifyBtnTitle": "Verify",
+    "retryBtnTitle": "Resend Otp",
+    "successTitle": "Verification Successful",
+    "errorTitle": "Verification Failed",
+    "successMessage": "Phone number is successfully verified.",
+    "errorMessage": "Error verifying OTP",
+    "okBtnTitle": "Ok",
+    "signUpBtnTitle": "Complete Sign Up"
   },
 
   "myListingsScreenTexts": {
@@ -405,14 +440,14 @@
       "unsold": "Mark as unsold"
     },
 
-    "promoteLink": "https://justsaleonline.com/",
+    "promoteLink": "https://radiustheme.com/",
     "customServerErrorMessage": "Error gettion data from server.",
     "noInternet": "No Internet"
   },
 
   "myMembershipScreenTexts": {
     "title": "Become our member!",
-    "membershipText": "Membership gives your business a voice and presence on our platform to reach more customers,increase your sales and expand your business! Memberships unlock powerful tools like sales analytics, a dedicated business page and discounted ad promotions.",
+    "membershipText": "Membership gives your business a voice and presence on our platform to reach more customers,increase your sales and expand your business!",
     "emailLabel": "Email : ",
     "membershipDetailHeader": "Membership Report",
     "membershipStatusLabel": "Status : ",
@@ -435,14 +470,19 @@
     "loadingMessage": "Getting user information",
     "customResponseError": "Error getting data from server",
     "profileInfoLabels": {
-      "name": "Name",
-      "email": "Email",
-      "phone": "Phone",
+      "name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
       "whatsapp": "Whatsapp",
-      "address": "Address",
+      "address": "Location",
       "website": "Website"
     },
-    "noInternet": "No Internet"
+    "noInternet": "No Internet",
+    "screenTitle": "Personal Information",
+    "infoSectionTitle": "Personal Information",
+    "editButtonTitle": "Edit Information",
+    "verifyBtnTitle": "Verify",
+    "addPhoneBtnTitle": "Add Phone Number"
   },
 
   "myStoreTexts": {
@@ -536,7 +576,11 @@
     "membershipButtonTitle": "Membership",
     "notLoggedIn": "You're not logged in",
     "loginOrSignUp": "Please log in or sign up to create a post",
-    "loginOrSignUpButtonTitle": "Log in / Sign up"
+    "loginOrSignUpButtonTitle": "Log in / Sign up",
+    "unverifiedTitle": "Unverified Account!",
+    "unverifiedAccountWithoutPhoneNumber": "Please verify your account using phone number.",
+    "unverifiedAccountWithPhoneNumber": "Please verify your phone number.",
+    "verifyBtnTitle": "Verify"
   },
 
   "reportScreenTexts": {
@@ -570,7 +614,7 @@
     "locationPermissionAlert": "You need to enable location permission to use this feature",
     "location": "Location",
     "category": "Category",
-    "allCategories": "All Categories",
+    "allCategories": "Categories",
     "filterTitle": "Filters",
     "filterLabels": {
       "sortBy": "Sort by",
@@ -591,7 +635,7 @@
     "showAllofCategory": "Show all of",
     "showAll": "Show all",
     "selectSubCategory": "Select Sub-Category",
-    "allCategory": "All Category"
+    "allCategory": "Categories"
   },
 
   "selectLocationScreenTexts": {
@@ -631,12 +675,13 @@
   },
 
   "signUpScreenTexts": {
+    "title": "Sign Up",
     "formFieldLabels": {
       "first_name": "First Name",
       "last_name": "Last Name",
       "username": "Username",
       "phone": "Phone Number",
-      "email": "Email",
+      "email": "Email Address",
       "password": "Password"
     },
     "formValidation": {
@@ -660,7 +705,9 @@
       "timeoutError": "Request Timed out",
       "serverError": "Server error"
     },
-    "signUpButtonTitle": "Sign Up"
+    "signUpButtonTitle": "Sign Up",
+    "signInButtonTitle": "Sign In",
+    "signinMessage": "Already have an account?"
   },
 
   "promoteScreenTexts": {
@@ -713,7 +760,8 @@
     "paymentProcessing": "Payment Processing",
     "goToAccountButton": "Go Back to Account",
     "invalidCardMessage": "Please enter valid card info.",
-    "paymentVerifying": "Verifying Payment."
+    "paymentVerifying": "Verifying Payment.",
+    "orderSuccess": "Order was successful!"
   },
 
   "paymentsScreenTexts": {
@@ -727,7 +775,8 @@
   "paymentDetailScreen": {
     "errorNotice": "Error occured while getting payment data!",
     "originalErrorLabel": "Original Error :",
-    "features": "Features"
+    "features": "Features",
+    "invoiceNo": "Invoice No:"
   },
 
   "storeDetailsTexts": {
@@ -740,8 +789,8 @@
     "goBackButtonTitle": "Go back",
     "membership": "Member Since",
     "membershipMomentFormate": "MMM Do YYYY",
-    "openingHourOpen": "Today Open",
-    "openingHourClose": "Today Closed",
+    "openingHourOpen": "Open",
+    "openingHourClose": "Closed",
     "viewMoreButtonText": "View More About This Store",
     "latestAds": "Latest Ads",
     "cancelButtonTitle": "Cancel",
@@ -750,12 +799,12 @@
     "loginButtonTitle": "Login",
     "loginAlert": "Please login to send mail to store",
     "fullDayOpen": "Full Day Open",
-    "closed": "Closed today",
-    "openDayStarting": "Open Today from ",
-    "openDayClosing": " To ",
+    "closed": "Closed",
+
     "messageToStoreOwner": "Message",
     "viewMore": "View More About This Store",
-    "callPrompt": "Call this store?"
+    "callPrompt": "Call this store?",
+    "verified": "Verified Seller"
   },
 
   "storeMoreDetailTexts": {
@@ -774,6 +823,38 @@
     "fullDayOpen": "Full Day Open",
     "messageToStoreOwner": "Message",
     "callPrompt": "Call this store?"
+  },
+
+  "myDocScreenTexts": {
+    "titles": {
+      "photoId": "Photo Id",
+      "otherDoc": "Other Document"
+    },
+    "notes": {
+      "photoId": {
+        "maxSize": "Maximum file size ",
+        "types": "Allowed image types "
+      },
+      "otherDoc": {
+        "maxSize": "Maximum file size is 5MB.",
+        "types": "Allowed file types : pdf."
+      }
+    },
+    "errorMsg": {
+      "photoId": {
+        "maxSize": "Maximum allowed file size ",
+        "types": "Allowed image types are "
+      },
+      "otherDoc": {
+        "maxSize": "Maximum allowable file size is 5MB.",
+        "types": "Only pdf files are allowed."
+      }
+    },
+    "buttons": {
+      "upload": "Upload File",
+      "download": "Download File",
+      "change": "Change File"
+    }
   },
 
   "datePickerTexts": {
@@ -850,13 +931,16 @@
     "emailLabel": "Email",
     "websiteLabel": "Website",
     "nameLabel": "Name",
-    "imagesLabel": "Images",
+    "imagesLabel": "Attach Image",
     "maxImageCount": "You can upload up to ",
     "images": " images.",
-    "dragSortText": "Long press to drag and sort images.",
+    "dragSortText": "First picture is the title picture. Long press to drag and sort images.",
     "uploadingNoticeText": "This may take a while depending on the speed of your internet connection...",
     "uploadErrorNoticeText": "Error uploading! Please try again.",
-    "submitButtonTitle": "SUBMIT",
+    "submitButtonTitle": "Submit Now",
+    "successTitle": "Congratulation!",
+    "successMessage": "Your ad was posted successfully",
+    "goBackBtnTitle": "Go back",
     "socialProfileTitle": "Social Profiles",
     "tryAgainButtonTitle": "Try again",
     "mapToggleTitle": "Don't show the map.",
@@ -872,11 +956,13 @@
     "timeSlotEndTitle": "End",
     "specialHoursToggleTitle": "Special Hours - overrides",
     "specialHoursToggleNote": "Define your weekly opening hours to override",
+    "geoAddressPlaceholder": "Search Address",
     "formValidation": {
       "requiredField": "is required.",
       "minimumLength5": "must be at least 5 characters.",
       "minimumLength3": "must be at least 3 characters.",
-      "validEmail": "Must be a valid email."
+      "validEmail": "Must be a valid email.",
+      "geoAddressRequired": "This field is required"
     }
   },
 
@@ -929,10 +1015,6 @@
       "id": "my_store"
     },
     {
-      "title": "All Stores",
-      "id": "all_stores"
-    },
-    {
       "title": "My Profile",
       "id": "my_profile"
     },
@@ -941,20 +1023,16 @@
       "id": "payments"
     },
     {
-      "title": "FAQ",
-      "id": "faq"
-    },
-    {
-      "title": "How to sell fast",
-      "id": "how_to_sell_fast"
-    },
-    {
-      "title": "More",
-      "id": "more"
+      "title": "My Documents",
+      "id": "my_documents"
     }
   ],
 
-  "options_no_user": [
+  "options_drawer": [
+    {
+      "title": "All Stores",
+      "id": "all_stores"
+    },
     {
       "title": "FAQ",
       "id": "faq"
@@ -964,8 +1042,24 @@
       "id": "how_to_sell_fast"
     },
     {
-      "title": "More",
-      "id": "more"
+      "title": "About Us",
+      "id": "about"
+    },
+    {
+      "title": "Privacy Policy",
+      "id": "pp"
+    },
+    {
+      "title": "Terms & Conditions",
+      "id": "tnc"
+    },
+    {
+      "title": "Contact Us",
+      "id": "contact"
+    },
+    {
+      "title": "App Settings",
+      "id": "settings"
     }
   ],
 
@@ -973,14 +1067,14 @@
     "paras": [
       {
         "paraTitle": "",
-        "paraDetail": "JustSaleOnline.com is your perfect online classified marketplace in Nigeria to buy , sell and exchange. JustSaleOnline.com is your perfect online classified marketplace in Nigeria to buy , sell and exchange. It is designed to give every Nigerian access to sell both their new products or used unwanted items in their closets or in their homes or business places.\n We're Nigeria's fastest growing super app to buy and sell locally. Thousands of classified and commercial Ads for free, you can search and filter in many ways to easily reach ads of your interest only and you can post your Ads in only few clicks adding as many details as you feel enough to properly represent and promote your commodity/service, and then select the communication channel(s) you prefer to close deals with.",
+        "paraDetail": "Classima app is the demo Android app for Classima – Classified ads WordPress Theme. Using this app you can access to the most incredible classified marketplace in country, where you can buy, search, and sell many different products on the go. Classima doesn’t limit you in terms of the goods that you can buy or sell. It allows you to sell motorcycles, vehicles, electronics, and so much more. What’s more, if you’re interested in selling, buying, or renting a property, or posting or searching for a job within the country or overseas, you can find it all on Classima.\n\nExplore listings in categories like:",
         "paraType": "para"
       },
       {
-        "paraTitle": "What We Do",
+        "paraTitle": "Electronics",
         "paraDetail": [
-          "Shops and Malls are no longer enough convenient for buyers and sellers, therefore Justsaleonline classified is your market square where you can buy,sell and even exchange with another persons wanting to exchange their wares with what you have,Why trash your unwanted items when you can get some cash from them or swap them for other items of your interest. From Pre-Own cars, furniture, vintage clothes, electronics, phones, games, apartment to rent or buy and many more, it's just safe and easy using Nigeria market square- Justsaleonline.com.",
-          "JustSaleOnline Nigeria is empowering tens of thousands of seller in Nigeria to connect with millions of customers across the country and within west Africa. JustSaleOnline.Com is a Mall,Shops,Market Square and a community of business owners and consumers in your pocket with over 5 million products listed yearly.  Don't Trash It ! Sell It !!"
+          "You can sell and buy new and used electronics, such as cameras, television sets, tablets, phones, laptops, video games, lighting equipment, audio gear, gaming consoles, etc.",
+          "You can compare the prices of similar products and find accessories, such as phone casings and adapters."
         ],
         "paraType": "bullets"
       },
@@ -988,7 +1082,7 @@
         "paraTitle": "Vehicles and Motorcycles",
         "paraDetail": [
           "You can sell and buy new and used buses, vans, scooters, motorcycles, boats, and heavy-duty vehicles.",
-          "Justsaleonline allows you to compare the prices of all vehicle brands, including Honda, Hyundai, Mitsubishi, Toyota, Mazda, Nissan, and Kia, etc",
+          "Classima allows you to compare the prices of all vehicle brands, including Honda, Hyundai, Mitsubishi, Toyota, Mazda, Nissan, and Kia, etc",
           "Getting to the listings you want is easy since you can filter your search by price range, mileage, model year, brand, condition, etc.",
           "You can shop for parts and accessories for your vehicle too."
         ],
@@ -997,7 +1091,7 @@
       {
         "paraTitle": "Property",
         "paraDetail": [
-          "Just Sale Online allows you to sell, buy, and rent property easily.",
+          "Classima allows you to sell, buy, and rent property easily.",
           "You can search for land, commercial property, houses, flats, and apartments while filtering your search by location, price, condition, etc.",
           "You can compare the prices of similar property listings easily."
         ],
@@ -1006,16 +1100,21 @@
 
       {
         "paraTitle": "With Clasima, you can:",
-        "paraDetail": "Browse thousands of local ads with Just Sale Online – an easy-to-use mobile app. You can do your search by the listing location, category, and keywords, so you can find precisely what you want. Buyers get to communicate with sellers and make deals to purchase listings easily. Buyers can save the listings they want to buy later to view later.\n\nYou can promote your ads using Bump Up and Top Ads to get them to sell faster. You can find all categories that you want right inside Just Sale Online. Posting and managing ads is easy right from your phone. Just Sale Online consumes very little data.\n\nYou can download the free app right now and have the marketplace in your palm.\n\nWelcome!",
+        "paraDetail": "Browse thousands of local ads with Classima – an easy-to-use mobile app. You can do your search by the listing location, category, and keywords, so you can find precisely what you want. Buyers get to communicate with sellers and make deals to purchase listings easily. Buyers can save the listings they want to buy later to view later.\n\nYou can promote your ads using Bump Up and Top Ads to get them to sell faster. You can find all categories that you want right inside Classima. Posting and managing ads is easy right from your phone. Classima consumes very little data.\n\nYou can download the free app right now and have the marketplace in your palm.\n\nWelcome!",
         "paraType": "para"
       }
     ],
-    "link": "https://preview.themeforest.net/item/Just Sale Online-classified-ads-wordpress-theme/full_screen_preview/24494997",
+    "link": "https://preview.themeforest.net/item/classima-classified-ads-wordpress-theme/full_screen_preview/24494997",
     "linkedPara": [
-      "Are you curious about Just Sale Online? Check out the features of the ",
-      "Just Sale Online Pro plugin",
-      " Just Sale Online – Classified ads WordPress Theme."
+      "Are you curious about Classima? Check out the features of the ",
+      "Classima Pro plugin",
+      " Classima – Classified ads WordPress Theme."
     ]
+  },
+
+  "drawerScreenTexts": {
+    "copyrightText": "2022© All right reserved by",
+    "linkText": "RadiusTheme"
   },
 
   "frequentlyAskedQuestions": [
@@ -1080,7 +1179,7 @@
     },
     {
       "title": "About This App",
-      "detail": "Just Sale Online is an online platform where you can buy and sell almost everything. The best deals are often done with people who lives nearby. It's a place where you can get everything",
+      "detail": "Classima is an online platform where you can buy and sell almost everything. The best deals are often done with people who lives nearby. It's a place where you can get everything",
       "id": "about_us"
     },
     {
@@ -1090,7 +1189,7 @@
     },
     {
       "title": "Privacy Policy",
-      "detail": "justsaleonline.com – the Just Sale Online mobile application creators – prioritizes and values the security and privacy of the information you share with us through our Just Sale Online. We intend to make our users as comfortable using our app as possible. If you are to trust us with your information, you must understand how we collect, use, and maintain it.\n\nWhen you are about to acquire Classim, you'll need to register with us. The registration gives us your First and Last Name and Email Address.",
+      "detail": "RadiusTheme.com – the Classima mobile application creators – prioritizes and values the security and privacy of the information you share with us through our Classima. We intend to make our users as comfortable using our app as possible. If you are to trust us with your information, you must understand how we collect, use, and maintain it.\n\nWhen you are about to acquire Classim, you'll need to register with us. The registration gives us your First and Last Name and Email Address.",
       "id": "pp"
     }
   ],
@@ -1099,7 +1198,7 @@
     "paras": [
       {
         "paraTitle": "",
-        "paraDetail": "justsaleonline.com – the Just Sale Online mobile application creators – prioritizes and values the security and privacy of the information you share with us through our Just Sale Online. We intend to make our users as comfortable using our app as possible. If you are to trust us with your information, you must understand how we collect, use, and maintain it.\n\nWhen you are about to acquire Just Sale Online, you'll need to register with us. The registration gives us your First and Last Name and Email Address.",
+        "paraDetail": "RadiusTheme.com – the Classima mobile application creators – prioritizes and values the security and privacy of the information you share with us through our Classima. We intend to make our users as comfortable using our app as possible. If you are to trust us with your information, you must understand how we collect, use, and maintain it.\n\nWhen you are about to acquire Classima, you'll need to register with us. The registration gives us your First and Last Name and Email Address.",
         "paraType": "para"
       },
       {
@@ -1114,17 +1213,17 @@
       },
       {
         "paraTitle": "Non-Personal Information:",
-        "paraDetail": "When you download Just Sale Online, the same payment gateway collects your IP address and geo-location information.",
+        "paraDetail": "When you download Classima, the same payment gateway collects your IP address and geo-location information.",
         "paraType": "para"
       },
       {
         "paraTitle": "Support System Emails:",
-        "paraDetail": "When we offer support for our Just Sale Online application, we don't store your email address even when you email us for support. We use the Freshdesk support system, which supports email communications and stores our users' usernames and email addresses. However, if necessary, we can import/ export the data.",
+        "paraDetail": "When we offer support for our Classima application, we don't store your email address even when you email us for support. We use the Freshdesk support system, which supports email communications and stores our users' usernames and email addresses. However, if necessary, we can import/ export the data.",
         "paraType": "para"
       },
       {
         "paraTitle": "Why Is User Information Collected?",
-        "paraDetail": "If you have a website and need to use Just Sale Online, you'll need to register with us, upon which we'll collect your personal information. This registration effectively makes you our customer and can download items from our site.",
+        "paraDetail": "If you have a website and need to use Classima, you'll need to register with us, upon which we'll collect your personal information. This registration effectively makes you our customer and can download items from our site.",
         "paraType": "para"
       },
       {
@@ -1154,17 +1253,17 @@
       },
       {
         "paraTitle": "Our Security Procedures Against Data Breaches:",
-        "paraDetail": "We value the trust you've placed in us by giving us your personal information. Therefore, we employ industry-standard security means and technologies to protect your personal information from unauthorized disclosure, access, or use. Please don't disclose your registration password and username to unauthorized people to help us protect your privacy.\n\nEven though no internet transmission method or electronic storage procedure is 100% watertight, RadiusTheme and Just Sale Online leaves nothing to chance in efforts to protect your personal information.\n\nIn case your information is accessed by unauthorized people or is lost, we'll inform you as soon as we become aware of this.",
+        "paraDetail": "We value the trust you've placed in us by giving us your personal information. Therefore, we employ industry-standard security means and technologies to protect your personal information from unauthorized disclosure, access, or use. Please don't disclose your registration password and username to unauthorized people to help us protect your privacy.\n\nEven though no internet transmission method or electronic storage procedure is 100% watertight, RadiusTheme and Classima leaves nothing to chance in efforts to protect your personal information.\n\nIn case your information is accessed by unauthorized people or is lost, we'll inform you as soon as we become aware of this.",
         "paraType": "para"
       },
       {
         "paraTitle": "How to Access Your Data or Edit Your Personal Information:",
-        "paraDetail": "When you log in on our site with your details, all your account information will be available for you to edit or delete. If you want to stop email notifications for the Just Sale Online app, just unsubscribe or send us an email, and we'll erase your email or account. Ensure that your email's subject reads 'delete my username'.",
+        "paraDetail": "When you log in on our site with your details, all your account information will be available for you to edit or delete. If you want to stop email notifications for the Classima app, just unsubscribe or send us an email, and we'll erase your email or account. Ensure that your email's subject reads 'delete my username'.",
         "paraType": "para"
       },
       {
         "paraTitle": "Contact Us",
-        "paraDetail": "If you have any suggestions or questions about our privacy policy, please feel free to contact us via support@justsaleonline.com.",
+        "paraDetail": "If you have any suggestions or questions about our privacy policy, please feel free to contact us via support@radiustheme.com.",
         "paraType": "para"
       }
     ],
@@ -1175,31 +1274,31 @@
   "termsAndConditions": [
     {
       "paraTitle": "",
-      "paraData": "Just Sale Online is a mobile app service created and provided by justsaleonline.com, subject to you agreeing with the Terms and Conditions outlined below. Please be sure to read these Terms & Conditions before using this app."
+      "paraData": "Classima is a mobile app service created and provided by radiustheme.com, subject to you agreeing with the Terms and Conditions outlined below. Please be sure to read these Terms & Conditions before using this app."
     },
     {
       "paraTitle": "General",
-      "paraData": "It is the responsibility of all advertisers and other users to ensure that all content (image, video, graphics, and text content) uploaded for inclusion on the platform complies with the relevant laws. Just Sale Online and justsaleonline.com assumes no responsibility for any inaccuracy or illegality of the content posted.\n\nAdvertisers and all users guarantee that their content doesn't violate any copyright, intellectual property rights, or any other rights of any entity or person. The user or advertiser agrees to release Just Sale Online and justsaleonline.com from all obligations, claims, and liabilities arising from or connected with the use or inability to use the service.\n\nAdvertisers agree to their content being presented through the partner sites of Just Sale Online and justsaleonline.com, under the same terms and conditions as on Just Sale Online and justsaleonline.com."
+      "paraData": "It is the responsibility of all advertisers and other users to ensure that all content (image, video, graphics, and text content) uploaded for inclusion on the platform complies with the relevant laws. Classima and radiustheme.com assumes no responsibility for any inaccuracy or illegality of the content posted.\n\nAdvertisers and all users guarantee that their content doesn't violate any copyright, intellectual property rights, or any other rights of any entity or person. The user or advertiser agrees to release Classima and radiustheme.com from all obligations, claims, and liabilities arising from or connected with the use or inability to use the service.\n\nAdvertisers agree to their content being presented through the partner sites of Classima and radiustheme.com, under the same terms and conditions as on Classima and radiustheme.com."
     },
     {
       "paraTitle": "Copyright",
-      "paraData": "Advertisers effectively grant Just Sale Online and justsaleonline.com a perpetual, irrevocable, royalty-free, non-exclusive license and right to use, modify, reproduce, publish, adapt, translate, create derivative works from and distribute or incorporate such content into any form, technology, or medium now known or later developed.\n\nThe material (including the content, software, or services) on Just Sale Online are the property of justsaleonline.com, its affiliates, subsidiaries, and/or third-party licensors. All intellectual property rights, such as copyright, service marks, trademarks, trade names, and other distinguishing brands on Just Sale Online, are the property of RadiusTheme.\n\nNo material found on Just Sale Online or justsaleonline.com may be copied, republished, reproduced, installed, transmitted, posted, stored, or distributed without written explicit permission from RadiusTheme."
+      "paraData": "Advertisers effectively grant Classima and radiustheme.com a perpetual, irrevocable, royalty-free, non-exclusive license and right to use, modify, reproduce, publish, adapt, translate, create derivative works from and distribute or incorporate such content into any form, technology, or medium now known or later developed.\n\nThe material (including the content, software, or services) on Classima are the property of radiustheme.com, its affiliates, subsidiaries, and/or third-party licensors. All intellectual property rights, such as copyright, service marks, trademarks, trade names, and other distinguishing brands on Classima, are the property of RadiusTheme.\n\nNo material found on Classima or radiustheme.com may be copied, republished, reproduced, installed, transmitted, posted, stored, or distributed without written explicit permission from RadiusTheme."
     },
     {
       "paraTitle": "Watermarks",
-      "paraData": "All images on Just Sale Online are watermark to prevent them from being reused for other purposes without the advertiser's permission."
+      "paraData": "All images on Classima are watermark to prevent them from being reused for other purposes without the advertiser's permission."
     },
     {
       "paraTitle": "Safety and Images",
-      "paraData": "Just Sale Online and justsaleonline.com reserve the right to alter the title of any content on the app for editorial purposes. Just Sale Online and justsaleonline.com reserve the right to refuse to publish inappropriate images or those that violate RadiusTheme's rules."
+      "paraData": "Classima and radiustheme.com reserve the right to alter the title of any content on the app for editorial purposes. Classima and radiustheme.com reserve the right to refuse to publish inappropriate images or those that violate RadiusTheme's rules."
     },
     {
       "paraTitle": "Personal",
-      "paraData": "Just Sale Online and RadiusTheme reserve the right to cooperate with the authorities in case any content on the app violates the law. The identity of users, buyers, or advertisers may be determined, for example, by an ISP. IP addresses may also be registered to ensure that all users, buyers, and advertisers comply with the terms and conditions."
+      "paraData": "Classima and RadiusTheme reserve the right to cooperate with the authorities in case any content on the app violates the law. The identity of users, buyers, or advertisers may be determined, for example, by an ISP. IP addresses may also be registered to ensure that all users, buyers, and advertisers comply with the terms and conditions."
     },
     {
       "paraTitle": "Privacy",
-      "paraData": "Just Sale Online and RadiusTheme will collect information from users, buyers, and advertisers. As a condition of use of Just Sale Online, each user and advertiser consents to and authorizes Just Sale Online and justsaleonline.com to collect and use this information. Just Sale Online and justsaleonline.com also reserves the right to disclose the information to Company Affiliates and any other person for the purposes of supporting, administering, and maintaining Just Sale Online, as well as for improving Just Sale Online, for instance by using the information for marketing, research, planning, and product development."
+      "paraData": "Classima and RadiusTheme will collect information from users, buyers, and advertisers. As a condition of use of Classima, each user and advertiser consents to and authorizes Classima and radiustheme.com to collect and use this information. Classima and radiustheme.com also reserves the right to disclose the information to Company Affiliates and any other person for the purposes of supporting, administering, and maintaining Classima, as well as for improving Classima, for instance by using the information for marketing, research, planning, and product development."
     },
     {
       "paraTitle": "Cookies",
@@ -1207,39 +1306,39 @@
     },
     {
       "paraTitle": "Email Address of Users",
-      "paraData": "Users are needed to submit valid email addresses before they're allowed to post advertisement listings. The email addresses shall not be displayed publicly. However, users are allowed to send emails to other users through Just Sale Online."
+      "paraData": "Users are needed to submit valid email addresses before they're allowed to post advertisement listings. The email addresses shall not be displayed publicly. However, users are allowed to send emails to other users through Classima."
     },
     {
       "paraTitle": "Site Availability",
-      "paraData": "Just Sale Online and justsaleonline.com doesn't guarantee uninterrupted or secure access to the app. The app is provided on an 'as is' and as and when available basis."
+      "paraData": "Classima and radiustheme.com doesn't guarantee uninterrupted or secure access to the app. The app is provided on an 'as is' and as and when available basis."
     },
     {
       "paraTitle": "Links to Third-Party Websites",
-      "paraData": "Just Sale Online may contain references and links to other sites (Third-Party Websites). However, Just Sale Online or justsaleonline.com shall not be responsible for the contents in these third-party websites. Third-party websites are not monitored or investigated by Just Sale Online or justsaleonline.com. Once a user decides to leave Just Sale Online and access a third-party website, they do so at their own risk."
+      "paraData": "Classima may contain references and links to other sites (Third-Party Websites). However, Classima or radiustheme.com shall not be responsible for the contents in these third-party websites. Third-party websites are not monitored or investigated by Classima or radiustheme.com. Once a user decides to leave Classima and access a third-party website, they do so at their own risk."
     },
     {
       "paraTitle": "Paid Content and Service",
-      "paraData": "Some of the services and content of Just Sale Online may require payment, including but not limited to; membership packages and posting of ads in some specific categories.\n\nUsers may buy ad promotions using vouchers sold or issued by Just Sale Online. Vouchers aren't redeemable for cash.\n\nAdvertisers and other users may be required to transmit the information of their paid content via a third-party provider, which is governed by their own terms and conditions. Those users and advertisers accept such links at their own risk and Just Sale Online disclaims all liability related thereto. Just Sale Online shall, under no circumstances, be obliged to refund any payments made concerning paid content."
+      "paraData": "Some of the services and content of Classima may require payment, including but not limited to; membership packages and posting of ads in some specific categories.\n\nUsers may buy ad promotions using vouchers sold or issued by Classima. Vouchers aren't redeemable for cash.\n\nAdvertisers and other users may be required to transmit the information of their paid content via a third-party provider, which is governed by their own terms and conditions. Those users and advertisers accept such links at their own risk and Classima disclaims all liability related thereto. Classima shall, under no circumstances, be obliged to refund any payments made concerning paid content."
     },
     {
       "paraTitle": "Memberships",
-      "paraData": "Just Sale Online will create a shop on the user's behalf. The shop created will be devoid of content, pending the addition of the same by the user. Just Sale Online has the right to any content added to the shop by the user and has the right to remove or decline to publish content that it deems inappropriate or violates any aspects of the terms and conditions.\n\nJust Sale Online reserves the right to change or modify membership packages, including their price and contents.\n\nJust Sale Online isn't obligated to refund services or money if a membership package is canceled early, for any reason whatsoever."
+      "paraData": "Classima will create a shop on the user's behalf. The shop created will be devoid of content, pending the addition of the same by the user. Classima has the right to any content added to the shop by the user and has the right to remove or decline to publish content that it deems inappropriate or violates any aspects of the terms and conditions.\n\nClassima reserves the right to change or modify membership packages, including their price and contents.\n\nClassima isn't obligated to refund services or money if a membership package is canceled early, for any reason whatsoever."
     },
     {
       "paraTitle": "Disclaimer",
-      "paraData": "Just Sale Online and radisutheme.com assume no responsibility whatsoever for the use of Just Sale Online and disclaims all responsibility for any claim, injury, damage, or liability of any kind resulting from, or arising out of, or any way related to (a) any errors on Just Sale Online or the Content, including but not limited to typographical errors and technical errors, (b) any third party websites or content directly or indirectly accessed or retrieved through links in Just Sale Online, (c) the unavailability of Just Sale Online, (d) your use of Just Sale Online or the Content, or (e) your use of any equipment (or software) in connection with Just Sale Online."
+      "paraData": "Classima and radisutheme.com assume no responsibility whatsoever for the use of Classima and disclaims all responsibility for any claim, injury, damage, or liability of any kind resulting from, or arising out of, or any way related to (a) any errors on Classima or the Content, including but not limited to typographical errors and technical errors, (b) any third party websites or content directly or indirectly accessed or retrieved through links in Classima, (c) the unavailability of Classima, (d) your use of Classima or the Content, or (e) your use of any equipment (or software) in connection with Classima."
     },
     {
       "paraTitle": "Indemnification",
-      "paraData": "Advertisers and other users agree to indemnify Just Sale Online and RadiusTheme as well as its employees, agents, officers, directors, from and against all expenses, losses, damages, and costs, including attorney's fees, arising from any violation of these Terms and Conditions (including negligent or wrongful conduct)."
+      "paraData": "Advertisers and other users agree to indemnify Classima and RadiusTheme as well as its employees, agents, officers, directors, from and against all expenses, losses, damages, and costs, including attorney's fees, arising from any violation of these Terms and Conditions (including negligent or wrongful conduct)."
     },
     {
       "paraTitle": "Modifications",
-      "paraData": "Just Sale Online and RadiusTheme reserve the right to alter or modify these Terms and Conditions. Such alteration or modifications shall be effective immediately upon posting on Just Sale Online. You are responsible for regularly reviewing for such modifications. Your continued access or use of Just Sale Online shall be deemed to be your acceptance of the modified terms and conditions."
+      "paraData": "Classima and RadiusTheme reserve the right to alter or modify these Terms and Conditions. Such alteration or modifications shall be effective immediately upon posting on Classima. You are responsible for regularly reviewing for such modifications. Your continued access or use of Classima shall be deemed to be your acceptance of the modified terms and conditions."
     },
     {
       "paraTitle": "Governing Law",
-      "paraData": "Just Sale Online is operated under the laws and regulations of respective country."
+      "paraData": "Classima is operated under the laws and regulations of respective country."
     }
   ],
   "relativeTime": {

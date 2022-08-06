@@ -10,14 +10,20 @@ import {
 } from "react-native";
 
 // Vector Icons
-import { FontAwesome5 } from "@expo/vector-icons";
+import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 
 // Custom Components
 import { COLORS } from "../variables/color";
 import { useStateValue } from "../StateProvider";
 import { __ } from "../language/stringPicker";
 
-const DynamicFilterListPicker = ({ onselect, selected, data }) => {
+const DynamicFilterListPicker = ({
+  onselect,
+  selected,
+  data,
+  fieldWrapStyle,
+  fieldTextStyle,
+}) => {
   const [{ appSettings, rtl_support }] = useStateValue();
   const [pickerVisible, setPickerVisible] = useState(false);
   const [pickerText, setPickerText] = useState(selected);
@@ -36,17 +42,20 @@ const DynamicFilterListPicker = ({ onselect, selected, data }) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={[styles.pickerFieldWrap, rtlView]}
+        style={[styles.pickerFieldWrap, rtlView, fieldWrapStyle]}
         onPress={() => {
           setPickerVisible(!pickerVisible);
         }}
       >
-        <Text style={[styles.priceTypePickerFieldText, rtlText]}>
+        <Text
+          style={[styles.priceTypePickerFieldText, rtlText, fieldTextStyle]}
+        >
           {pickerText
             ? pickerText
             : __("dynamicFilterListPickerTexts.selectText", appSettings.lng)}
         </Text>
-        <FontAwesome5 name="chevron-down" size={14} color={COLORS.text_gray} />
+        {/* <FontAwesome5 name="chevron-down" size={14} color={COLORS.text_gray} /> */}
+        <AntDesign name="caretdown" size={14} color={COLORS.primary} />
       </TouchableOpacity>
       <Modal animationType="slide" transparent={true} visible={pickerVisible}>
         <TouchableWithoutFeedback onPress={() => setPickerVisible(false)}>

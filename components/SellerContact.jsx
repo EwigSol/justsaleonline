@@ -1,16 +1,13 @@
 import React from "react";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 
-// Vector Icons
-import { FontAwesome } from "@expo/vector-icons";
-import { FontAwesome5 } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
-import { Zocial } from "@expo/vector-icons";
-
 //  Custom Components & Variables
 import { COLORS } from "../variables/color";
 import { useStateValue } from "../StateProvider";
 import { __ } from "../language/stringPicker";
+import CallIcon from "./svgComponents/CallIcon";
+import MessageIcon from "./svgComponents/MessageIcon";
+import ChatIcon from "./svgComponents/ChatIcon";
 
 const iconSize = 18;
 const SellerContact = ({ onCall, onChat, onEmail, phone, email }) => {
@@ -21,37 +18,24 @@ const SellerContact = ({ onCall, onChat, onEmail, phone, email }) => {
   return (
     <View style={styles.container}>
       {phone && (
-        <TouchableOpacity
-          style={[styles.btn, { backgroundColor: "#c8e6de" }]}
-          onPress={onCall}
-        >
-          <FontAwesome name="phone" size={iconSize} color={COLORS.primary} />
-          <Text style={[styles.btnText, { color: COLORS.primary }, rtlText]}>
+        <TouchableOpacity style={styles.btn} onPress={onCall}>
+          <CallIcon fillColor={COLORS.white} />
+          <Text style={[styles.btnText, rtlText]}>
             {__("sellerContactTexts.call", appSettings.lng)}
           </Text>
         </TouchableOpacity>
       )}
       {email && (
-        <TouchableOpacity
-          style={[styles.btn, { backgroundColor: "#ffdbc4" }]}
-          onPress={onEmail}
-        >
-          <Zocial name="email" size={iconSize} color={COLORS.orange} />
-          <Text style={[styles.btnText, { color: COLORS.orange }, rtlText]}>
+        <TouchableOpacity style={styles.btn} onPress={onEmail}>
+          <MessageIcon fillColor={COLORS.white} />
+          <Text style={[styles.btnText, rtlText]}>
             {__("sellerContactTexts.email", appSettings.lng)}
           </Text>
         </TouchableOpacity>
       )}
-      <TouchableOpacity
-        style={[styles.btn, { backgroundColor: "#c8e5f7" }]}
-        onPress={onChat}
-      >
-        <Ionicons
-          name="ios-chatbubbles"
-          size={iconSize}
-          color={COLORS.dodgerblue}
-        />
-        <Text style={[styles.btnText, { color: COLORS.dodgerblue }, rtlText]}>
+      <TouchableOpacity style={styles.btn} onPress={onChat}>
+        <ChatIcon fillColor={COLORS.white} />
+        <Text style={[styles.btnText, rtlText]}>
           {__("sellerContactTexts.chat", appSettings.lng)}
         </Text>
       </TouchableOpacity>
@@ -68,11 +52,13 @@ const styles = StyleSheet.create({
     marginHorizontal: "1%",
     paddingVertical: 8,
     borderRadius: 5,
+    backgroundColor: COLORS.primary,
   },
   btnText: {
     fontSize: iconSize,
     paddingLeft: 5,
     fontWeight: "bold",
+    color: COLORS.white,
   },
   container: {
     flexDirection: "row",

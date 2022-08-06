@@ -237,14 +237,16 @@ const PaymentMethodCard = ({
           )}
         </>
       )}
-      <View
-        style={{
-          height: 1,
-          width: "100%",
-          backgroundColor: isLast ? COLORS.white : COLORS.border_light,
-          marginTop: 12,
-        }}
-      />
+      <View style={{ width: "100%", alignItems: "center" }}>
+        <View
+          style={{
+            height: 0.5,
+            width: "90%",
+            backgroundColor: isLast ? COLORS.white : COLORS.border_light,
+            marginTop: 12,
+          }}
+        />
+      </View>
     </View>
   );
 };

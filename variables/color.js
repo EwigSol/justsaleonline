@@ -4,9 +4,8 @@ export const COLORS = {
   bg_primary: "#ffd1d6",
 
   button: {
-    disabled: "red",
-    active: "red",
-    login: "#ffa110"
+    disabled: "#f797a3",
+    active: "#f85c70",
   },
 
   bg_splash: "#ffa110",
@@ -26,9 +25,10 @@ export const COLORS = {
   },
 
   bg_light: "#f9f9f9",
-  bg_dark: "#f0f0f0",
-  text_gray: "#838383",
-  text_dark: "#111",
+  bg_dark: "#F8F8F8",
+  text_gray: "#66687b",
+  text_dark: "#212121",
+  text_light: "#797C84",
   white: "#fff",
   black: "#000",
   gray: "gray",

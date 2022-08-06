@@ -20,8 +20,9 @@ import {
 
 // External Libraries
 import moment from "moment";
+import "moment/locale/en-gb";
 import ReadMore from "react-native-read-more-text";
-import ReactNativeZoomableView from "@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView";
+import ReactNativeZoomableView from "@openspacelabs/react-native-zoomable-view/src/ReactNativeZoomableView";
 import MapView, { Marker, UrlTile } from "react-native-maps";
 import YoutubePlayer from "react-native-youtube-iframe";
 import { Formik } from "formik";
@@ -30,7 +31,7 @@ import { paginationData } from "../app/pagination/paginationData";
 import WebView from "react-native-webview";
 
 // Vector Icons
-import { FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 
 // Custom Components & Constants
@@ -198,8 +199,9 @@ const ListingDetailScreen = ({ route, navigation }) => {
     if (user) {
       setAuthToken(auth_token);
     }
-    moment.updateLocale("en", {
-      relativeTime: getRelativeTimeConfig(appSettings.lng),
+    const timeConfig = getRelativeTimeConfig(appSettings.lng);
+    moment.updateLocale("en-gb", {
+      relativeTime: timeConfig,
     });
 
     api.get(`/listings/${route.params.listingId}`).then((res) => {
@@ -346,8 +348,8 @@ const ListingDetailScreen = ({ route, navigation }) => {
     }
   };
   const getPriceType = (priceType) => {
-    const pU = listingData.price_unit || "";
-    if (pU) {
+    const pU = listingData?.price_unit || "";
+    if (!!pU && listingData?.price_units?.length) {
       if (priceType === "fixed") {
         return (
           __("listingDetailScreenTexts.priceTypes.fixed", appSettings.lng) +
@@ -364,6 +366,20 @@ const ListingDetailScreen = ({ route, navigation }) => {
           `  / ${
             listingData.price_units.filter((_pu) => _pu.id === pU)[0].name
           }`
+        );
+      }
+    } else if (!!pU) {
+      if (priceType === "fixed") {
+        return (
+          __("listingDetailScreenTexts.priceTypes.fixed", appSettings.lng) +
+          `  / ${pU}`
+        );
+      } else {
+        return (
+          __(
+            "listingDetailScreenTexts.priceTypes.negotiable",
+            appSettings.lng
+          ) + `  / ${pU}`
         );
       }
     } else {
@@ -557,7 +573,7 @@ const ListingDetailScreen = ({ route, navigation }) => {
   };
 
   const getListingTime = () => {
-    return moment(listingData.created_at).format("MMM Do h:mm a");
+    return moment(listingData.created_at).format("Do MMM, h:mm a");
   };
 
   const getTotalSlideCount = () => {
@@ -580,8 +596,9 @@ const ListingDetailScreen = ({ route, navigation }) => {
       return (
         <View key={ytId}>
           <YoutubePlayer
-            height={300}
-            width={windowWidth}
+            height={windowWidth * 0.75}
+            // height={300}
+            width={windowWidth * 0.94}
             play={playing}
             videoId={ytId}
             onChangeState={onStateChange}
@@ -594,6 +611,7 @@ const ListingDetailScreen = ({ route, navigation }) => {
               modestbranding: 1,
               rel: false,
             }}
+            webViewStyle={{ opacity: 0.99 }}
           />
         </View>
       );
@@ -1044,7 +1062,7 @@ var map = L.map('map', {
   maxZoom: 18,
   center: [${
     listingData?.contact?.latitude || config?.map?.center?.lat || 0
-  }, ${listingData?.contact?.latitude || config?.map?.center?.lng || 0}],
+  }, ${listingData?.contact?.longitude || config?.map?.center?.lng || 0}],
   layers: [osmLayer],
   dragging:false
 });
@@ -1052,9 +1070,8 @@ var map = L.map('map', {
 const marker = L.marker([${
     listingData?.contact?.latitude || config?.map?.center?.lat || 0
   }, ${
-    listingData?.contact?.latitude || config?.map?.center?.lng || 0
+    listingData?.contact?.longitude || config?.map?.center?.lng || 0
   }], { draggable: false }).addTo(map);
-marker.setPopupContent("Address jhfashf asdjhfskjhdfk").openPopup();  
 
 </script>
 
@@ -1067,7 +1084,7 @@ marker.setPopupContent("Address jhfashf asdjhfskjhdfk").openPopup();
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: "#F8F8F8" }}
       behavior={ios ? "padding" : "height"}
       keyboardVerticalOffset={15}
     >
@@ -1096,7 +1113,6 @@ marker.setPopupContent("Address jhfashf asdjhfskjhdfk").openPopup();
         <View style={{ flex: 1 }}>
           <View
             style={{
-              backgroundColor: COLORS.white,
               flex: 1,
             }}
           >
@@ -1107,731 +1123,843 @@ marker.setPopupContent("Address jhfashf asdjhfskjhdfk").openPopup();
               ref={scrollRef}
               // scrollEnabled={false}
             >
-              {/* Sold out badge */}
-              {listingData?.badges?.includes("is-sold") && badgeDim ? (
+              <View
+                style={{
+                  backgroundColor: COLORS.white,
+                  borderRadius: 6,
+                  elevation: 0.5,
+                  shadowColor: COLORS.border_light,
+                  shadowOpacity: 0.2,
+                  shadowRadius: 5,
+                  shadowOffset: { height: 1, width: 0 },
+                  marginBottom: 20,
+                  width: "100%",
+                }}
+              >
                 <View
                   style={{
-                    backgroundColor: COLORS.primary,
-                    paddingVertical: 5,
-                    paddingHorizontal: 50,
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                    transform: [
-                      {
-                        translateX: ios
-                          ? badgeDim.width / 3.3
-                          : badgeDim.width / 3.8,
-                      },
-
-                      {
-                        translateY: ios
-                          ? badgeDim.width / 3.3 - badgeDim.height / 2
-                          : badgeDim.width / 3.8 - badgeDim.height / 2,
-                      },
-                      { rotate: "45deg" },
-                    ],
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 5,
+                    overflow: "hidden",
+                    borderRadius: 6,
+                    backgroundColor: "#white",
                   }}
                 >
-                  <Text style={styles.soldOutMessage}>
-                    {__(
-                      "listingDetailScreenTexts.soldOutMessage",
-                      appSettings.lng
-                    )}
-                  </Text>
-                </View>
-              ) : (
-                <View
-                  onLayout={(event) => handleHeaderLayout(event)}
-                  style={[
-                    styles.soldOutBadge,
-                    {
-                      top: !ios
-                        ? screenHeight - windowHeight
-                          ? "3%"
-                          : "3.5%"
-                        : "4%",
-
-                      left: ios ? "73%" : "73%",
-                      width: "35%",
-                      // elevation: 2,
-                      opacity: 0,
-                    },
-                  ]}
-                >
-                  <Text style={styles.soldOutMessage}>
-                    {__(
-                      "listingDetailScreenTexts.soldOutMessage",
-                      appSettings.lng
-                    )}
-                  </Text>
-                </View>
-              )}
-              {/* Media Slider */}
-              {(!!listingData?.images?.length ||
-                !!listingData?.video_urls?.length) && (
-                <View style={styles.imageSlider}>
-                  <ScrollView
-                    horizontal
-                    pagingEnabled
-                    onScroll={handleScroll}
-                    scrollEventThrottle={16}
-                    showsHorizontalScrollIndicator={false}
-                  >
-                    {!!listingData?.video_urls?.length &&
-                      listingData.video_urls.map((url) =>
-                        get_sanitized_embed_url(url)
-                      )}
-
-                    {listingData.images.map((image) => (
-                      <TouchableWithoutFeedback
-                        key={image.ID}
-                        onPress={() => handleImageZoomView(image)}
-                      >
-                        <Image
-                          style={{
-                            width: windowWidth,
-                            // height: 300,
-                            height: windowWidth * 0.75,
-                            resizeMode: "contain",
-                          }}
-                          source={{
-                            uri: image.sizes.full.src,
-                          }}
-                        />
-                      </TouchableWithoutFeedback>
-                    ))}
-                  </ScrollView>
-
-                  {(listingData?.images?.length > 1 ||
-                    listingData?.video_urls?.length > 0) && (
-                    <>
-                      {rtl_support ? (
-                        <Text style={styles.scrollProgress}>
-                          {getTotalSlideCount()}
-                          {" / "}
-                          {currentSlide + 1}
-                        </Text>
-                      ) : (
-                        <Text style={styles.scrollProgress}>
-                          {currentSlide + 1} / {getTotalSlideCount()}
-                        </Text>
-                      )}
-                    </>
-                  )}
-                </View>
-              )}
-
-              {/* title, location, date, badges */}
-              <View
-                style={[
-                  styles.bgWhite_W100_PH3,
-                  {
-                    overflow: "hidden",
-                    alignItems: rtl_support ? "flex-end" : "flex-start",
-                  },
-                ]}
-              >
-                {/* Title */}
-                <Text style={[styles.listingTitle, rtlTextA]}>
-                  {decodeString(listingData.title)}
-                </Text>
-
-                {/* Other Badges */}
-                {listingData?.promotions?.length > 0 && (
-                  <View style={styles.badgeSection}>
-                    {listingData.promotions.map((_badge) => (
-                      <Badge badgeName={_badge} key={_badge} />
-                    ))}
-                  </View>
-                )}
-                {/* Location */}
-                {!!getLocation(listingData.contact) && (
-                  <View style={[styles.locationData, styles.flexRow, rtlView]}>
-                    <View
-                      style={[
-                        styles.listingLocationAndTimeIconContainer,
-                        { alignItems: rtl_support ? "flex-end" : "flex-start" },
-                      ]}
-                    >
-                      <FontAwesome5
-                        name="map-marker-alt"
-                        size={15}
-                        color={COLORS.text_gray}
-                      />
-                    </View>
-                    <View
-                      style={{
-                        flex: 1,
-                        alignItems: rtl_support ? "flex-end" : "flex-start",
-                      }}
-                    >
-                      <Text
-                        style={[styles.listingLocationAndTimeText, rtlTextA]}
-                      >
-                        {getLocation(listingData.contact)}
-                      </Text>
-                    </View>
-                  </View>
-                )}
-                {/* Date & Time */}
-                <View style={[styles.listingTimeData, styles.flexRow, rtlView]}>
-                  <View
-                    style={[
-                      styles.listingLocationAndTimeIconContainer,
-                      { alignItems: rtl_support ? "flex-end" : "flex-start" },
-                    ]}
-                  >
-                    <FontAwesome5
-                      name="clock"
-                      size={15}
-                      color={COLORS.text_gray}
-                    />
-                  </View>
-                  <Text style={[styles.listingLocationAndTimeText, rtlText]}>
-                    {__(
-                      "listingDetailScreenTexts.postTimePrefix",
-                      appSettings.lng
-                    )}
-                    {getListingTime()}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.screenSeparatorWrap}>
-                <AppSeparator style={styles.screenSeparator} />
-              </View>
-              {/* price & seller */}
-              <View style={styles.bgWhite_W100_PH3}>
-                {/* Seller or Store */}
-                {config.store_enabled && !!listingData.store ? (
-                  // Store
-                  <View style={[styles.sellerInfo, rtlView]}>
-                    <View style={styles.storeIcon}>
-                      <Image
-                        style={styles.storeIconImage}
-                        source={require("../assets/store_icon.png")}
-                      />
-                    </View>
-                    {rtl_support ? (
-                      <Text
-                        style={[
-                          styles.sellerWrap,
-                          {
-                            marginLeft: rtl_support ? 0 : 5,
-                            marginRight: rtl_support ? 5 : 0,
-                          },
-                          rtlText,
-                        ]}
-                      >
-                        <Text
-                          style={styles.storeName}
-                          onPress={handleStorePress}
-                        >
-                          {decodeString(listingData.store.title)}
-                        </Text>{" "}
-                        {__(
-                          "listingDetailScreenTexts.sellerPrefix",
-                          appSettings.lng
-                        )}
-                      </Text>
-                    ) : (
-                      <Text
-                        style={[
-                          styles.sellerWrap,
-                          {
-                            marginLeft: rtl_support ? 0 : 5,
-                            marginRight: rtl_support ? 5 : 0,
-                          },
-                          rtlText,
-                        ]}
-                      >
-                        {__(
-                          "listingDetailScreenTexts.sellerPrefix",
-                          appSettings.lng
-                        )}
-                        <Text
-                          style={styles.storeName}
-                          onPress={handleStorePress}
-                        >
-                          {" "}
-                          {decodeString(listingData.store.title)}
-                        </Text>
-                      </Text>
-                    )}
-                  </View>
-                ) : (
-                  // Seller
-                  <View style={[styles.sellerInfo, rtlView]}>
-                    <View style={styles.sellerIcon}>
-                      <FontAwesome name="user" size={18} color={COLORS.gray} />
-                    </View>
-                    {rtl_support ? (
-                      <Text
-                        style={[
-                          styles.sellerWrap,
-                          {
-                            marginLeft: rtl_support ? 0 : 5,
-                            marginRight: rtl_support ? 5 : 0,
-                          },
-                          rtlText,
-                        ]}
-                      >
-                        <Text style={styles.sellerName}>{getSellerName()}</Text>{" "}
-                        {__(
-                          "listingDetailScreenTexts.sellerPrefix",
-                          appSettings.lng
-                        )}
-                      </Text>
-                    ) : (
-                      <Text
-                        style={[
-                          styles.sellerWrap,
-                          {
-                            marginLeft: rtl_support ? 0 : 5,
-                            marginRight: rtl_support ? 5 : 0,
-                          },
-                          rtlText,
-                        ]}
-                      >
-                        {__(
-                          "listingDetailScreenTexts.sellerPrefix",
-                          appSettings.lng
-                        )}
-                        <Text style={styles.sellerName}>
-                          {" "}
-                          {getSellerName()}
-                        </Text>
-                      </Text>
-                    )}
-                  </View>
-                )}
-
-                {/* Price */}
-                {listingData.pricing_type !== "disabled" && (
-                  <>
-                    {rtl_support ? (
-                      <View style={[styles.listingPriceWrap, rtlView]}>
+                  {/* Media Slider */}
+                  {(!!listingData?.images?.length ||
+                    !!listingData?.video_urls?.length) && (
+                    <View style={styles.imageSlider}>
+                      {/* Sold out badge */}
+                      {listingData?.badges?.includes("is-sold") && badgeDim ? (
                         <View
-                          style={[
-                            styles.priceTag,
-                            // rtlView,
-                            {
-                              left: rtl_support ? 0 : -(windowWidth * 0.031),
-                              right: rtl_support ? -(windowWidth * 0.031) : 0,
-                              paddingRight: rtl_support
-                                ? windowWidth * 0.031
-                                : 30,
-                              paddingLeft: rtl_support
-                                ? 30
-                                : windowWidth * 0.031,
-                            },
-                          ]}
-                        >
-                          <View style={styles.view}>
-                            <Text
-                              style={[styles.listingPrice, rtlText]}
-                              numberOfLines={1}
-                            >
-                              {getPrice(
-                                config.currency,
-                                {
-                                  pricing_type: listingData.pricing_type,
-                                  price_type: listingData.price_type,
-                                  price: listingData.price,
-                                  max_price: listingData.max_price,
-                                },
-                                appSettings.lng
-                              )}
-                            </Text>
-                          </View>
-                          <View
-                            style={{
-                              height: 0,
-                              width: 0,
-                              borderTopWidth: 30,
-                              borderTopColor: "transparent",
-                              borderBottomWidth: 30,
-                              borderBottomColor: "transparent",
-                              borderRightWidth: rtl_support ? 0 : 30,
-                              borderRightColor: COLORS.white,
-                              borderLeftWidth: rtl_support ? 30 : 0,
-                              borderLeftColor: COLORS.white,
-                              position: "absolute",
-                              right: rtl_support ? 0 : -5,
-                              left: rtl_support ? -5 : 0,
-                            }}
-                          />
-                        </View>
-
-                        {listingData?.price_type !== "on_call" && (
-                          <Text
-                            style={[styles.listingPricenegotiable, rtlText]}
-                          >
-                            {getPriceType(listingData.price_type)}
-                          </Text>
-                        )}
-                      </View>
-                    ) : (
-                      <View style={styles.listingPriceWrap}>
-                        <View style={styles.priceTag}>
-                          <Text style={styles.listingPrice} numberOfLines={1}>
-                            {getPrice(
-                              config.currency,
+                          style={{
+                            backgroundColor: COLORS.primary,
+                            paddingVertical: 5,
+                            paddingHorizontal: 50,
+                            position: "absolute",
+                            top: 0,
+                            right: 0,
+                            transform: [
                               {
-                                pricing_type: listingData.pricing_type,
-                                price_type: listingData.price_type,
-                                price: listingData.price,
-                                max_price: listingData.max_price,
+                                translateX: ios
+                                  ? badgeDim.width / 3.3
+                                  : badgeDim.width / 3.3,
                               },
+
+                              {
+                                translateY: ios
+                                  ? badgeDim.width / 3.3 - badgeDim.height / 2
+                                  : badgeDim.width / 3.8 - badgeDim.height / 2,
+                              },
+                              { rotate: "45deg" },
+                            ],
+                            alignItems: "center",
+                            justifyContent: "center",
+                            zIndex: 5,
+                          }}
+                        >
+                          <Text style={styles.soldOutMessage}>
+                            {__(
+                              "listingDetailScreenTexts.soldOutMessage",
                               appSettings.lng
                             )}
                           </Text>
-                          <View
-                            style={{
-                              height: 0,
-                              width: 0,
-                              borderTopWidth: 30,
-                              borderTopColor: "transparent",
-                              borderBottomWidth: 30,
-                              borderBottomColor: "transparent",
-                              borderRightWidth: 30,
-                              borderRightColor: COLORS.white,
-                              position: "absolute",
-                              right: -5,
-                            }}
-                          />
                         </View>
+                      ) : (
+                        <View
+                          onLayout={(event) => handleHeaderLayout(event)}
+                          style={[
+                            styles.soldOutBadge,
+                            {
+                              top: !ios
+                                ? screenHeight - windowHeight
+                                  ? "3%"
+                                  : "3.5%"
+                                : "4%",
 
-                        {listingData?.price_type !== "on_call" && (
-                          <Text style={styles.listingPricenegotiable}>
-                            {getPriceType(listingData.price_type)}
+                              left: ios ? "73%" : "73%",
+                              width: "35%",
+                              // elevation: 2,
+                              opacity: 0,
+                            },
+                          ]}
+                        >
+                          <Text style={styles.soldOutMessage}>
+                            {__(
+                              "listingDetailScreenTexts.soldOutMessage",
+                              appSettings.lng
+                            )}
                           </Text>
-                        )}
-                      </View>
-                    )}
-                  </>
-                )}
-              </View>
+                        </View>
+                      )}
 
-              {/* custom fields & description */}
-              {(!!getCustomFields() || !!listingData.description) && (
-                <>
-                  <View style={styles.screenSeparatorWrap}>
-                    <AppSeparator style={styles.screenSeparator} />
-                  </View>
-                  <View style={styles.bgWhite_W100_PH3}>
-                    {/* Custom Fields */}
-                    {!!listingData.custom_fields.length && (
-                      <View
-                        style={[
-                          styles.listingCustomInfoWrap,
-                          { marginTop: -3 },
-                        ]}
+                      <ScrollView
+                        horizontal
+                        pagingEnabled
+                        onScroll={handleScroll}
+                        scrollEventThrottle={16}
+                        showsHorizontalScrollIndicator={false}
                       >
-                        {listingData.custom_fields.map((field, index) => (
-                          <View key={index}>
-                            {["text", "textarea"].includes(field.type) &&
-                              !!field.value && (
-                                <View style={[styles.customfield, rtlView]}>
-                                  <Text
-                                    style={[styles.customfieldName, rtlTextA]}
-                                  >
-                                    {decodeString(field.label)}
-                                  </Text>
-                                  <Text
-                                    style={[styles.customfieldValue, rtlTextA]}
-                                  >
-                                    {decodeString(field?.value) ||
-                                      __(
-                                        "listingDetailScreenTexts.deletedValue",
-                                        appSettings.lng
-                                      )}
-                                  </Text>
-                                </View>
-                              )}
-                            {["url", "number"].includes(field.type) &&
-                              !!field.value && (
-                                <View style={[styles.customfield, rtlView]}>
-                                  <Text
-                                    style={[styles.customfieldName, rtlTextA]}
-                                  >
-                                    {decodeString(field.label)}
-                                  </Text>
-                                  <Text
-                                    style={[styles.customfieldValue, rtlTextA]}
-                                  >
-                                    {field?.value ||
-                                      __(
-                                        "listingDetailScreenTexts.deletedValue",
-                                        appSettings.lng
-                                      )}
-                                  </Text>
-                                </View>
-                              )}
-                            {["radio", "select"].includes(field.type) &&
-                              !!field.value &&
-                              !!field.options.choices.filter(
-                                (choice) => choice.id === field.value
-                              ).length && (
-                                <View style={[styles.customfield, rtlView]}>
-                                  <Text
-                                    style={[styles.customfieldName, rtlTextA]}
-                                  >
-                                    {decodeString(field.label)}
-                                  </Text>
-                                  <Text
-                                    style={[styles.customfieldValue, rtlTextA]}
-                                  >
-                                    {decodeString(
-                                      field.options.choices.filter(
-                                        (choice) => choice.id === field.value
-                                      )[0].name
-                                    ) ||
-                                      __(
-                                        "listingDetailScreenTexts.deletedValue",
-                                        appSettings.lng
-                                      )}
-                                  </Text>
-                                </View>
-                              )}
-                            {field.type === "checkbox" && !!field.value.length && (
-                              <View style={[styles.customfield, rtlView]}>
-                                <Text
-                                  style={[styles.customfieldName, rtlTextA]}
-                                >
-                                  {decodeString(field.label)}
-                                </Text>
-                                <Text
-                                  style={[styles.customfieldValue, rtlTextA]}
-                                >
-                                  {getCheckboxValue(field)}
-                                </Text>
-                              </View>
-                            )}
-                            {field.type === "date" && !!field.value && (
-                              <View style={[styles.customfield, rtlView]}>
-                                {["date", "date_time"].includes(
-                                  field.date.type
-                                ) && (
-                                  <Text
-                                    style={[styles.customfieldName, rtlTextA]}
-                                  >
-                                    {decodeString(field.label)}
-                                  </Text>
-                                )}
-                                {["date_range", "date_time_range"].includes(
-                                  field.date.type
-                                ) &&
-                                  getRangeField(field) && (
-                                    <Text
-                                      style={[styles.customfieldName, rtlTextA]}
-                                    >
-                                      {decodeString(field.label)}
-                                    </Text>
-                                  )}
-                                {field.date.type === "date" && (
-                                  <Text
-                                    style={[styles.customfieldValue, rtlTextA]}
-                                  >
-                                    {field?.value ||
-                                      __(
-                                        "listingDetailScreenTexts.deletedValue",
-                                        appSettings.lng
-                                      )}
-                                  </Text>
-                                )}
-                                {field.date.type === "date_time" && (
-                                  <Text
-                                    style={[styles.customfieldValue, rtlTextA]}
-                                  >
-                                    {field?.value ||
-                                      __(
-                                        "listingDetailScreenTexts.deletedValue",
-                                        appSettings.lng
-                                      )}
-                                  </Text>
-                                )}
-                                {field.date.type === "date_range" &&
-                                  getRangeField(field) && (
-                                    <Text
-                                      style={[
-                                        styles.customfieldValue,
-                                        rtlTextA,
-                                      ]}
-                                    >
-                                      {__(
-                                        "listingDetailScreenTexts.custom_fields.date_range.start",
-                                        appSettings.lng
-                                      ) +
-                                        field.value.start +
-                                        "\n" +
-                                        __(
-                                          "listingDetailScreenTexts.custom_fields.date_range.end",
-                                          appSettings.lng
-                                        ) +
-                                        field.value.end ||
-                                        __(
-                                          "listingDetailScreenTexts.deletedValue",
-                                          appSettings.lng
-                                        )}
-                                    </Text>
-                                  )}
-                                {field.date.type === "date_time_range" &&
-                                  getRangeField(field) && (
-                                    <Text
-                                      style={[
-                                        styles.customfieldValue,
-                                        rtlTextA,
-                                      ]}
-                                    >
-                                      {__(
-                                        "listingDetailScreenTexts.custom_fields.date_time_range.start",
-                                        appSettings.lng
-                                      ) +
-                                        field.value.start +
-                                        "\n" +
-                                        __(
-                                          "listingDetailScreenTexts.custom_fields.date_time_range.end",
-                                          appSettings.lng
-                                        ) +
-                                        field.value.end ||
-                                        __(
-                                          "listingDetailScreenTexts.deletedValue",
-                                          appSettings.lng
-                                        )}
-                                    </Text>
-                                  )}
-                              </View>
-                            )}
-                          </View>
+                        {!!listingData?.video_urls?.length &&
+                          listingData.video_urls.map((url) =>
+                            get_sanitized_embed_url(url)
+                          )}
+
+                        {listingData.images.map((image) => (
+                          <TouchableWithoutFeedback
+                            key={image.ID}
+                            onPress={() => handleImageZoomView(image)}
+                          >
+                            <Image
+                              style={{
+                                width: windowWidth * 0.94,
+                                // height: 300,
+                                height: windowWidth * 0.75,
+                                resizeMode: "contain",
+                              }}
+                              source={{
+                                uri: image.sizes.full.src,
+                              }}
+                            />
+                          </TouchableWithoutFeedback>
+                        ))}
+                      </ScrollView>
+
+                      {(listingData?.images?.length > 1 ||
+                        listingData?.video_urls?.length > 0) && (
+                        <>
+                          {rtl_support ? (
+                            <Text style={styles.scrollProgress}>
+                              {getTotalSlideCount()}
+                              {" / "}
+                              {currentSlide + 1}
+                            </Text>
+                          ) : (
+                            <Text style={styles.scrollProgress}>
+                              {currentSlide + 1} / {getTotalSlideCount()}
+                            </Text>
+                          )}
+                        </>
+                      )}
+                    </View>
+                  )}
+
+                  {/* title, location, date, badges */}
+                  <View
+                    style={[
+                      styles.bgWhite_W100_PH3,
+                      {
+                        overflow: "hidden",
+                        alignItems: rtl_support ? "flex-end" : "flex-start",
+                      },
+                    ]}
+                  >
+                    {/* Title */}
+                    <Text style={[styles.listingTitle, rtlTextA]}>
+                      {decodeString(listingData.title)}
+                    </Text>
+
+                    {/* Other Badges */}
+                    {listingData?.promotions?.length > 0 && (
+                      <View style={styles.badgeSection}>
+                        {listingData.promotions.map((_badge) => (
+                          <Badge badgeName={_badge} key={_badge} />
                         ))}
                       </View>
                     )}
-
-                    {!!listingData.custom_fields.length &&
-                      !!listingData.description && (
-                        <View
-                          style={{
-                            width: "100%",
-                            height: 10,
-                          }}
-                        />
-                      )}
-                    {/* Description */}
-                    {!!listingData.description && (
+                    {/* Date & Time */}
+                    <View
+                      style={[{ paddingVertical: 5 }, styles.flexRow, rtlView]}
+                    >
                       <View
                         style={[
-                          styles.listingDescriptionWrap,
-                          {
-                            marginTop: !listingData.custom_fields.length
-                              ? -7
-                              : 0,
-                          },
+                          styles.listingLocationAndTimeIconContainer,
                           {
                             alignItems: rtl_support ? "flex-end" : "flex-start",
                           },
                         ]}
                       >
-                        <Text style={[styles.descriptionTitle, rtlText]}>
-                          {__(
-                            "listingDetailScreenTexts.description",
-                            appSettings.lng
-                          )}
-                        </Text>
+                        <FontAwesome5
+                          name="clock"
+                          size={15}
+                          color={COLORS.text_gray}
+                        />
+                      </View>
+                      <Text
+                        style={[styles.listingLocationAndTimeText, rtlText]}
+                      >
+                        {__(
+                          "listingDetailScreenTexts.postTimePrefix",
+                          appSettings.lng
+                        )}
+                        {getListingTime()}
+                      </Text>
+                    </View>
+                    {/* Location */}
+                    {!!getLocation(listingData.contact) && (
+                      <View
+                        style={[styles.locationData, styles.flexRow, rtlView]}
+                      >
+                        <View
+                          style={[
+                            styles.listingLocationAndTimeIconContainer,
+                            {
+                              alignItems: rtl_support
+                                ? "flex-end"
+                                : "flex-start",
+                            },
+                          ]}
+                        >
+                          <FontAwesome5
+                            name="map-marker-alt"
+                            size={15}
+                            color={COLORS.text_gray}
+                          />
+                        </View>
                         <View
                           style={{
-                            backgroundColor: COLORS.bg_light,
-                            borderRadius: 5,
-                            paddingHorizontal: 10,
-                            borderWidth: 1,
-                            borderColor: COLORS.bg_dark,
-                            paddingVertical: 5,
-                            width: "100%",
+                            flex: 1,
+                            alignItems: rtl_support ? "flex-end" : "flex-start",
                           }}
                         >
-                          <ReadMore
-                            numberOfLines={3}
-                            renderTruncatedFooter={renderTruncatedFooter}
-                            renderRevealedFooter={renderRevealedFooter}
+                          <Text
+                            style={[
+                              styles.listingLocationAndTimeText,
+                              rtlTextA,
+                            ]}
                           >
-                            <Text
-                              style={[
-                                styles.cardText,
-                                rtlText,
-                                {
-                                  textAlign: rtl_support ? "right" : "justify",
-                                },
-                              ]}
-                            >
-                              {decodeString(listingData.description).trim()}
-                            </Text>
-                          </ReadMore>
+                            {getLocation(listingData.contact)}
+                          </Text>
                         </View>
                       </View>
                     )}
+                    {listingData.pricing_type !== "disabled" && (
+                      <View style={{ marginTop: 10 }}>
+                        {rtl_support ? (
+                          <View style={[styles.listingPriceWrap, rtlView]}>
+                            <View style={[styles.priceTag]}>
+                              <View style={styles.view}>
+                                <Text
+                                  style={[styles.listingPrice, rtlText]}
+                                  numberOfLines={1}
+                                >
+                                  {getPrice(
+                                    config.currency,
+                                    {
+                                      pricing_type: listingData.pricing_type,
+                                      price_type: listingData.price_type,
+                                      price: listingData.price,
+                                      max_price: listingData.max_price,
+                                    },
+                                    appSettings.lng
+                                  )}
+                                </Text>
+                              </View>
+                            </View>
+
+                            {listingData?.price_type !== "on_call" && (
+                              <Text
+                                style={[styles.listingPricenegotiable, rtlText]}
+                              >
+                                {getPriceType(listingData.price_type)}
+                              </Text>
+                            )}
+                          </View>
+                        ) : (
+                          <View style={styles.listingPriceWrap}>
+                            <View style={styles.priceTag}>
+                              <Text
+                                style={styles.listingPrice}
+                                numberOfLines={1}
+                              >
+                                {getPrice(
+                                  config.currency,
+                                  {
+                                    pricing_type: listingData.pricing_type,
+                                    price_type: listingData.price_type,
+                                    price: listingData.price,
+                                    max_price: listingData.max_price,
+                                  },
+                                  appSettings.lng
+                                )}
+                              </Text>
+                            </View>
+
+                            {listingData?.price_type !== "on_call" && (
+                              <Text style={styles.listingPricenegotiable}>
+                                {getPriceType(listingData.price_type)}
+                              </Text>
+                            )}
+                          </View>
+                        )}
+                      </View>
+                    )}
                   </View>
-                  {!admobConfig.admobEnabled && (
-                    <View style={styles.screenSeparatorWrap}>
-                      <AppSeparator style={styles.screenSeparator} />
+                </View>
+              </View>
+
+              <View
+                style={{
+                  backgroundColor: COLORS.white,
+                  borderRadius: 6,
+                  elevation: 0.5,
+                  shadowColor: COLORS.border_light,
+                  shadowOpacity: 0.2,
+                  shadowRadius: 5,
+                  shadowOffset: { height: 1, width: 0 },
+                  marginBottom: 20,
+                  width: "100%",
+                }}
+              >
+                <View
+                  style={{
+                    overflow: "hidden",
+                    borderRadius: 6,
+                    backgroundColor: "#white",
+                  }}
+                >
+                  <View style={{ paddingHorizontal: "3%", marginTop: 15 }}>
+                    <Text style={[styles.descriptionTitle, rtlText]}>
+                      {__(
+                        "listingDetailScreenTexts.description",
+                        appSettings.lng
+                      )}
+                    </Text>
+                  </View>
+                  <View style={styles.screenSeparatorWrap}>
+                    <AppSeparator style={styles.screenSeparator} />
+                  </View>
+
+                  {/* custom fields & description */}
+                  {(!!getCustomFields() || !!listingData.description) && (
+                    <View style={styles.bgWhite_W100_PH3}>
+                      {/* Custom Fields */}
+                      {!!listingData.custom_fields.length && (
+                        <View
+                          style={[
+                            styles.listingCustomInfoWrap,
+                            { marginTop: -3 },
+                          ]}
+                        >
+                          {listingData.custom_fields.map((field, index) => (
+                            <View key={index}>
+                              {["text", "textarea"].includes(field.type) &&
+                                !!field.value && (
+                                  <View style={[styles.customfield, rtlView]}>
+                                    <Text
+                                      style={[styles.customfieldName, rtlTextA]}
+                                    >
+                                      {decodeString(field.label)}
+                                      {" : "}
+                                    </Text>
+                                    <Text
+                                      style={[
+                                        styles.customfieldValue,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {decodeString(field?.value) ||
+                                        __(
+                                          "listingDetailScreenTexts.deletedValue",
+                                          appSettings.lng
+                                        )}
+                                    </Text>
+                                  </View>
+                                )}
+                              {["url", "number"].includes(field.type) &&
+                                !!field.value && (
+                                  <View style={[styles.customfield, rtlView]}>
+                                    <Text
+                                      style={[styles.customfieldName, rtlTextA]}
+                                    >
+                                      {decodeString(field.label)}
+                                      {" : "}
+                                    </Text>
+                                    <Text
+                                      style={[
+                                        styles.customfieldValue,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {field?.value ||
+                                        __(
+                                          "listingDetailScreenTexts.deletedValue",
+                                          appSettings.lng
+                                        )}
+                                    </Text>
+                                  </View>
+                                )}
+                              {["radio", "select"].includes(field.type) &&
+                                !!field.value &&
+                                !!field.options.choices.filter(
+                                  (choice) => choice.id === field.value
+                                ).length && (
+                                  <View style={[styles.customfield, rtlView]}>
+                                    <Text
+                                      style={[styles.customfieldName, rtlTextA]}
+                                    >
+                                      {decodeString(field.label)}
+                                      {" : "}
+                                    </Text>
+                                    <Text
+                                      style={[
+                                        styles.customfieldValue,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {decodeString(
+                                        field.options.choices.filter(
+                                          (choice) => choice.id === field.value
+                                        )[0].name
+                                      ) ||
+                                        __(
+                                          "listingDetailScreenTexts.deletedValue",
+                                          appSettings.lng
+                                        )}
+                                    </Text>
+                                  </View>
+                                )}
+                              {field.type === "checkbox" &&
+                                !!field.value.length && (
+                                  <View style={[styles.customfield, rtlView]}>
+                                    <Text
+                                      style={[styles.customfieldName, rtlTextA]}
+                                    >
+                                      {decodeString(field.label)}
+                                      {" : "}
+                                    </Text>
+                                    <Text
+                                      style={[
+                                        styles.customfieldValue,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {getCheckboxValue(field)}
+                                    </Text>
+                                  </View>
+                                )}
+                              {field.type === "date" && !!field.value && (
+                                <View style={[styles.customfield, rtlView]}>
+                                  {["date", "date_time"].includes(
+                                    field.date.type
+                                  ) && (
+                                    <Text
+                                      style={[styles.customfieldName, rtlTextA]}
+                                    >
+                                      {decodeString(field.label)}
+                                      {" : "}
+                                    </Text>
+                                  )}
+                                  {["date_range", "date_time_range"].includes(
+                                    field.date.type
+                                  ) &&
+                                    getRangeField(field) && (
+                                      <Text
+                                        style={[
+                                          styles.customfieldName,
+                                          rtlTextA,
+                                        ]}
+                                      >
+                                        {decodeString(field.label)}
+                                        {" : "}
+                                      </Text>
+                                    )}
+                                  {field.date.type === "date" && (
+                                    <Text
+                                      style={[
+                                        styles.customfieldValue,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {field?.value ||
+                                        __(
+                                          "listingDetailScreenTexts.deletedValue",
+                                          appSettings.lng
+                                        )}
+                                    </Text>
+                                  )}
+                                  {field.date.type === "date_time" && (
+                                    <Text
+                                      style={[
+                                        styles.customfieldValue,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {field?.value ||
+                                        __(
+                                          "listingDetailScreenTexts.deletedValue",
+                                          appSettings.lng
+                                        )}
+                                    </Text>
+                                  )}
+                                  {field.date.type === "date_range" &&
+                                    getRangeField(field) && (
+                                      <Text
+                                        style={[
+                                          styles.customfieldValue,
+                                          rtlTextA,
+                                        ]}
+                                      >
+                                        {__(
+                                          "listingDetailScreenTexts.custom_fields.date_range.start",
+                                          appSettings.lng
+                                        ) +
+                                          field.value.start +
+                                          "\n" +
+                                          __(
+                                            "listingDetailScreenTexts.custom_fields.date_range.end",
+                                            appSettings.lng
+                                          ) +
+                                          field.value.end ||
+                                          __(
+                                            "listingDetailScreenTexts.deletedValue",
+                                            appSettings.lng
+                                          )}
+                                      </Text>
+                                    )}
+                                  {field.date.type === "date_time_range" &&
+                                    getRangeField(field) && (
+                                      <Text
+                                        style={[
+                                          styles.customfieldValue,
+                                          rtlTextA,
+                                        ]}
+                                      >
+                                        {__(
+                                          "listingDetailScreenTexts.custom_fields.date_time_range.start",
+                                          appSettings.lng
+                                        ) +
+                                          field.value.start +
+                                          "\n" +
+                                          __(
+                                            "listingDetailScreenTexts.custom_fields.date_time_range.end",
+                                            appSettings.lng
+                                          ) +
+                                          field.value.end ||
+                                          __(
+                                            "listingDetailScreenTexts.deletedValue",
+                                            appSettings.lng
+                                          )}
+                                      </Text>
+                                    )}
+                                </View>
+                              )}
+                            </View>
+                          ))}
+                        </View>
+                      )}
+
+                      {!!listingData.custom_fields.length &&
+                        !!listingData.description && (
+                          <View
+                            style={{
+                              width: "100%",
+                              height: 10,
+                            }}
+                          />
+                        )}
+                      {/* Description */}
+                      {!!listingData.description && (
+                        <View
+                          style={[
+                            styles.listingDescriptionWrap,
+                            {
+                              marginTop: !listingData.custom_fields.length
+                                ? -7
+                                : 0,
+                            },
+                            {
+                              alignItems: rtl_support
+                                ? "flex-end"
+                                : "flex-start",
+                            },
+                          ]}
+                        >
+                          <View
+                            style={{
+                              width: "100%",
+                            }}
+                          >
+                            <ReadMore
+                              numberOfLines={3}
+                              renderTruncatedFooter={renderTruncatedFooter}
+                              renderRevealedFooter={renderRevealedFooter}
+                            >
+                              <Text
+                                style={[
+                                  styles.cardText,
+                                  rtlText,
+                                  {
+                                    textAlign: rtl_support
+                                      ? "right"
+                                      : "justify",
+                                  },
+                                ]}
+                              >
+                                {decodeString(listingData.description).trim()}
+                              </Text>
+                            </ReadMore>
+                          </View>
+                        </View>
+                      )}
                     </View>
                   )}
-                </>
-              )}
+                </View>
+              </View>
               {/* Admob banner Component */}
-
               {admobConfig.admobEnabled && (
                 <View
                   style={{
                     alignItems: "center",
                     justifyContent: "center",
                     height: 100,
+                    marginBottom: 20,
                   }}
                 >
                   <AdmobBanner />
                 </View>
               )}
 
-              {/* Business Hours Component */}
-
-              {!!listingData?.bh?.bhs &&
-                !!Object.keys(listingData.bh.bhs).length && (
-                  <View style={styles.bgWhite_W100_PH3}>
-                    <View
-                      style={[
-                        styles.bHTitleWrap,
-                        { alignItems: rtl_support ? "flex-end" : "flex-start" },
-                      ]}
-                    >
-                      <Text style={[styles.bHTitle, rtlText]}>
-                        {__(
-                          "listingDetailScreenTexts.businessHoursTitle",
-                          appSettings.lng
-                        )}
-                      </Text>
-                    </View>
-                    <View style={styles.businessHourContentWrap}>
+              {
+                // config?.store_enabled && !!listingData?.store &&
+                <View
+                  style={{
+                    backgroundColor: COLORS.white,
+                    borderRadius: 6,
+                    elevation: 0.5,
+                    shadowColor: COLORS.border_light,
+                    shadowOpacity: 0.2,
+                    shadowRadius: 5,
+                    shadowOffset: { height: 1, width: 0 },
+                    marginBottom: 20,
+                    width: "100%",
+                  }}
+                >
+                  <View
+                    style={{
+                      overflow: "hidden",
+                      borderRadius: 6,
+                      backgroundColor: "#white",
+                    }}
+                  >
+                    <View>
                       <View
                         style={[
-                          styles.currentStatusWrap,
                           {
-                            alignItems: rtl_support ? "flex-end" : "flex-start",
+                            flexDirection: "row",
+                            alignItems: "flex-start",
+                            width: "100%",
+                            paddingVertical: 15,
+                            paddingHorizontal: "1.5%",
                           },
+                          rtlView,
                         ]}
                       >
-                        {getCurrentStatus()}
+                        <View
+                          style={{
+                            height: 70,
+                            width: 70,
+                            borderRadius: 70 / 2,
+                            alignItems: "center",
+                            justifyContent: "center",
+                            overflow: "hidden",
+                            marginHorizontal: "1.5%",
+                            borderWidth: listingData?.author?.pp_thumb_url
+                              ? 0
+                              : 0.7,
+                            borderColor: COLORS.border_light,
+                            backgroundColor: "red",
+                          }}
+                        >
+                          {listingData.author.pp_thumb_url ? (
+                            <Image
+                              source={{ uri: listingData.author.pp_thumb_url }}
+                              style={{
+                                height: "100%",
+                                width: "100%",
+                                resizeMode: "contain",
+                              }}
+                            />
+                          ) : (
+                            <Ionicons
+                              name="person-outline"
+                              size={30}
+                              color="black"
+                            />
+                          )}
+                        </View>
+                        <View
+                          style={{
+                            marginHorizontal: "1.5%",
+                            // flex: 1,
+                          }}
+                        >
+                          <View style={styles.view}>
+                            <Text
+                              style={[
+                                {
+                                  fontSize: 16,
+                                  color: COLORS.text_dark,
+                                  fontWeight: "bold",
+                                },
+                                rtlTextA,
+                              ]}
+                            >
+                              {config?.store_enabled && !!listingData?.store
+                                ? decodeString(listingData.store.title)
+                                : getSellerName()}
+                            </Text>
+                          </View>
+                          {listingData?.author?.seller_verified && (
+                            <View
+                              style={{
+                                flexDirection: rtl_support
+                                  ? "row-reverse"
+                                  : "row",
+                                alignItems: "center",
+                                paddingTop: 5,
+                              }}
+                            >
+                              <MaterialIcons
+                                name="verified"
+                                size={20}
+                                color={
+                                  config?.seller_verification?.badge_color ||
+                                  "green"
+                                }
+                              />
+                              <View style={{ paddingHorizontal: 5 }}>
+                                <Text
+                                  style={[
+                                    {
+                                      fontSize: 15,
+                                      color:
+                                        config?.seller_verification
+                                          ?.badge_color || "green",
+                                    },
+                                    rtlText,
+                                  ]}
+                                >
+                                  {__(
+                                    "listingDetailScreenTexts.verified",
+                                    appSettings.lng
+                                  )}
+                                </Text>
+                              </View>
+                            </View>
+                          )}
+                          {config?.store_enabled && !!listingData?.store && (
+                            <View
+                              style={{
+                                paddingVertical: 10,
+                                alignItems: "center",
+                              }}
+                            >
+                              <AppButton
+                                title={__(
+                                  "listingDetailScreenTexts.seeAllAds",
+                                  appSettings.lng
+                                )}
+                                style={{
+                                  paddingHorizontal: 10,
+                                  paddingVertical: 7,
+                                }}
+                                textStyle={{ fontWeight: "normal" }}
+                                onPress={handleStorePress}
+                              />
+                            </View>
+                          )}
+                        </View>
                       </View>
-                      <View style={styles.bHTableWrap}>
-                        {config.week_days.map((_day, index, arr) => (
-                          <BHDayComponent
-                            day={_day}
-                            key={index}
-                            dataArr={arr}
-                            index={index}
-                          />
-                        ))}
+                    </View>
+                  </View>
+                </View>
+              }
+              {/* Business Hours Component */}
+              {!!listingData?.bh?.bhs &&
+                !!Object.keys(listingData.bh.bhs).length && (
+                  <View
+                    style={{
+                      backgroundColor: COLORS.white,
+                      borderRadius: 6,
+                      elevation: 0.5,
+                      shadowColor: COLORS.border_light,
+                      shadowOpacity: 0.2,
+                      shadowRadius: 5,
+                      shadowOffset: { height: 1, width: 0 },
+                      marginBottom: 20,
+                      width: "100%",
+                    }}
+                  >
+                    <View
+                      style={{
+                        overflow: "hidden",
+                        borderRadius: 6,
+                        backgroundColor: "#white",
+                      }}
+                    >
+                      <View
+                        style={[styles.bgWhite_W100_PH3, { paddingTop: 15 }]}
+                      >
+                        <View
+                          style={[
+                            styles.bHTitleWrap,
+                            {
+                              alignItems: rtl_support
+                                ? "flex-end"
+                                : "flex-start",
+                            },
+                          ]}
+                        >
+                          <Text style={[styles.bHTitle, rtlText]}>
+                            {__(
+                              "listingDetailScreenTexts.businessHoursTitle",
+                              appSettings.lng
+                            )}
+                          </Text>
+                        </View>
+                        <View style={styles.businessHourContentWrap}>
+                          <View
+                            style={[
+                              styles.currentStatusWrap,
+                              {
+                                alignItems: rtl_support
+                                  ? "flex-end"
+                                  : "flex-start",
+                              },
+                            ]}
+                          >
+                            {getCurrentStatus()}
+                          </View>
+                          <View style={styles.bHTableWrap}>
+                            {config.week_days.map((_day, index, arr) => (
+                              <BHDayComponent
+                                day={_day}
+                                key={index}
+                                dataArr={arr}
+                                index={index}
+                              />
+                            ))}
+                          </View>
+                        </View>
                       </View>
                     </View>
                   </View>
@@ -1844,108 +1972,86 @@ marker.setPopupContent("Address jhfashf asdjhfskjhdfk").openPopup();
                 !!config?.map && (
                   <View
                     style={{
-                      marginTop:
-                        !!getCustomFields() || !!listingData.description
-                          ? 20
-                          : 0,
+                      marginBottom: 20,
                       backgroundColor: COLORS.white,
+                      paddingHorizontal: "3%",
                     }}
                   >
-                    {"google" === config?.map?.type ? (
-                      <>
-                        {/* Map Type Change Buttons */}
-                        <View style={styles.mapViewButtonsWrap}>
-                          {/* Standard */}
-                          <TouchableOpacity
-                            style={[
-                              styles.mapViewButton,
-                              {
-                                backgroundColor:
-                                  mapType == "standard"
-                                    ? COLORS.dodgerblue
-                                    : "transparent",
-                              },
-                            ]}
-                            onPress={handleMapTypeChange}
-                            disabled={mapType == "standard"}
-                          >
-                            <Text
+                    <View style={{ borderRadius: 6, overflow: "hidden" }}>
+                      {"google" === config?.map?.type ? (
+                        <>
+                          {/* Map Type Change Buttons */}
+                          <View style={styles.mapViewButtonsWrap}>
+                            {/* Standard */}
+                            <TouchableOpacity
                               style={[
-                                styles.mapViewButtonTitle,
+                                styles.mapViewButton,
                                 {
-                                  color:
+                                  backgroundColor:
                                     mapType == "standard"
-                                      ? COLORS.white
-                                      : COLORS.text_gray,
+                                      ? COLORS.dodgerblue
+                                      : "transparent",
                                 },
                               ]}
+                              onPress={handleMapTypeChange}
+                              disabled={mapType == "standard"}
                             >
-                              {__(
-                                "listingDetailScreenTexts.mapButtons.standard",
-                                appSettings.lng
-                              )}
-                            </Text>
-                          </TouchableOpacity>
-                          {/* Hybrid */}
-                          <TouchableOpacity
-                            style={[
-                              styles.mapViewButton,
-                              {
-                                backgroundColor:
-                                  mapType == "hybrid"
-                                    ? COLORS.dodgerblue
-                                    : "transparent",
-                              },
-                            ]}
-                            onPress={handleMapTypeChange}
-                            disabled={mapType == "hybrid"}
-                          >
-                            <Text
+                              <Text
+                                style={[
+                                  styles.mapViewButtonTitle,
+                                  {
+                                    color:
+                                      mapType == "standard"
+                                        ? COLORS.white
+                                        : COLORS.text_gray,
+                                  },
+                                ]}
+                              >
+                                {__(
+                                  "listingDetailScreenTexts.mapButtons.standard",
+                                  appSettings.lng
+                                )}
+                              </Text>
+                            </TouchableOpacity>
+                            {/* Hybrid */}
+                            <TouchableOpacity
                               style={[
-                                styles.mapViewButtonTitle,
+                                styles.mapViewButton,
                                 {
-                                  color:
+                                  backgroundColor:
                                     mapType == "hybrid"
-                                      ? COLORS.white
-                                      : COLORS.text_gray,
+                                      ? COLORS.dodgerblue
+                                      : "transparent",
                                 },
                               ]}
+                              onPress={handleMapTypeChange}
+                              disabled={mapType == "hybrid"}
                             >
-                              {__(
-                                "listingDetailScreenTexts.mapButtons.hybrid",
-                                appSettings.lng
-                              )}
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                        {/* MapView */}
-                        <MapView
-                          style={{
-                            width: windowWidth,
-                            height: windowWidth * 0.7,
-                          }}
-                          initialRegion={{
-                            latitude: parseFloat(
-                              listingData?.contact?.latitude ||
-                                config?.map?.center?.lat ||
-                                0
-                            ),
-                            longitude: parseFloat(
-                              listingData?.contact?.longitude ||
-                                config?.map?.center?.lng ||
-                                0
-                            ),
-                            latitudeDelta: 0.0135135,
-                            longitudeDelta: 0.0135135 * 0.7,
-                          }}
-                          provider={MapView.PROVIDER_GOOGLE}
-                          // provider={null}
-                          mapType={mapType}
-                          scrollEnabled={false}
-                        >
-                          {/* Marker */}
-                          <Marker
-                            coordinate={{
+                              <Text
+                                style={[
+                                  styles.mapViewButtonTitle,
+                                  {
+                                    color:
+                                      mapType == "hybrid"
+                                        ? COLORS.white
+                                        : COLORS.text_gray,
+                                  },
+                                ]}
+                              >
+                                {__(
+                                  "listingDetailScreenTexts.mapButtons.hybrid",
+                                  appSettings.lng
+                                )}
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                          {/* MapView */}
+                          <MapView
+                            style={{
+                              width: windowWidth * 0.94,
+                              height: windowWidth * 0.7,
+                            }}
+                            initialRegion={{
                               latitude: parseFloat(
                                 listingData?.contact?.latitude ||
                                   config?.map?.center?.lat ||
@@ -1956,78 +2062,124 @@ marker.setPopupContent("Address jhfashf asdjhfskjhdfk").openPopup();
                                   config?.map?.center?.lng ||
                                   0
                               ),
+                              latitudeDelta: 0.0135135,
+                              longitudeDelta: 0.0135135 * 0.7,
                             }}
-                            title={getAddress(listingData?.contact || {})}
-                            onPress={(e) => handleMarkerPress(e)}
+                            provider={MapView.PROVIDER_GOOGLE}
+                            // provider={null}
+                            mapType={mapType}
+                            scrollEnabled={false}
+                          >
+                            {/* Marker */}
+                            <Marker
+                              coordinate={{
+                                latitude: parseFloat(
+                                  listingData?.contact?.latitude ||
+                                    config?.map?.center?.lat ||
+                                    0
+                                ),
+                                longitude: parseFloat(
+                                  listingData?.contact?.longitude ||
+                                    config?.map?.center?.lng ||
+                                    0
+                                ),
+                              }}
+                              title={getAddress(listingData?.contact || {})}
+                              onPress={(e) => handleMarkerPress(e)}
+                            />
+                            <UrlTile
+                              urlTemplate="http://a.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png"
+                              maximumZ={19}
+                              flipY={false}
+                            />
+                          </MapView>
+                        </>
+                      ) : (
+                        <View
+                          style={{
+                            width: windowWidth * 0.94,
+                            height: windowWidth * 0.7,
+                          }}
+                        >
+                          <WebView
+                            ref={mapRef}
+                            source={{ html: html_script }}
+                            style={{ flex: 1, opacity: 0.99 }}
+                            // scrollEnabled={true}
+                            // panGestureEnabled={false}
                           />
-                          <UrlTile
-                            urlTemplate="http://a.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png"
-                            maximumZ={19}
-                            flipY={false}
-                          />
-                        </MapView>
-                      </>
-                    ) : (
-                      <View
-                        style={{
-                          width: windowWidth,
-                          height: windowWidth * 0.7,
-                        }}
-                      >
-                        <WebView
-                          ref={mapRef}
-                          source={{ html: html_script }}
-                          style={{ flex: 1 }}
-                          // scrollEnabled={true}
-                          // panGestureEnabled={false}
-                        />
-                      </View>
-                    )}
+                        </View>
+                      )}
+                    </View>
                   </View>
                 )}
 
               {/* Social Profiles */}
               {!!listingData?.social_profiles &&
                 !!Object.keys(listingData.social_profiles).length && (
-                  <View style={styles.bgWhite_W100_PH3}>
-                    <View style={[styles.socialProfileComponentWrap, rtlView]}>
-                      <View style={styles.sclPrflTtlWrap}>
-                        <Text style={[styles.sclPrflTtl, rtlTextA]}>
-                          {__(
-                            "listingDetailScreenTexts.socialProfileTitle",
-                            appSettings.lng
-                          )}
-                        </Text>
-                      </View>
-                      <View style={styles.sclPrflsWrap}>
-                        <View style={styles.sclPrfls}>
-                          {Object.keys(listingData.social_profiles).map(
-                            (_profile, index) => (
-                              <TouchableOpacity
-                                style={[
-                                  styles.sclPrflIconWrap,
-                                  {
-                                    marginLeft: index === 0 ? 14 : 7,
-                                    marginRight:
-                                      index ===
-                                      listingData.social_profiles.length - 1
-                                        ? 15
-                                        : 7,
-                                  },
-                                ]}
-                                key={_profile}
-                                onPress={() =>
-                                  handleSocialProfileClick(_profile)
-                                }
-                              >
-                                <FontAwesome
-                                  name={_profile}
-                                  size={20}
-                                  color={COLORS.primary}
-                                />
-                              </TouchableOpacity>
-                            )
-                          )}
+                  <View
+                    style={{
+                      backgroundColor: COLORS.white,
+                      borderRadius: 6,
+                      elevation: 0.5,
+                      shadowColor: COLORS.border_light,
+                      shadowOpacity: 0.2,
+                      shadowRadius: 5,
+                      shadowOffset: { height: 1, width: 0 },
+                      marginBottom: 20,
+                      width: "100%",
+                    }}
+                  >
+                    <View
+                      style={{
+                        overflow: "hidden",
+                        borderRadius: 6,
+                        backgroundColor: "#white",
+                      }}
+                    >
+                      <View style={styles.bgWhite_W100_PH3}>
+                        <View
+                          style={[styles.socialProfileComponentWrap, rtlView]}
+                        >
+                          <View style={styles.sclPrflTtlWrap}>
+                            <Text style={[styles.sclPrflTtl, rtlTextA]}>
+                              {__(
+                                "listingDetailScreenTexts.socialProfileTitle",
+                                appSettings.lng
+                              )}
+                            </Text>
+                          </View>
+                          <View style={styles.sclPrflsWrap}>
+                            <View style={styles.sclPrfls}>
+                              {Object.keys(listingData.social_profiles).map(
+                                (_profile, index) => (
+                                  <TouchableOpacity
+                                    style={[
+                                      styles.sclPrflIconWrap,
+                                      {
+                                        marginLeft: index === 0 ? 14 : 7,
+                                        marginRight:
+                                          index ===
+                                          listingData.social_profiles.length - 1
+                                            ? 15
+                                            : 7,
+                                      },
+                                    ]}
+                                    key={_profile}
+                                    onPress={() =>
+                                      handleSocialProfileClick(_profile)
+                                    }
+                                  >
+                                    <FontAwesome
+                                      name={_profile}
+                                      size={20}
+                                      color={COLORS.primary}
+                                    />
+                                  </TouchableOpacity>
+                                )
+                              )}
+                            </View>
+                          </View>
                         </View>
                       </View>
                     </View>
@@ -2037,14 +2189,12 @@ marker.setPopupContent("Address jhfashf asdjhfskjhdfk").openPopup();
               {!!listingData?.contact?.whatsapp_number &&
                 (user === null || user.id !== listingData.author_id) && (
                   <View
-                    style={[
-                      styles.bgWhite_W100_PH3,
-                      {
-                        paddingBottom:
-                          user?.id === listingData?.author_id ? 20 : 0,
-                        alignItems: "center",
-                      },
-                    ]}
+                    style={{
+                      paddingHorizontal: "3%",
+                      width: "100%",
+                      marginBottom: 20,
+                      alignItems: "center",
+                    }}
                   >
                     <TouchableOpacity
                       style={styles.whatsappWrap}
@@ -2059,10 +2209,832 @@ marker.setPopupContent("Address jhfashf asdjhfskjhdfk").openPopup();
                     </TouchableOpacity>
                   </View>
                 )}
+
+              {/* Reviews & Rating */}
+              {!!listingData?.review && !!config?.review && (
+                <View
+                  style={{
+                    backgroundColor: COLORS.white,
+                    borderRadius: 6,
+                    elevation: 0.5,
+                    shadowColor: COLORS.border_light,
+                    shadowOpacity: 0.2,
+                    shadowRadius: 5,
+                    shadowOffset: { height: 1, width: 0 },
+                    width: "100%",
+                    marginBottom: 20,
+                  }}
+                >
+                  <View
+                    style={{
+                      overflow: "hidden",
+                      borderRadius: 6,
+                      backgroundColor: COLORS.white,
+                    }}
+                  >
+                    <View style={styles.ratingReviewSectionWrap}>
+                      <View style={styles.ratingDisplayWrap}>
+                        <View
+                          style={[
+                            styles.ratingDisHdrWrap,
+                            {
+                              justifyContent: config?.review?.rating
+                                ? "space-between"
+                                : "flex-start",
+                            },
+                            rtlView,
+                          ]}
+                        >
+                          <View style={styles.ratingCountWrap}>
+                            {listingData?.review?.rating?.count === 0 ? (
+                              <Text style={[styles.ratingCount, rtlText]}>
+                                {__(
+                                  "listingDetailScreenTexts.ratingHeader.zero",
+                                  appSettings.lng
+                                )}
+                              </Text>
+                            ) : (
+                              <>
+                                {rtl_support ? (
+                                  <Text style={[styles.ratingCount, rtlText]}>
+                                    {__(
+                                      listingData?.review?.rating?.count === 1
+                                        ? "listingDetailScreenTexts.ratingHeader.single"
+                                        : "listingDetailScreenTexts.ratingHeader.multiple",
+                                      appSettings.lng
+                                    )}{" "}
+                                    {listingData?.review?.rating?.count}
+                                  </Text>
+                                ) : (
+                                  <Text style={[styles.ratingCount, rtlText]}>
+                                    {listingData?.review?.rating?.count}{" "}
+                                    {__(
+                                      listingData?.review?.rating?.count === 1
+                                        ? "listingDetailScreenTexts.ratingHeader.single"
+                                        : "listingDetailScreenTexts.ratingHeader.multiple",
+                                      appSettings.lng
+                                    )}
+                                  </Text>
+                                )}
+                              </>
+                            )}
+                          </View>
+                          {config?.review?.rating && (
+                            <TotalRating
+                              ratio={listingData?.review?.rating?.average || 0}
+                              // rating.toFixed(2).toString()
+                            />
+                          )}
+                        </View>
+                        {listingData?.review?.rating?.count >= 1 && (
+                          <>
+                            <View
+                              style={{
+                                height: 1,
+                                width: "100%",
+                                backgroundColor: COLORS.text_gray,
+                                marginBottom: 8,
+                              }}
+                            />
+                            {ratingShown && (
+                              <View style={styles.ratingsList}>
+                                {/* map function will return the following component */}
+                                {ratingData.map((rat, ind) => (
+                                  <View
+                                    style={[styles.ratingWrap, rtlView]}
+                                    key={ind}
+                                  >
+                                    <View style={styles.avatarWrap}>
+                                      {rat?.author_avatar_urls ? (
+                                        <Image
+                                          source={{
+                                            uri:
+                                              rat.author_avatar_urls["96"] ||
+                                              rat.author_avatar_urls["48"] ||
+                                              rat.author_avatar_urls["24"],
+                                          }}
+                                          style={styles.ratingAvatar}
+                                        />
+                                      ) : (
+                                        <FontAwesome
+                                          name={"user-circle-o"}
+                                          size={45}
+                                          color={COLORS.text_gray}
+                                        />
+                                      )}
+                                    </View>
+
+                                    <View
+                                      style={[
+                                        styles.detailWrap,
+                                        {
+                                          paddingLeft: rtl_support ? 0 : 5,
+                                          paddingRight: rtl_support ? 5 : 0,
+                                        },
+                                      ]}
+                                    >
+                                      <View
+                                        style={{
+                                          flexDirection: rtl_support
+                                            ? "row-reverse"
+                                            : "row",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        <View
+                                          style={[
+                                            styles.reviewTitleWrap,
+                                            {
+                                              alignItems: rtl_support
+                                                ? "flex-end"
+                                                : "flex-start",
+                                            },
+                                          ]}
+                                        >
+                                          <Text
+                                            style={[
+                                              styles.reviewTitle,
+                                              rtlText,
+                                            ]}
+                                          >
+                                            {rat.title}
+                                          </Text>
+                                        </View>
+                                        {config?.review?.rating && (
+                                          <TotalRating
+                                            ratio={
+                                              rat.rating
+                                                .toFixed(2)
+                                                .toString() || 0
+                                            }
+                                          />
+                                        )}
+                                      </View>
+
+                                      <View
+                                        style={[
+                                          styles.userWrap,
+                                          {
+                                            alignItems: rtl_support
+                                              ? "flex-end"
+                                              : "flex-start",
+                                          },
+                                        ]}
+                                      >
+                                        <Text
+                                          style={[styles.username, rtlText]}
+                                        >
+                                          {rat.author_name}
+                                        </Text>
+                                      </View>
+
+                                      <View
+                                        style={[
+                                          styles.timeWrap,
+                                          {
+                                            alignItems: rtl_support
+                                              ? "flex-end"
+                                              : "flex-start",
+                                          },
+                                        ]}
+                                      >
+                                        <Text
+                                          style={[styles.reviewTime, rtlText]}
+                                        >
+                                          {moment(rat.date).format(
+                                            "MMM Do, YYYY"
+                                          )}
+                                        </Text>
+                                      </View>
+                                      <View
+                                        style={[
+                                          styles.reviewdetailWrap,
+                                          {
+                                            alignItems: rtl_support
+                                              ? "flex-end"
+                                              : "flex-start",
+                                          },
+                                        ]}
+                                      >
+                                        <Text
+                                          style={[styles.reviewDetail, rtlText]}
+                                        >
+                                          {decodeString(rat.content.raw)}
+                                        </Text>
+                                      </View>
+                                    </View>
+                                  </View>
+                                ))}
+                                {pagination.total_pages >
+                                  pagination.current_page && (
+                                  <>
+                                    {moreloading ? (
+                                      <View style={styles.moreLoadingWrap}>
+                                        <ActivityIndicator
+                                          size="small"
+                                          color={COLORS.primary}
+                                        />
+                                      </View>
+                                    ) : (
+                                      <View style={styles.showMoreWrap}>
+                                        <AppTextButton
+                                          title={__(
+                                            "listingDetailScreenTexts.showMore",
+                                            appSettings.lng
+                                          )}
+                                          onPress={() => setMoreLoading(true)}
+                                        />
+                                      </View>
+                                    )}
+                                  </>
+                                )}
+                              </View>
+                            )}
+                            <View style={styles.showReviewBtnWrap}>
+                              <AppTextButton
+                                title={
+                                  ratingShown
+                                    ? __(
+                                        "listingDetailScreenTexts.hideRatingBtn",
+                                        appSettings.lng
+                                      )
+                                    : __(
+                                        "listingDetailScreenTexts.showRatingBtn",
+                                        appSettings.lng
+                                      )
+                                }
+                                style={{ marginBottom: 5 }}
+                                onPress={toggleRatings}
+                              />
+                            </View>
+                          </>
+                        )}
+                      </View>
+                      {config?.review && (
+                        <View style={styles.ratingFormWrap}>
+                          <TouchableWithoutFeedback
+                            onPress={() => {
+                              setFormShown(true);
+                              setTimeout(() => {
+                                scrollRef.current.scrollToEnd({
+                                  animated: true,
+                                  duration: 100,
+                                });
+                              }, 10);
+                            }}
+                          >
+                            <View
+                              style={[
+                                styles.formTitleWrap,
+                                {
+                                  alignItems: formShown
+                                    ? rtl_support
+                                      ? "flex-end"
+                                      : "flex-start"
+                                    : "center",
+                                },
+                              ]}
+                            >
+                              <Text
+                                style={[
+                                  styles.formTitle,
+                                  {
+                                    color: formShown
+                                      ? COLORS.text_dark
+                                      : COLORS.primary,
+                                  },
+                                  rtlText,
+                                ]}
+                              >
+                                {__(
+                                  "listingDetailScreenTexts.ratingFormTitle",
+                                  appSettings.lng
+                                )}
+                              </Text>
+                            </View>
+                          </TouchableWithoutFeedback>
+                          {formShown && (
+                            <>
+                              <View
+                                style={{
+                                  width: "100%",
+                                  height: 1,
+                                  backgroundColor: COLORS.text_gray,
+                                }}
+                              />
+                              <Formik
+                                initialValues={{
+                                  author_name:
+                                    listingData?.review?.item?.author_name ||
+                                    user?.first_name + user?.last_name ||
+                                    user?.first_name ||
+                                    user?.last_name ||
+                                    user?.username ||
+                                    "",
+                                  author_email:
+                                    listingData?.review?.item?.author_email ||
+                                    user?.email ||
+                                    "",
+                                  title: listingData?.review?.item?.title || "",
+                                  rating:
+                                    listingData?.review?.item?.rating || "",
+                                  content:
+                                    listingData?.review?.item?.content?.raw ||
+                                    "",
+                                }}
+                                onSubmit={(values) => handleReview(values)}
+                                validationSchema={validationSchema}
+                              >
+                                {({
+                                  handleChange,
+                                  handleBlur,
+                                  handleSubmit,
+                                  values,
+                                  errors,
+                                  touched,
+                                  setFieldValue,
+                                }) => (
+                                  <View
+                                    style={{
+                                      backgroundColor: COLORS.bg_light,
+                                      paddingHorizontal: "3%",
+                                      paddingVertical: 10,
+                                    }}
+                                  >
+                                    <View
+                                      style={[
+                                        styles.ratingNoticeWrap,
+                                        {
+                                          alignItems: rtl_support
+                                            ? "flex-end"
+                                            : "flex-start",
+                                        },
+                                      ]}
+                                    >
+                                      <Text
+                                        style={[styles.ratingNotice, rtlText]}
+                                      >
+                                        {__(
+                                          "listingDetailScreenTexts.ratingFormNotice",
+                                          appSettings.lng
+                                        )}
+                                      </Text>
+                                    </View>
+                                    {!user?.first_name &&
+                                      !user?.last_name &&
+                                      !user?.username && (
+                                        <View style={styles.formFieldWrap}>
+                                          <View
+                                            style={[
+                                              styles.formFieldLabelWrap,
+                                              {
+                                                alignItems: rtl_support
+                                                  ? "flex-end"
+                                                  : "flex-start",
+                                              },
+                                            ]}
+                                          >
+                                            <Text
+                                              style={[
+                                                styles.formFieldLabel,
+                                                rtlText,
+                                              ]}
+                                            >
+                                              {__(
+                                                "listingDetailScreenTexts.formLabels.name",
+                                                appSettings.lng
+                                              )}
+                                              <Text style={styles.mendatory}>
+                                                {" "}
+                                                *
+                                              </Text>
+                                            </Text>
+                                          </View>
+                                          <TextInput
+                                            style={[
+                                              styles.formImput,
+                                              {
+                                                textAlign: rtl_support
+                                                  ? "right"
+                                                  : "left",
+                                              },
+                                            ]}
+                                            onChangeText={handleChange(
+                                              "author_name"
+                                            )}
+                                            onBlur={handleBlur("author_name")}
+                                            value={values.author_name}
+                                          />
+                                          <View
+                                            style={[
+                                              styles.formFieldErrorWrap,
+                                              {
+                                                alignItems: rtl_support
+                                                  ? "flex-end"
+                                                  : "flex-start",
+                                              },
+                                            ]}
+                                          >
+                                            {touched.author_name &&
+                                              errors.author_name && (
+                                                <Text
+                                                  style={[
+                                                    styles.formFieldError,
+                                                    rtlText,
+                                                  ]}
+                                                >
+                                                  {errors.author_name}
+                                                </Text>
+                                              )}
+                                          </View>
+                                        </View>
+                                      )}
+                                    {!user?.email && (
+                                      <View style={styles.formFieldWrap}>
+                                        <View
+                                          style={[
+                                            styles.formFieldLabelWrap,
+                                            {
+                                              alignItems: rtl_support
+                                                ? "flex-end"
+                                                : "flex-start",
+                                            },
+                                          ]}
+                                        >
+                                          <Text
+                                            style={[
+                                              styles.formFieldLabel,
+                                              rtlText,
+                                            ]}
+                                          >
+                                            {__(
+                                              "listingDetailScreenTexts.formLabels.email",
+                                              appSettings.lng
+                                            )}
+                                            <Text style={styles.mendatory}>
+                                              {" "}
+                                              *
+                                            </Text>
+                                          </Text>
+                                        </View>
+                                        <TextInput
+                                          style={[
+                                            styles.formImput,
+                                            {
+                                              textAlign: rtl_support
+                                                ? "right"
+                                                : "left",
+                                            },
+                                          ]}
+                                          onChangeText={handleChange(
+                                            "author_email"
+                                          )}
+                                          onBlur={handleBlur("author_email")}
+                                          value={values.author_email}
+                                        />
+                                        <View
+                                          style={[
+                                            styles.formFieldErrorWrap,
+                                            {
+                                              alignItems: rtl_support
+                                                ? "flex-end"
+                                                : "flex-start",
+                                            },
+                                          ]}
+                                        >
+                                          {touched.author_email &&
+                                            errors.author_email && (
+                                              <Text
+                                                style={[
+                                                  styles.formFieldError,
+                                                  rtlText,
+                                                ]}
+                                              >
+                                                {errors.author_email}
+                                              </Text>
+                                            )}
+                                        </View>
+                                      </View>
+                                    )}
+                                    <View style={styles.formFieldWrap}>
+                                      <View
+                                        style={[
+                                          styles.formFieldLabelWrap,
+                                          {
+                                            alignItems: rtl_support
+                                              ? "flex-end"
+                                              : "flex-start",
+                                          },
+                                        ]}
+                                      >
+                                        <Text
+                                          style={[
+                                            styles.formFieldLabel,
+                                            rtlText,
+                                          ]}
+                                        >
+                                          {__(
+                                            "listingDetailScreenTexts.formLabels.title",
+                                            appSettings.lng
+                                          )}
+                                          <Text style={styles.mendatory}>
+                                            {" "}
+                                            *
+                                          </Text>
+                                        </Text>
+                                      </View>
+                                      <TextInput
+                                        style={[
+                                          styles.formImput,
+                                          {
+                                            textAlign: rtl_support
+                                              ? "right"
+                                              : "left",
+                                          },
+                                        ]}
+                                        onChangeText={handleChange("title")}
+                                        onBlur={handleBlur("title")}
+                                        value={values.title}
+                                      />
+                                      <View
+                                        style={[
+                                          styles.formFieldErrorWrap,
+                                          {
+                                            alignItems: rtl_support
+                                              ? "flex-end"
+                                              : "flex-start",
+                                          },
+                                        ]}
+                                      >
+                                        {touched.title && errors.title && (
+                                          <Text
+                                            style={[
+                                              styles.formFieldError,
+                                              rtlText,
+                                            ]}
+                                          >
+                                            {errors.title}
+                                          </Text>
+                                        )}
+                                      </View>
+                                    </View>
+                                    {config?.review?.rating && (
+                                      <View style={styles.formFieldWrap}>
+                                        <View
+                                          style={[
+                                            styles.formFieldLabelWrap,
+                                            {
+                                              alignItems: rtl_support
+                                                ? "flex-end"
+                                                : "flex-start",
+                                            },
+                                          ]}
+                                        >
+                                          <Text
+                                            style={[
+                                              styles.formFieldLabel,
+                                              rtlText,
+                                            ]}
+                                          >
+                                            {__(
+                                              "listingDetailScreenTexts.formLabels.rating",
+                                              appSettings.lng
+                                            )}
+                                            <Text style={styles.mendatory}>
+                                              {" "}
+                                              *
+                                            </Text>
+                                          </Text>
+                                        </View>
+                                        <View
+                                          style={[styles.ratingWrap, rtlView]}
+                                        >
+                                          <View
+                                            style={[
+                                              styles.totalRatingWrap,
+                                              rtlView,
+                                            ]}
+                                          >
+                                            <TouchableOpacity
+                                              style={styles.ratingStarWrap}
+                                              onPress={() =>
+                                                handleRating(
+                                                  setFieldValue,
+                                                  1,
+                                                  values.rating
+                                                )
+                                              }
+                                            >
+                                              <FontAwesome
+                                                name={
+                                                  values.rating > 0
+                                                    ? "star"
+                                                    : "star-o"
+                                                }
+                                                size={30}
+                                                color={COLORS.rating_star}
+                                              />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                              style={styles.ratingStarWrap}
+                                              onPress={() =>
+                                                handleRating(
+                                                  setFieldValue,
+                                                  2,
+                                                  values.rating
+                                                )
+                                              }
+                                            >
+                                              <FontAwesome
+                                                name={
+                                                  values.rating > 1
+                                                    ? "star"
+                                                    : "star-o"
+                                                }
+                                                size={30}
+                                                color={COLORS.rating_star}
+                                              />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                              style={styles.ratingStarWrap}
+                                              onPress={() =>
+                                                handleRating(
+                                                  setFieldValue,
+                                                  3,
+                                                  values.rating
+                                                )
+                                              }
+                                            >
+                                              <FontAwesome
+                                                name={
+                                                  values.rating > 2
+                                                    ? "star"
+                                                    : "star-o"
+                                                }
+                                                size={30}
+                                                color={COLORS.rating_star}
+                                              />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                              style={styles.ratingStarWrap}
+                                              onPress={() =>
+                                                handleRating(
+                                                  setFieldValue,
+                                                  4,
+                                                  values.rating
+                                                )
+                                              }
+                                            >
+                                              <FontAwesome
+                                                name={
+                                                  values.rating > 3
+                                                    ? "star"
+                                                    : "star-o"
+                                                }
+                                                size={30}
+                                                color={COLORS.rating_star}
+                                              />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                              style={styles.ratingStarWrap}
+                                              onPress={() =>
+                                                handleRating(
+                                                  setFieldValue,
+                                                  5,
+                                                  values.rating
+                                                )
+                                              }
+                                            >
+                                              <FontAwesome
+                                                name={
+                                                  values.rating > 4
+                                                    ? "star"
+                                                    : "star-o"
+                                                }
+                                                size={30}
+                                                color={COLORS.rating_star}
+                                              />
+                                            </TouchableOpacity>
+                                          </View>
+                                        </View>
+
+                                        <View
+                                          style={[
+                                            styles.formFieldErrorWrap,
+                                            {
+                                              alignItems: rtl_support
+                                                ? "flex-end"
+                                                : "flex-start",
+                                            },
+                                          ]}
+                                        >
+                                          {touched.rating && errors.rating && (
+                                            <Text
+                                              style={[
+                                                styles.formFieldError,
+                                                rtlText,
+                                              ]}
+                                            >
+                                              {errors.rating}
+                                            </Text>
+                                          )}
+                                        </View>
+                                      </View>
+                                    )}
+                                    <View style={styles.formFieldWrap}>
+                                      <View
+                                        style={[
+                                          styles.formFieldLabelWrap,
+                                          {
+                                            alignItems: rtl_support
+                                              ? "flex-end"
+                                              : "flex-start",
+                                          },
+                                        ]}
+                                      >
+                                        <Text
+                                          style={[
+                                            styles.formFieldLabel,
+                                            rtlText,
+                                          ]}
+                                        >
+                                          {__(
+                                            "listingDetailScreenTexts.formLabels.review",
+                                            appSettings.lng
+                                          )}
+                                          <Text style={styles.mendatory}>
+                                            {" "}
+                                            *
+                                          </Text>
+                                        </Text>
+                                      </View>
+                                      <TextInput
+                                        style={[
+                                          styles.formImput,
+                                          {
+                                            height: 80,
+                                            textAlign: rtl_support
+                                              ? "right"
+                                              : "left",
+                                          },
+                                        ]}
+                                        onChangeText={handleChange("content")}
+                                        onBlur={handleBlur("content")}
+                                        value={values.content}
+                                        multiline
+                                      />
+                                      <View
+                                        style={[
+                                          styles.formFieldErrorWrap,
+                                          {
+                                            alignItems: rtl_support
+                                              ? "flex-end"
+                                              : "flex-start",
+                                          },
+                                        ]}
+                                      >
+                                        {touched.content && errors.content && (
+                                          <Text
+                                            style={[
+                                              styles.formFieldError,
+                                              rtlText,
+                                            ]}
+                                          >
+                                            {errors.content}
+                                          </Text>
+                                        )}
+                                      </View>
+                                    </View>
+                                    <AppButton
+                                      onPress={handleSubmit}
+                                      title={__(
+                                        "listingDetailScreenTexts.submitBtn",
+                                        appSettings.lng
+                                      )}
+                                      disabled={posting}
+                                      loading={posting}
+                                    />
+                                  </View>
+                                )}
+                              </Formik>
+                            </>
+                          )}
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                </View>
+              )}
+
               {/* Report ad */}
               {user !== null && user.id !== listingData.author_id && (
                 <View
-                  style={[styles.bgWhite_W100_PH3, { alignItems: "center" }]}
+                  style={{
+                    alignItems: "center",
+                    paddingHorizontal: "3%",
+                    width: "100%",
+                    marginVertical: 20,
+                  }}
                 >
                   <TouchableWithoutFeedback onPress={handleReport}>
                     <View style={styles.reportWrap}>
@@ -2090,7 +3062,6 @@ marker.setPopupContent("Address jhfashf asdjhfskjhdfk").openPopup();
                       style={[
                         styles.similarAddTitleWrap,
                         {
-                          paddingTop: user === null ? 15 : 0,
                           alignItems: rtl_support ? "flex-end" : "flex-start",
                         },
                       ]}
@@ -2142,753 +3113,6 @@ marker.setPopupContent("Address jhfashf asdjhfskjhdfk").openPopup();
                     </View>
                   </View>
                 )}
-
-              {/* Reviews & Rating */}
-              {!!listingData?.review && !!config?.review && (
-                <View style={styles.ratingReviewSectionWrap}>
-                  <View style={styles.ratingDisplayWrap}>
-                    <View
-                      style={[
-                        styles.ratingDisHdrWrap,
-                        {
-                          justifyContent: config?.review?.rating
-                            ? "space-between"
-                            : "flex-start",
-                        },
-                        rtlView,
-                      ]}
-                    >
-                      <View style={styles.ratingCountWrap}>
-                        {listingData?.review?.rating?.count === 0 ? (
-                          <Text style={[styles.ratingCount, rtlText]}>
-                            {__(
-                              "listingDetailScreenTexts.ratingHeader.zero",
-                              appSettings.lng
-                            )}
-                          </Text>
-                        ) : (
-                          <>
-                            {rtl_support ? (
-                              <Text style={[styles.ratingCount, rtlText]}>
-                                {__(
-                                  listingData?.review?.rating?.count === 1
-                                    ? "listingDetailScreenTexts.ratingHeader.single"
-                                    : "listingDetailScreenTexts.ratingHeader.multiple",
-                                  appSettings.lng
-                                )}{" "}
-                                {listingData?.review?.rating?.count}
-                              </Text>
-                            ) : (
-                              <Text style={[styles.ratingCount, rtlText]}>
-                                {listingData?.review?.rating?.count}{" "}
-                                {__(
-                                  listingData?.review?.rating?.count === 1
-                                    ? "listingDetailScreenTexts.ratingHeader.single"
-                                    : "listingDetailScreenTexts.ratingHeader.multiple",
-                                  appSettings.lng
-                                )}
-                              </Text>
-                            )}
-                          </>
-                        )}
-                      </View>
-                      {config?.review?.rating && (
-                        <TotalRating
-                          ratio={listingData?.review?.rating?.average || 0}
-                          // rating.toFixed(2).toString()
-                        />
-                      )}
-                    </View>
-                    {listingData?.review?.rating?.count >= 1 && (
-                      <>
-                        <View
-                          style={{
-                            height: 1,
-                            width: "100%",
-                            backgroundColor: COLORS.text_gray,
-                            marginBottom: 8,
-                          }}
-                        />
-                        {ratingShown && (
-                          <View style={styles.ratingsList}>
-                            {/* map function will return the following component */}
-                            {ratingData.map((rat, ind) => (
-                              <View
-                                style={[styles.ratingWrap, rtlView]}
-                                key={ind}
-                              >
-                                <View style={styles.avatarWrap}>
-                                  {rat?.author_avatar_urls ? (
-                                    <Image
-                                      source={{
-                                        uri:
-                                          rat.author_avatar_urls["96"] ||
-                                          rat.author_avatar_urls["48"] ||
-                                          rat.author_avatar_urls["24"],
-                                      }}
-                                      style={styles.ratingAvatar}
-                                    />
-                                  ) : (
-                                    <FontAwesome
-                                      name={"user-circle-o"}
-                                      size={45}
-                                      color={COLORS.text_gray}
-                                    />
-                                  )}
-                                </View>
-
-                                <View
-                                  style={[
-                                    styles.detailWrap,
-                                    {
-                                      paddingLeft: rtl_support ? 0 : 5,
-                                      paddingRight: rtl_support ? 5 : 0,
-                                    },
-                                  ]}
-                                >
-                                  <View
-                                    style={{
-                                      flexDirection: rtl_support
-                                        ? "row-reverse"
-                                        : "row",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <View
-                                      style={[
-                                        styles.reviewTitleWrap,
-                                        {
-                                          alignItems: rtl_support
-                                            ? "flex-end"
-                                            : "flex-start",
-                                        },
-                                      ]}
-                                    >
-                                      <Text
-                                        style={[styles.reviewTitle, rtlText]}
-                                      >
-                                        {rat.title}
-                                      </Text>
-                                    </View>
-                                    {config?.review?.rating && (
-                                      <TotalRating
-                                        ratio={
-                                          rat.rating.toFixed(2).toString() || 0
-                                        }
-                                      />
-                                    )}
-                                  </View>
-
-                                  <View
-                                    style={[
-                                      styles.userWrap,
-                                      {
-                                        alignItems: rtl_support
-                                          ? "flex-end"
-                                          : "flex-start",
-                                      },
-                                    ]}
-                                  >
-                                    <Text style={[styles.username, rtlText]}>
-                                      {rat.author_name}
-                                    </Text>
-                                  </View>
-
-                                  <View
-                                    style={[
-                                      styles.timeWrap,
-                                      {
-                                        alignItems: rtl_support
-                                          ? "flex-end"
-                                          : "flex-start",
-                                      },
-                                    ]}
-                                  >
-                                    <Text style={[styles.reviewTime, rtlText]}>
-                                      {moment(rat.date).format("MMM Do, YYYY")}
-                                    </Text>
-                                  </View>
-                                  <View
-                                    style={[
-                                      styles.reviewdetailWrap,
-                                      {
-                                        alignItems: rtl_support
-                                          ? "flex-end"
-                                          : "flex-start",
-                                      },
-                                    ]}
-                                  >
-                                    <Text
-                                      style={[styles.reviewDetail, rtlText]}
-                                    >
-                                      {decodeString(rat.content.raw)}
-                                    </Text>
-                                  </View>
-                                </View>
-                              </View>
-                            ))}
-                            {pagination.total_pages >
-                              pagination.current_page && (
-                              <>
-                                {moreloading ? (
-                                  <View style={styles.moreLoadingWrap}>
-                                    <ActivityIndicator
-                                      size="small"
-                                      color={COLORS.primary}
-                                    />
-                                  </View>
-                                ) : (
-                                  <View style={styles.showMoreWrap}>
-                                    <AppTextButton
-                                      title={__(
-                                        "listingDetailScreenTexts.showMore",
-                                        appSettings.lng
-                                      )}
-                                      onPress={() => setMoreLoading(true)}
-                                    />
-                                  </View>
-                                )}
-                              </>
-                            )}
-                          </View>
-                        )}
-                        <View style={styles.showReviewBtnWrap}>
-                          <AppTextButton
-                            title={
-                              ratingShown
-                                ? __(
-                                    "listingDetailScreenTexts.hideRatingBtn",
-                                    appSettings.lng
-                                  )
-                                : __(
-                                    "listingDetailScreenTexts.showRatingBtn",
-                                    appSettings.lng
-                                  )
-                            }
-                            style={{ marginBottom: 15 }}
-                            onPress={toggleRatings}
-                          />
-                        </View>
-                      </>
-                    )}
-                  </View>
-                  {config?.review && (
-                    <View style={styles.ratingFormWrap}>
-                      <TouchableWithoutFeedback
-                        onPress={() => {
-                          setFormShown(true);
-                          setTimeout(() => {
-                            scrollRef.current.scrollToEnd({
-                              animated: true,
-                              duration: 100,
-                            });
-                          }, 10);
-                        }}
-                      >
-                        <View
-                          style={[
-                            styles.formTitleWrap,
-                            {
-                              alignItems: formShown
-                                ? rtl_support
-                                  ? "flex-end"
-                                  : "flex-start"
-                                : "center",
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.formTitle,
-                              {
-                                color: formShown
-                                  ? COLORS.text_dark
-                                  : COLORS.primary,
-                              },
-                              rtlText,
-                            ]}
-                          >
-                            {__(
-                              "listingDetailScreenTexts.ratingFormTitle",
-                              appSettings.lng
-                            )}
-                          </Text>
-                        </View>
-                      </TouchableWithoutFeedback>
-                      {formShown && (
-                        <>
-                          <View
-                            style={{
-                              width: "100%",
-                              height: 1,
-                              backgroundColor: COLORS.text_gray,
-                            }}
-                          />
-                          <Formik
-                            initialValues={{
-                              author_name:
-                                listingData?.review?.item?.author_name ||
-                                user?.first_name + user?.last_name ||
-                                user?.first_name ||
-                                user?.last_name ||
-                                user?.username ||
-                                "",
-                              author_email:
-                                listingData?.review?.item?.author_email ||
-                                user?.email ||
-                                "",
-                              title: listingData?.review?.item?.title || "",
-                              rating: listingData?.review?.item?.rating || "",
-                              content:
-                                listingData?.review?.item?.content?.raw || "",
-                            }}
-                            onSubmit={(values) => handleReview(values)}
-                            validationSchema={validationSchema}
-                          >
-                            {({
-                              handleChange,
-                              handleBlur,
-                              handleSubmit,
-                              values,
-                              errors,
-                              touched,
-                              setFieldValue,
-                            }) => (
-                              <View
-                                style={{
-                                  backgroundColor: COLORS.bg_light,
-                                  paddingHorizontal: "3%",
-                                  paddingVertical: 10,
-                                }}
-                              >
-                                <View
-                                  style={[
-                                    styles.ratingNoticeWrap,
-                                    {
-                                      alignItems: rtl_support
-                                        ? "flex-end"
-                                        : "flex-start",
-                                    },
-                                  ]}
-                                >
-                                  <Text style={[styles.ratingNotice, rtlText]}>
-                                    {__(
-                                      "listingDetailScreenTexts.ratingFormNotice",
-                                      appSettings.lng
-                                    )}
-                                  </Text>
-                                </View>
-                                {!user?.first_name &&
-                                  !user?.last_name &&
-                                  !user?.username && (
-                                    <View style={styles.formFieldWrap}>
-                                      <View
-                                        style={[
-                                          styles.formFieldLabelWrap,
-                                          {
-                                            alignItems: rtl_support
-                                              ? "flex-end"
-                                              : "flex-start",
-                                          },
-                                        ]}
-                                      >
-                                        <Text
-                                          style={[
-                                            styles.formFieldLabel,
-                                            rtlText,
-                                          ]}
-                                        >
-                                          {__(
-                                            "listingDetailScreenTexts.formLabels.name",
-                                            appSettings.lng
-                                          )}
-                                          <Text style={styles.mendatory}>
-                                            {" "}
-                                            *
-                                          </Text>
-                                        </Text>
-                                      </View>
-                                      <TextInput
-                                        style={[
-                                          styles.formImput,
-                                          {
-                                            textAlign: rtl_support
-                                              ? "right"
-                                              : "left",
-                                          },
-                                        ]}
-                                        onChangeText={handleChange(
-                                          "author_name"
-                                        )}
-                                        onBlur={handleBlur("author_name")}
-                                        value={values.author_name}
-                                      />
-                                      <View
-                                        style={[
-                                          styles.formFieldErrorWrap,
-                                          {
-                                            alignItems: rtl_support
-                                              ? "flex-end"
-                                              : "flex-start",
-                                          },
-                                        ]}
-                                      >
-                                        {touched.author_name &&
-                                          errors.author_name && (
-                                            <Text
-                                              style={[
-                                                styles.formFieldError,
-                                                rtlText,
-                                              ]}
-                                            >
-                                              {errors.author_name}
-                                            </Text>
-                                          )}
-                                      </View>
-                                    </View>
-                                  )}
-                                {!user?.email && (
-                                  <View style={styles.formFieldWrap}>
-                                    <View
-                                      style={[
-                                        styles.formFieldLabelWrap,
-                                        {
-                                          alignItems: rtl_support
-                                            ? "flex-end"
-                                            : "flex-start",
-                                        },
-                                      ]}
-                                    >
-                                      <Text
-                                        style={[styles.formFieldLabel, rtlText]}
-                                      >
-                                        {__(
-                                          "listingDetailScreenTexts.formLabels.email",
-                                          appSettings.lng
-                                        )}
-                                        <Text style={styles.mendatory}> *</Text>
-                                      </Text>
-                                    </View>
-                                    <TextInput
-                                      style={[
-                                        styles.formImput,
-                                        {
-                                          textAlign: rtl_support
-                                            ? "right"
-                                            : "left",
-                                        },
-                                      ]}
-                                      onChangeText={handleChange(
-                                        "author_email"
-                                      )}
-                                      onBlur={handleBlur("author_email")}
-                                      value={values.author_email}
-                                    />
-                                    <View
-                                      style={[
-                                        styles.formFieldErrorWrap,
-                                        {
-                                          alignItems: rtl_support
-                                            ? "flex-end"
-                                            : "flex-start",
-                                        },
-                                      ]}
-                                    >
-                                      {touched.author_email &&
-                                        errors.author_email && (
-                                          <Text
-                                            style={[
-                                              styles.formFieldError,
-                                              rtlText,
-                                            ]}
-                                          >
-                                            {errors.author_email}
-                                          </Text>
-                                        )}
-                                    </View>
-                                  </View>
-                                )}
-                                <View style={styles.formFieldWrap}>
-                                  <View
-                                    style={[
-                                      styles.formFieldLabelWrap,
-                                      {
-                                        alignItems: rtl_support
-                                          ? "flex-end"
-                                          : "flex-start",
-                                      },
-                                    ]}
-                                  >
-                                    <Text
-                                      style={[styles.formFieldLabel, rtlText]}
-                                    >
-                                      {__(
-                                        "listingDetailScreenTexts.formLabels.title",
-                                        appSettings.lng
-                                      )}
-                                      <Text style={styles.mendatory}> *</Text>
-                                    </Text>
-                                  </View>
-                                  <TextInput
-                                    style={[
-                                      styles.formImput,
-                                      {
-                                        textAlign: rtl_support
-                                          ? "right"
-                                          : "left",
-                                      },
-                                    ]}
-                                    onChangeText={handleChange("title")}
-                                    onBlur={handleBlur("title")}
-                                    value={values.title}
-                                  />
-                                  <View
-                                    style={[
-                                      styles.formFieldErrorWrap,
-                                      {
-                                        alignItems: rtl_support
-                                          ? "flex-end"
-                                          : "flex-start",
-                                      },
-                                    ]}
-                                  >
-                                    {touched.title && errors.title && (
-                                      <Text
-                                        style={[styles.formFieldError, rtlText]}
-                                      >
-                                        {errors.title}
-                                      </Text>
-                                    )}
-                                  </View>
-                                </View>
-                                {config?.review?.rating && (
-                                  <View style={styles.formFieldWrap}>
-                                    <View
-                                      style={[
-                                        styles.formFieldLabelWrap,
-                                        {
-                                          alignItems: rtl_support
-                                            ? "flex-end"
-                                            : "flex-start",
-                                        },
-                                      ]}
-                                    >
-                                      <Text
-                                        style={[styles.formFieldLabel, rtlText]}
-                                      >
-                                        {__(
-                                          "listingDetailScreenTexts.formLabels.rating",
-                                          appSettings.lng
-                                        )}
-                                        <Text style={styles.mendatory}> *</Text>
-                                      </Text>
-                                    </View>
-                                    <View style={[styles.ratingWrap, rtlView]}>
-                                      <View
-                                        style={[
-                                          styles.totalRatingWrap,
-                                          rtlView,
-                                        ]}
-                                      >
-                                        <TouchableOpacity
-                                          style={styles.ratingStarWrap}
-                                          onPress={() =>
-                                            handleRating(
-                                              setFieldValue,
-                                              1,
-                                              values.rating
-                                            )
-                                          }
-                                        >
-                                          <FontAwesome
-                                            name={
-                                              values.rating > 0
-                                                ? "star"
-                                                : "star-o"
-                                            }
-                                            size={30}
-                                            color={COLORS.rating_star}
-                                          />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                          style={styles.ratingStarWrap}
-                                          onPress={() =>
-                                            handleRating(
-                                              setFieldValue,
-                                              2,
-                                              values.rating
-                                            )
-                                          }
-                                        >
-                                          <FontAwesome
-                                            name={
-                                              values.rating > 1
-                                                ? "star"
-                                                : "star-o"
-                                            }
-                                            size={30}
-                                            color={COLORS.rating_star}
-                                          />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                          style={styles.ratingStarWrap}
-                                          onPress={() =>
-                                            handleRating(
-                                              setFieldValue,
-                                              3,
-                                              values.rating
-                                            )
-                                          }
-                                        >
-                                          <FontAwesome
-                                            name={
-                                              values.rating > 2
-                                                ? "star"
-                                                : "star-o"
-                                            }
-                                            size={30}
-                                            color={COLORS.rating_star}
-                                          />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                          style={styles.ratingStarWrap}
-                                          onPress={() =>
-                                            handleRating(
-                                              setFieldValue,
-                                              4,
-                                              values.rating
-                                            )
-                                          }
-                                        >
-                                          <FontAwesome
-                                            name={
-                                              values.rating > 3
-                                                ? "star"
-                                                : "star-o"
-                                            }
-                                            size={30}
-                                            color={COLORS.rating_star}
-                                          />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                          style={styles.ratingStarWrap}
-                                          onPress={() =>
-                                            handleRating(
-                                              setFieldValue,
-                                              5,
-                                              values.rating
-                                            )
-                                          }
-                                        >
-                                          <FontAwesome
-                                            name={
-                                              values.rating > 4
-                                                ? "star"
-                                                : "star-o"
-                                            }
-                                            size={30}
-                                            color={COLORS.rating_star}
-                                          />
-                                        </TouchableOpacity>
-                                      </View>
-                                    </View>
-
-                                    <View
-                                      style={[
-                                        styles.formFieldErrorWrap,
-                                        {
-                                          alignItems: rtl_support
-                                            ? "flex-end"
-                                            : "flex-start",
-                                        },
-                                      ]}
-                                    >
-                                      {touched.rating && errors.rating && (
-                                        <Text
-                                          style={[
-                                            styles.formFieldError,
-                                            rtlText,
-                                          ]}
-                                        >
-                                          {errors.rating}
-                                        </Text>
-                                      )}
-                                    </View>
-                                  </View>
-                                )}
-                                <View style={styles.formFieldWrap}>
-                                  <View
-                                    style={[
-                                      styles.formFieldLabelWrap,
-                                      {
-                                        alignItems: rtl_support
-                                          ? "flex-end"
-                                          : "flex-start",
-                                      },
-                                    ]}
-                                  >
-                                    <Text
-                                      style={[styles.formFieldLabel, rtlText]}
-                                    >
-                                      {__(
-                                        "listingDetailScreenTexts.formLabels.review",
-                                        appSettings.lng
-                                      )}
-                                      <Text style={styles.mendatory}> *</Text>
-                                    </Text>
-                                  </View>
-                                  <TextInput
-                                    style={[
-                                      styles.formImput,
-                                      {
-                                        height: 80,
-                                        textAlign: rtl_support
-                                          ? "right"
-                                          : "left",
-                                      },
-                                    ]}
-                                    onChangeText={handleChange("content")}
-                                    onBlur={handleBlur("content")}
-                                    value={values.content}
-                                    multiline
-                                  />
-                                  <View
-                                    style={[
-                                      styles.formFieldErrorWrap,
-                                      {
-                                        alignItems: rtl_support
-                                          ? "flex-end"
-                                          : "flex-start",
-                                      },
-                                    ]}
-                                  >
-                                    {touched.content && errors.content && (
-                                      <Text
-                                        style={[styles.formFieldError, rtlText]}
-                                      >
-                                        {errors.content}
-                                      </Text>
-                                    )}
-                                  </View>
-                                </View>
-                                <AppButton
-                                  onPress={handleSubmit}
-                                  title={__(
-                                    "listingDetailScreenTexts.submitBtn",
-                                    appSettings.lng
-                                  )}
-                                  disabled={posting}
-                                  loading={posting}
-                                />
-                              </View>
-                            )}
-                          </Formik>
-                        </>
-                      )}
-                    </View>
-                  )}
-                </View>
-              )}
               <FlashNotification
                 falshShow={flashNotification}
                 flashMessage={flashNotificationMessage}
@@ -3073,7 +3297,8 @@ const styles = StyleSheet.create({
   },
   container: {
     alignItems: "center",
-    backgroundColor: COLORS.white,
+    paddingHorizontal: "3%",
+    paddingVertical: 15,
   },
   currentStatus: {
     fontWeight: "bold",
@@ -3153,7 +3378,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   formTitleWrap: {
-    backgroundColor: COLORS.bg_light,
     paddingVertical: 10,
     paddingHorizontal: "3%",
     marginTop: 10,
@@ -3162,10 +3386,9 @@ const styles = StyleSheet.create({
     flex: 3,
   },
   imageSlider: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: 15,
+    height: windowWidth * 0.75,
   },
   imageViewer: {
     flex: 1,
@@ -3207,7 +3430,7 @@ const styles = StyleSheet.create({
     right: 0,
   },
   locationData: {
-    marginBottom: 10,
+    marginVertical: 5,
   },
   listingDescriptionWrap: {},
   listingLocationAndTimeText: {
@@ -3218,20 +3441,19 @@ const styles = StyleSheet.create({
     width: 25,
   },
   listingPrice: {
-    fontSize: 18,
+    fontSize: 19.5,
     fontWeight: "bold",
-    color: COLORS.white,
+    color: COLORS.primary,
   },
   listingPricenegotiable: {
     color: COLORS.text_gray,
     fontSize: 15,
-    fontWeight: "bold",
+    paddingHorizontal: 10,
+    fontStyle: "italic",
   },
   listingPriceWrap: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 15,
-    paddingVertical: 5,
   },
   listingTitle: {
     color: COLORS.text_dark,
@@ -3296,14 +3518,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   priceTag: {
-    backgroundColor: COLORS.primary,
-    // position: "absolute",
-    left: -(windowWidth * 0.031),
-    paddingLeft: windowWidth * 0.031,
-    paddingVertical: 10,
-    paddingRight: 30,
-    flexDirection: "row",
-    alignItems: "center",
+    paddingHorizontal: "3%",
   },
   ratingAvatar: {
     height: 45,
@@ -3322,12 +3537,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   ratingDisplayWrap: {
-    backgroundColor: COLORS.bg_light,
     width: "100%",
     paddingHorizontal: 10,
   },
   ratingFormWrap: {
-    marginBottom: 50,
+    marginBottom: 20,
   },
   ratingReviewSectionWrap: {
     width: "100%",
@@ -3399,6 +3613,8 @@ const styles = StyleSheet.create({
   },
   screenSeparator: {
     width: "94%",
+    backgroundColor: COLORS.border_light,
+    height: 0.7,
   },
   screenSeparatorWrap: {
     width: "100%",
@@ -3451,13 +3667,10 @@ const styles = StyleSheet.create({
   },
   similarAddTitleWrap: {
     paddingHorizontal: "3%",
-    backgroundColor: COLORS.white,
     paddingBottom: 10,
   },
 
-  similarAddWrap: {
-    backgroundColor: COLORS.white,
-  },
+  similarAddWrap: {},
   slotText: {
     fontWeight: "bold",
     padding: 5,

@@ -2,7 +2,23 @@
   "expo": {
     "name": "Just Sale online",
     "slug": "justsaleonline",
-    "version": "1.0.2",
+    "version": "1.0.3",
+    "packagerOpts": {
+      "config": "metro.config.js",
+      "sourceExts": [
+        "expo.ts",
+        "expo.tsx",
+        "expo.js",
+        "expo.jsx",
+        "ts",
+        "tsx",
+        "js",
+        "jsx",
+        "json",
+        "wasm",
+        "svg"
+      ]
+    },
     "plugins": [
       [
         "expo-notifications",
@@ -85,7 +101,7 @@
         "ACCESS_FINE_LOCATION",
         "RECEIVE_BOOT_COMPLETED"
       ],
-      "versionCode": 2
+      "versionCode": 3
     },
     "facebookScheme": "fb351236990180813",
     "facebookAppId": "351236990180813",
@@ -93,3 +109,4 @@
     "scheme": "justsaleonline"
   }
 }
+
