@@ -23,8 +23,8 @@ export const initialState = {
   rtl_support: false,
   config: {
     currency: {
-      id: "USD",
-      symbol: "&#36;",
+      id: "NGN",
+      symbol: "&#8358;",
       position: "left", // position: "left" or "right"
       separator: {
         decimal: ".",
@@ -32,13 +32,13 @@ export const initialState = {
       },
     },
     payment_currency: {
-      id: "USD",
+      id: "NGN",
       position: "right",
       separator: {
         decimal: ".",
         thousand: ",",
       },
-      symbol: "&#36;",
+      symbol: "&#8358;",
     },
     promotions: {
       _bump_up: "Bump Up",

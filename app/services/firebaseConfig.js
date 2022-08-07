@@ -1,12 +1,12 @@
 export const firebaseConfig = {
   enabled: false,
   config: {
-    apiKey: "h87hnyo78tb876v7g6tibyuvybgtib",
-    authDomain: "classima-otp.firebaseapp.com",
-    projectId: "classima-otp",
-    storageBucket: "classima-otp.appspot.com",
-    messagingSenderId: "98687676576",
-    appId: "1:98687676576:web:j897yhno7h876ht8g8h7tg",
-    measurementId: "G-NKU6T76GIY87",
+    apiKey: "AIzaSyCM9loQN_cO8mTuPEZf6hn6HOo0U_XH1Ik",
+    authDomain: "justsaleonline-2022app.firebaseapp.com",
+    projectId: "justsaleonline-2022app",
+    storageBucket: "justsaleonline-2022app.appspot.com",
+    messagingSenderId: "845992057495",
+    appId: "1:845992057495:web:b269ba65321ab5bf8367d2",
+    measurementId: "G-HJNHK866WW"
   },
 };
