@@ -757,7 +757,7 @@
       "details": "Details",
       "description": "Description"
     },
-    "closeButton": "Colse",
+    "closeButton": "Close",
     "paypalRedirectNotice": "Redirecting to Paypal",
     "paymentProcessing": "Payment Processing",
     "goToAccountButton": "Go Back to Account",
