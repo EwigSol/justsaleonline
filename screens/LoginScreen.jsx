@@ -266,14 +266,14 @@ const LoginScreen = ({ navigation }) => {
           setReset_Loading(false);
           setModalVisible(false);
           handleResetSuccess(
-            __("loginScreenTexts.resetSuccessMessage", appSettings.lng)
+            __("forgotScreenTexts.resetSuccessMessage", appSettings.lng)
           );
         } else {
           setPassResetResponseErrorMessage(
             res?.data?.error_message ||
               res?.data?.error ||
               res?.problem ||
-              __("loginScreenTexts.customResponseError", appSettings.lng)
+              __("forgotScreenTexts.customResponseError", appSettings.lng)
           );
           setReset_Loading(false);
         }
@@ -710,7 +710,7 @@ const LoginScreen = ({ navigation }) => {
                   {__("loginScreenTexts.forgotPassword", appSettings.lng)}
                 </Text>
                 <Text style={styles.modalText}>
-                  {__("loginScreenTexts.passwordReset", appSettings.lng)}
+                  {__("forgotScreenTexts.message", appSettings.lng)}
                 </Text>
 
                 <Formik
@@ -754,7 +754,7 @@ const LoginScreen = ({ navigation }) => {
                       </View>
                       <AppButton
                         title={__(
-                          "loginScreenTexts.passwordResetButton",
+                          "forgotScreenTexts.buttonTitle",
                           appSettings.lng
                         )}
                         style={styles.resetLink}

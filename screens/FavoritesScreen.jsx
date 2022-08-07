@@ -303,7 +303,7 @@ const FavoritesScreen = ({ navigation }) => {
               </Text>
               <AppButton
                 title={__(
-                  "favoritesScreenTexts.postAdButtonTitle",
+                  "favoritesScreenTexts.noFav",
                   appSettings.lng
                 )}
                 style={styles.postButton}

@@ -382,7 +382,7 @@ const NewListingScreen = ({ navigation }) => {
                   />
                   <AppButton
                     title={__(
-                      "newListingScreenTexts.membershipButtonTitle",
+                      "selectCategory.membershipButtonTitle",
                       appSettings.lng
                     )}
                     onPress={handleMembership}

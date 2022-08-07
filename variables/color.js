@@ -3,9 +3,13 @@ export const COLORS = {
   primary_soft: "#ff8f9d",
   bg_primary: "#ffd1d6",
 
+  // button: {
+  //   disabled: "#f797a3",
+  //   active: "#f85c70",
+  // },
   button: {
-    disabled: "#f797a3",
-    active: "#f85c70",
+    disabled: "#ffa110",
+    active: "#ffa110",
   },
 
   bg_splash: "#ffa110",

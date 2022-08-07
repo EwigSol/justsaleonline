@@ -273,7 +273,8 @@
     "favRemoveSuccessMessage": "Successfully removed",
     "favRemoveErrorCustomMessage": "Error! Please try again",
     "customServerResponseError": "Error getting data from server",
-    "noInternet": "No Internet"
+    "noInternet": "No Internet",
+    "noFav": "No Favorite Ads"
   },
 
   "homeScreenTexts": {
@@ -737,6 +738,7 @@
     "choosePayment": "Choose Payment Method",
     "proceedPayment": "Proceed To Payment",
     "unknownError": "Unknown error occured. Please try again later.",
+    "logoutOutUser": "You are logged out. Please login again.",
     "payment": {
       "paymentID": "Payment #",
       "totalAmount": "Total Amount",

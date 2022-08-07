@@ -203,10 +203,10 @@ const PaymentMethodScreen = ({ navigation, route }) => {
           setPaymentData(res.data);
         } else {
           setPaymentError(
-            res?.data?.error_message ||
-              res?.data?.error ||
-              res?.problem ||
-              __("paymentMethodScreen.unknownError", appSettings.lng)
+            // res?.data?.error_message ||
+            //   res?.data?.error ||
+            //   res?.problem ||
+              __("paymentMethodScreen.logoutOutUser", appSettings.lng)
           );
           // TODO handle error
         }
@@ -1066,7 +1066,7 @@ const PaymentMethodScreen = ({ navigation, route }) => {
                                 </View>
                                 <View style={styles.paymentTableValueWrap}>
                                   <Text style={styles.paymentTableValue}>
-                                    {decodeString(selectedMethod.instructions)}
+                                    {/* {decodeString(selectedMethod.instructions)} */}
                                   </Text>
                                 </View>
                               </View>
