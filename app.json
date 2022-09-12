@@ -2,7 +2,7 @@
   "expo": {
     "name": "Just Sale online",
     "slug": "justsaleonline",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "packagerOpts": {
       "config": "metro.config.js",
       "sourceExts": [
@@ -101,7 +101,7 @@
         "ACCESS_FINE_LOCATION",
         "RECEIVE_BOOT_COMPLETED"
       ],
-      "versionCode": 5
+      "versionCode": 6
     },
     "facebookScheme": "fb351236990180813",
     "facebookAppId": "351236990180813",
