@@ -112,7 +112,7 @@ const HomeNavigator = () => {
       }
       setLocale(defaultLng);
 
-      // setSettingsUpdated(true);
+      setSettingsUpdated(true);
       return;
     }
     const parsedSettings = JSON.parse(storedSettings);
