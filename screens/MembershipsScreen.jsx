@@ -63,8 +63,8 @@ const MembershipsScreen = ({ route, navigation }) => {
         <ScrollView
           contentContainerStyle={{ paddingTop: 15, paddingBottom: 60 }}
         >
-          <View style={styles.view}>
-            {membershipPackagesData.map((memPlan, index) => (
+          <View style={{ alignItems: "center" }}>
+            {membershipPackagesData.map((memPlan) => (
               <MembershipCard
                 key={memPlan.id}
                 memPlan={memPlan}
@@ -112,7 +112,7 @@ const MembershipsScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   buttonWrap: {
-    marginHorizontal: "4%",
+    marginHorizontal: "10%",
     backgroundColor: "transparent",
     position: "absolute",
     bottom: 0,
@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    backgroundColor: "#F8F8F8",
   },
   iconWrap: {
     marginLeft: 5,

@@ -4,29 +4,35 @@ import {
   View,
   Text,
   StyleSheet,
-  Alert,
+  Dimensions,
   ActivityIndicator,
   FlatList,
+  Modal,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Image,
+  Platform,
 } from "react-native";
 
 // vector Icons
-import { FontAwesome } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 
 // Custom Components & Functions
 import { useStateValue } from "../StateProvider";
 import FavoritesFlatList from "../components/FavoritesFlatList";
-import AppButton from "../components/AppButton";
 import { COLORS } from "../variables/color";
 import api, { setAuthToken, removeAuthToken } from "../api/client";
 import FlashNotification from "../components/FlashNotification";
 import LoadingIndicator from "../components/LoadingIndicator";
 import { paginationData } from "../app/pagination/paginationData";
-import { __ } from "../language/stringPicker";
+import { getRelativeTimeConfig, __ } from "../language/stringPicker";
 import { routes } from "../navigation/routes";
+import moment from "moment";
+import "moment/locale/en-gb";
 
+const { width: screenWidth, height: screenHeight } = Dimensions.get("screen");
 const FavoritesScreen = ({ navigation }) => {
-  const [{ auth_token, is_connected, appSettings, rtl_support }, dispatch] =
+  const [{ auth_token, is_connected, appSettings, rtl_support, ios }] =
     useStateValue();
 
   const [myFavs, setMyFavs] = useState([]);
@@ -34,6 +40,8 @@ const FavoritesScreen = ({ navigation }) => {
   const [initial, setInitial] = useState(true);
   const [errorMessage, setErrorMessage] = useState();
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [deleteItem, setDeleteItem] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [moreLoading, setMoreLoading] = useState(false);
   const [pagination, setPagination] = useState({});
@@ -45,6 +53,10 @@ const FavoritesScreen = ({ navigation }) => {
 
   // Initial get listing call
   useEffect(() => {
+    const timeConfig = getRelativeTimeConfig(appSettings.lng);
+    moment.updateLocale("en-gb", {
+      relativeTime: timeConfig,
+    });
     if (!initial) return;
     handleLoadFavsList(paginationData.favourites);
     setInitial(false);
@@ -113,25 +125,28 @@ const FavoritesScreen = ({ navigation }) => {
   };
 
   const handleRemoveFavAlert = (listing) => {
-    Alert.alert(
-      "",
-      __("favoritesScreenTexts.removePromptMessage", appSettings.lng),
-      [
-        {
-          text: __("favoritesScreenTexts.cancelButtonTitle", appSettings.lng),
+    // Alert.alert(
+    //   "",
+    //   __("favoritesScreenTexts.removePromptMessage", appSettings.lng),
+    //   [
+    //     {
+    //       text: __("favoritesScreenTexts.cancelButtonTitle", appSettings.lng),
 
-          style: "cancel",
-        },
-        {
-          text: __("favoritesScreenTexts.removeButtonTitle", appSettings.lng),
-          onPress: () => handleRemoveFromFavorites(listing),
-        },
-      ],
-      { cancelable: false }
-    );
+    //       style: "cancel",
+    //     },
+    //     {
+    //       text: __("favoritesScreenTexts.removeButtonTitle", appSettings.lng),
+    //       onPress: () => handleRemoveFromFavorites(listing),
+    //     },
+    //   ],
+    //   { cancelable: false }
+    // );
+    setDeleteItem(listing);
+    setDeleteModal(true);
   };
   const handleRemoveFromFavorites = (listing) => {
     setDeleteLoading(true);
+    setDeleteModal(false);
     setAuthToken(auth_token);
     api
       .post("my/favourites", { listing_id: listing.listing_id })
@@ -165,15 +180,14 @@ const FavoritesScreen = ({ navigation }) => {
               )
           );
         }
+      })
+      .then(() => {
+        setDeleteItem(null);
       });
   };
 
-  const handleNewListing = () => {
-    navigation.navigate(routes.newListingScreen);
-    dispatch({
-      type: "SET_NEW_LISTING_SCREEN",
-      newListingScreen: true,
-    });
+  const handleExplore = () => {
+    navigation.replace(routes.drawerNavigator);
   };
 
   const renderFavsItem = ({ item }) => (
@@ -242,6 +256,102 @@ const FavoritesScreen = ({ navigation }) => {
     writingDirection: "rtl",
   };
 
+  const DeleteAlert = () => (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={deleteModal}
+      statusBarTranslucent
+    >
+      <View
+        style={{
+          backgroundColor: "transparent",
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          paddingHorizontal: "7%",
+        }}
+      >
+        <TouchableWithoutFeedback onPress={() => setDeleteModal(false)}>
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              backgroundColor: COLORS.black,
+              opacity: 0.5,
+            }}
+          />
+        </TouchableWithoutFeedback>
+
+        <View
+          style={{
+            backgroundColor: COLORS.white,
+            width: "100%",
+            padding: screenWidth * 0.05,
+            borderRadius: 10,
+          }}
+        >
+          <View style={{ padding: 5, alignItems: "center" }}>
+            <Text
+              style={{
+                textAlign: "center",
+                fontSize: 18,
+                fontWeight: "bold",
+                color: COLORS.text_dark,
+              }}
+            >
+              {__("favoritesScreenTexts.removePromptMessage", appSettings.lng)}
+            </Text>
+          </View>
+          <View
+            style={{
+              flexDirection: rtl_support ? "row-reverse" : "row",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingBottom: 10,
+              paddingTop: 20,
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => {
+                setDeleteModal(false);
+                setDeleteItem(null);
+              }}
+              style={{
+                backgroundColor: COLORS.bg_dark,
+                paddingHorizontal: 15,
+                paddingVertical: ios ? 8 : 6,
+                borderRadius: 5,
+                marginHorizontal: 10,
+              }}
+            >
+              <Text style={{ color: COLORS.text_dark, fontSize: 16 }}>
+                {__("favoritesScreenTexts.cancelButtonTitle", appSettings.lng)}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleRemoveFromFavorites(deleteItem)}
+              style={{
+                backgroundColor: COLORS.primary,
+                paddingHorizontal: 15,
+                paddingVertical: ios ? 8 : 6,
+                borderRadius: 5,
+                marginHorizontal: 10,
+              }}
+            >
+              <Text style={{ color: COLORS.white, fontSize: 16 }}>
+                {__("favoritesScreenTexts.removeButtonTitle", appSettings.lng)}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
   return is_connected ? (
     <>
       {loading ? (
@@ -269,13 +379,12 @@ const FavoritesScreen = ({ navigation }) => {
             </View>
           )}
 
-          {!!myFavs.length && (
+          {!!myFavs?.length && (
             <View
               style={{
-                backgroundColor: COLORS.white,
+                backgroundColor: COLORS.bg_dark,
                 flex: 1,
                 paddingVertical: 5,
-                paddingHorizontal: "3%",
               }}
             >
               <FlatList
@@ -291,31 +400,38 @@ const FavoritesScreen = ({ navigation }) => {
               />
             </View>
           )}
-          {!myFavs.length && (
+          {!myFavs?.length && (
             <View style={styles.noFavWrap}>
-              <FontAwesome
-                name="exclamation-triangle"
-                size={100}
-                color={COLORS.gray}
-              />
+              <View style={styles.emptyBgWrap}>
+                <Image
+                  source={require("../assets/empty.png")}
+                  style={styles.emptyBg}
+                />
+              </View>
               <Text style={[styles.noFavTitle, rtlText]}>
                 {__("favoritesScreenTexts.noFavoriteMessage", appSettings.lng)}
               </Text>
-              <AppButton
-                title={__(
-                  "favoritesScreenTexts.postAdButtonTitle",
-                  appSettings.lng
-                )}
+              <TouchableOpacity
                 style={styles.postButton}
-                onPress={handleNewListing}
-                textStyle={rtlText}
-              />
+                onPress={handleExplore}
+              >
+                <Text style={[styles.buttonText, rtlText]}>
+                  {__("favoritesScreenTexts.exploreTitle", appSettings.lng)}
+                </Text>
+                <View style={styles.arrowWrap}>
+                  <Image
+                    source={require("../assets/arror-right.png")}
+                    style={styles.arrow}
+                  />
+                </View>
+              </TouchableOpacity>
             </View>
           )}
           <FlashNotification
             falshShow={flashNotification}
             flashMessage={flashNotificationMessage}
           />
+          <DeleteAlert />
         </>
       )}
     </>
@@ -334,6 +450,21 @@ const FavoritesScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  arrow: {
+    width: "100%",
+    height: "100%",
+  },
+  arrowWrap: {
+    width: 15,
+    height: 10,
+    marginHorizontal: 3,
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: COLORS.white,
+    paddingHorizontal: 3,
+  },
   container: {},
   containerNoFavs: {
     flex: 1,
@@ -354,6 +485,15 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
   },
+  emptyBg: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+  emptyBgWrap: {
+    width: screenWidth * 0.55,
+    height: screenWidth * 0.55 * 0.8,
+  },
   loading: {
     left: 0,
     right: 0,
@@ -372,15 +512,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   noFavTitle: {
-    fontSize: 18,
-    color: COLORS.text_gray,
+    fontSize: 20,
+    color: COLORS.text_dark,
     marginTop: 10,
+    textAlign: "center",
+    fontWeight: "bold",
   },
   noFavWrap: {
     alignItems: "center",
     marginHorizontal: "3%",
     flex: 1,
     justifyContent: "center",
+    backgroundColor: COLORS.bg_dark,
   },
   noInternet: {
     alignItems: "center",
@@ -392,8 +535,13 @@ const styles = StyleSheet.create({
   },
   postButton: {
     borderRadius: 3,
-    marginTop: 40,
-    width: "60%",
+    marginTop: 20,
+    // width: "60%",
+    backgroundColor: COLORS.primary,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 30,
+    paddingVertical: Platform.OS === "ios" ? 7 : 5,
   },
 });
 

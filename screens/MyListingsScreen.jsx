@@ -12,13 +12,9 @@ import {
   Dimensions,
 } from "react-native";
 
-// Expo Libraries
-import Constants from "expo-constants";
-
 // Vector Icons
 import { FontAwesome } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { Entypo } from "@expo/vector-icons";
 
 // Custom Components & Functions
 import MyAdsFlatList from "../components/MyAdsFlatList";
@@ -30,15 +26,21 @@ import FlashNotification from "../components/FlashNotification";
 import { decodeString } from "../helper/helper";
 import { paginationData } from "../app/pagination/paginationData";
 import { useStateValue } from "../StateProvider";
-import { __ } from "../language/stringPicker";
+import { getRelativeTimeConfig, __ } from "../language/stringPicker";
 import { routes } from "../navigation/routes";
+import SoldIcon from "../components/svgComponents/SoldIcon";
+import PromoteIcon from "../components/svgComponents/PromoteIcon";
+import DeleteIcon from "../components/svgComponents/DeleteIcon";
+import PenIcon from "../components/svgComponents/PenIcon";
+import moment from "moment";
+import "moment/locale/en-gb";
 
 const { height: windowHeight, width: windowWidth } = Dimensions.get("window");
-const extraHeight = 50 + Constants.statusBarHeight;
+const extraHeight = 50;
 
 const MyListingsScreen = ({ navigation }) => {
   const [
-    { auth_token, is_connected, config, appSettings, rtl_support },
+    { auth_token, is_connected, config, appSettings, rtl_support, ios },
     dispatch,
   ] = useStateValue();
   const [myListings, setMyListings] = useState([]);
@@ -59,6 +61,10 @@ const MyListingsScreen = ({ navigation }) => {
 
   // Initial get listing call
   useEffect(() => {
+    const timeConfig = getRelativeTimeConfig(appSettings.lng);
+    moment.updateLocale("en-gb", {
+      relativeTime: timeConfig,
+    });
     if (!auth_token) {
       setLoading(false);
       return;
@@ -411,19 +417,90 @@ const MyListingsScreen = ({ navigation }) => {
             <TouchableWithoutFeedback onPress={handleActionOverlayPress}>
               <View style={styles.actionLoading}>
                 <View
-                  style={[
-                    styles.actionMenu,
-                    windowHeight - actionPosition.actionY >= 130
-                      ? {
-                          right: rtl_support ? "45%" : "15%",
-                          top: actionPosition.actionY - extraHeight,
-                        }
-                      : {
-                          right: rtl_support ? "45%" : "15%",
-                          bottom: windowHeight - actionPosition.actionY,
-                        },
-                  ]}
+                  style={
+                    windowHeight - actionPosition.actionY >= 120
+                      ? [
+                          styles.actionMenu,
+                          rtl_support
+                            ? {
+                                left: "3%",
+                                top: actionPosition.actionY - extraHeight,
+                              }
+                            : {
+                                right: "3%",
+                                top: actionPosition.actionY - extraHeight,
+                              },
+                        ]
+                      : [
+                          styles.actionMenu,
+                          rtl_support
+                            ? {
+                                left: "3%",
+                                bottom: windowHeight - actionPosition.actionY,
+                              }
+                            : {
+                                right: "3%",
+                                bottom: windowHeight - actionPosition.actionY,
+                              },
+                        ]
+                  }
                 >
+                  {rtl_support ? (
+                    <View
+                      style={[
+                        {
+                          height: 0,
+                          width: 0,
+                          borderRightWidth: 10,
+                          borderLeftWidth: 10,
+                          borderRightColor: "transparent",
+                          borderLeftColor: "transparent",
+                          position: "absolute",
+                          marginLeft: windowWidth * 0.03,
+                          left: 0,
+                        },
+                        windowHeight - actionPosition.actionY >= 120
+                          ? {
+                              top: -15,
+                              borderBottomWidth: 15,
+                              borderBottomColor: COLORS.white,
+                            }
+                          : {
+                              bottom: -15,
+                              borderTopWidth: 15,
+                              borderTopColor: COLORS.white,
+                            },
+                      ]}
+                    />
+                  ) : (
+                    <View
+                      style={[
+                        {
+                          height: 0,
+                          width: 0,
+                          borderRightWidth: 10,
+                          borderLeftWidth: 10,
+                          borderRightColor: "transparent",
+                          borderLeftColor: "transparent",
+                          position: "absolute",
+                          marginRight: windowWidth * 0.03,
+                          right: 0,
+                        },
+                        ,
+                        windowHeight - actionPosition.actionY >= 120
+                          ? {
+                              top: -15,
+                              borderBottomWidth: 15,
+                              borderBottomColor: COLORS.white,
+                            }
+                          : {
+                              bottom: -15,
+                              borderTopWidth: 15,
+                              borderTopColor: COLORS.white,
+                            },
+                      ]}
+                    />
+                  )}
                   <TouchableOpacity
                     style={[styles.iconButton, rtlView]}
                     onPress={() => handleEditListing(actionItem)}
@@ -432,113 +509,75 @@ const MyListingsScreen = ({ navigation }) => {
                       style={[
                         styles.buttonIconWrap,
                         {
-                          marginRight: rtl_support ? 0 : 10,
-                          marginLeft: rtl_support ? 10 : 0,
+                          marginRight: rtl_support ? 0 : 5,
+                          marginLeft: rtl_support ? 5 : 0,
                         },
                       ]}
                     >
-                      <FontAwesome
-                        name="edit"
-                        size={18}
-                        color={COLORS.primary}
-                      />
+                      <PenIcon fillColor={COLORS.text_gray} />
                     </View>
-                    <Text
-                      style={[
-                        styles.buttonText,
-                        rtlText,
-                        { color: COLORS.primary },
-                      ]}
-                    >
+                    <Text style={[styles.buttonText, rtlText]}>
                       {__(
                         "myListingsScreenTexts.actionMenuButtons.edit",
                         appSettings.lng
                       )}
                     </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.iconButton, rtlView]}
-                    onPress={() => handlePromoteListing(actionItem)}
-                  >
-                    <View
-                      style={[
-                        styles.buttonIconWrap,
-                        {
-                          marginRight: rtl_support ? 0 : 10,
-                          marginLeft: rtl_support ? 10 : 0,
-                        },
-                      ]}
-                    >
-                      <FontAwesome
-                        name="bullhorn"
-                        size={18}
-                        color={COLORS.dodgerblue}
-                      />
-                    </View>
-                    <Text
-                      style={[
-                        styles.buttonText,
-                        rtlText,
-                        { color: COLORS.dodgerblue },
-                      ]}
-                    >
-                      {__(
-                        "myListingsScreenTexts.actionMenuButtons.promote",
-                        appSettings.lng
-                      )}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.iconButton, rtlView]}
-                    onPress={() => handleDeleteAlert(actionItem)}
-                  >
-                    <View
-                      style={[
-                        styles.buttonIconWrap,
-                        {
-                          marginRight: rtl_support ? 0 : 10,
-                          marginLeft: rtl_support ? 10 : 0,
-                        },
-                      ]}
-                    >
-                      <FontAwesome
-                        name="trash-o"
-                        size={18}
-                        color={COLORS.red}
-                      />
-                    </View>
-                    <Text
-                      style={[
-                        styles.buttonText,
-                        rtlText,
-                        { color: COLORS.red },
-                      ]}
-                    >
-                      {__(
-                        "myListingsScreenTexts.actionMenuButtons.delete",
-                        appSettings.lng
-                      )}
-                    </Text>
-                  </TouchableOpacity>
-                  {config.mark_as_sold && (
+                  {!config?.iap_disabled && (
                     <TouchableOpacity
                       style={[styles.iconButton, rtlView]}
-                      onPress={() => handleSoldAlert(actionItem)}
+                      onPress={() => handlePromoteListing(actionItem)}
                     >
                       <View
                         style={[
                           styles.buttonIconWrap,
                           {
-                            marginRight: rtl_support ? 0 : 10,
-                            marginLeft: rtl_support ? 10 : 0,
+                            marginRight: rtl_support ? 0 : 5,
+                            marginLeft: rtl_support ? 5 : 0,
                           },
                         ]}
                       >
-                        <Entypo
-                          name="back-in-time"
-                          size={18}
-                          color={COLORS.primary}
-                        />
+                        <PromoteIcon fillColor={COLORS.text_gray} />
+                      </View>
+                      <Text style={[styles.buttonText, rtlText]}>
+                        {__(
+                          "myListingsScreenTexts.actionMenuButtons.promote",
+                          appSettings.lng
+                        )}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  <TouchableOpacity
+                    style={[
+                      {
+                        paddingHorizontal: 7,
+                      },
+                    ]}
+                    onPress={() => handleDeleteAlert(actionItem)}
+                  >
+                    <View
+                      style={[
+                        {
+                          backgroundColor: COLORS.bg_primary,
+                          paddingHorizontal: 8,
+                          flexDirection: "row",
+                          alignItems: "center",
+                          paddingVertical: 5,
+                          borderRadius: 5,
+                        },
+                        rtlView,
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.buttonIconWrap,
+                          {
+                            marginRight: rtl_support ? 0 : 5,
+                            marginLeft: rtl_support ? 5 : 0,
+                          },
+                        ]}
+                      >
+                        <DeleteIcon fillColor={COLORS.primary} />
                       </View>
                       <Text
                         style={[
@@ -547,6 +586,30 @@ const MyListingsScreen = ({ navigation }) => {
                           { color: COLORS.primary },
                         ]}
                       >
+                        {__(
+                          "myListingsScreenTexts.actionMenuButtons.delete",
+                          appSettings.lng
+                        )}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                  {config?.mark_as_sold && (
+                    <TouchableOpacity
+                      style={[styles.iconButton, rtlView]}
+                      onPress={() => handleSoldAlert(actionItem)}
+                    >
+                      <View
+                        style={[
+                          styles.buttonIconWrap,
+                          {
+                            marginRight: rtl_support ? 0 : 5,
+                            marginLeft: rtl_support ? 5 : 0,
+                          },
+                        ]}
+                      >
+                        <SoldIcon fillColor={COLORS.text_gray} />
+                      </View>
+                      <Text style={[styles.buttonText, rtlText]}>
                         {actionItem.badges.includes("is-sold")
                           ? __(
                               "myListingsScreenTexts.actionMenuButtons.unsold",
@@ -568,8 +631,7 @@ const MyListingsScreen = ({ navigation }) => {
             <View
               style={{
                 flex: 1,
-                backgroundColor: COLORS.white,
-                paddingHorizontal: "3%",
+                backgroundColor: COLORS.bg_dark,
               }}
             >
               <FlatList
@@ -654,7 +716,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,.3)",
+    backgroundColor: "rgba(0,0,0,.5)",
     zIndex: 5,
     flex: 1,
     height: "100%",
@@ -663,17 +725,23 @@ const styles = StyleSheet.create({
   actionMenu: {
     backgroundColor: "#fff",
     borderRadius: 5,
-    paddingVertical: 15,
-    paddingHorizontal: 15,
+    paddingVertical: 10,
     position: "absolute",
   },
+  buttonIcon: {
+    height: "100%",
+    width: "100%",
+    resizeMode: "contain",
+  },
   buttonIconWrap: {
-    width: 25,
+    height: 16,
+    width: 16,
     alignItems: "center",
     justifyContent: "center",
   },
   buttonText: {
     fontWeight: "bold",
+    color: COLORS.text_gray,
   },
   containerNoAds: {
     flex: 1,
@@ -703,6 +771,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 5,
+    paddingHorizontal: 15,
   },
   loading: {
     left: 0,

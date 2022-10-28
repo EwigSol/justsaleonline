@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: "center",
     color: COLORS.text_dark,
+    fontWeight: "bold",
   },
 });
 

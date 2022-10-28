@@ -54,7 +54,7 @@ import DatePicker from "../components/DatePicker";
 import DateRangePicker from "../components/DateRangePicker";
 import { getCurrencySymbol, decodeString } from "../helper/helper";
 import UploadingIndicator from "../components/UploadingIndicator";
-import DoneIndicator from "../components/DoneIndicator";
+// import DoneIndicator from "../components/DoneIndicator";
 import ErrorIndicator from "../components/ErrorIndicator";
 import AppRadioButton from "../components/AppRadioButton";
 import { __ } from "../language/stringPicker";
@@ -328,8 +328,6 @@ const EditListingScreen = ({ route, navigation }) => {
     api
       .get("/listing/form", { listing_id: route.params.item.listing_id })
       .then((res) => {
-        const tempResList = res.data.listing;
-        delete tempResList["related"];
         if (res.ok) {
           setListingData(res.data);
 
@@ -1716,11 +1714,42 @@ const marker = L.marker([${
             </View>
           )}
           {!!success && !error && (
-            <View style={{ height: 150, width: 150 }}>
-              <DoneIndicator
-                visible={true}
-                onDone={handleEventOnAnimationDone}
+            <View
+              style={{
+                flex: 1,
+                width: "100%",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Image
+                source={require("../assets/success.png")}
+                style={{
+                  width: screenWidth * 0.5,
+                  resizeMode: "contain",
+                }}
               />
+              <View style={{ alignItems: "center" }}>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: "bold",
+                    color: COLORS.text_dark,
+                    marginBottom: 15,
+                  }}
+                >
+                  {__("listingFormTexts.successTitle", appSettings.lng)}
+                </Text>
+                <Text style={{ color: COLORS.text_gray }}>
+                  {__("listingFormTexts.successMessage", appSettings.lng)}
+                </Text>
+              </View>
+              <View style={{ width: "85%", paddingTop: 20 }}>
+                <AppButton
+                  title={__("listingFormTexts.goBackBtnTitle", appSettings.lng)}
+                  onPress={handleEventOnAnimationDone}
+                />
+              </View>
             </View>
           )}
           {!success && !!error && (
@@ -1789,7 +1818,7 @@ const marker = L.marker([${
       {!loading && !submitting && (
         <KeyboardAvoidingView
           behavior={ios ? "padding" : "height"}
-          style={{ flex: 1 }}
+          style={{ flex: 1, backgroundColor: "#F8F8F8" }}
           keyboardVerticalOffset={80}
         >
           <ScrollView scrollEnabled={osmOverlay}>
@@ -1804,27 +1833,8 @@ const marker = L.marker([${
                   {/* Image Input Component */}
                   {listingData.config.gallery && (
                     <View style={styles.imageInputWrap}>
-                      <View style={[styles.imageInputTitleWrap, rtlView]}>
-                        <View style={styles.iconWrap}>
-                          <Image
-                            style={{
-                              height: 25,
-                              width: 25,
-                              resizeMode: "contain",
-                            }}
-                            source={require("../assets/gallery_icon.png")}
-                          />
-                        </View>
-
-                        <Text
-                          style={[
-                            styles.imageInputLabel,
-                            {
-                              marginLeft: rtl_support ? 0 : 10,
-                              marginRight: rtl_support ? 10 : 0,
-                            },
-                          ]}
-                        >
+                      <View style={styles.imageInputTitleWrap}>
+                        <Text style={[styles.imageInputLabel, rtlTextA]}>
                           {__(
                             "editListingScreenTexts.formFieldLabels.imageInput",
                             appSettings.lng
@@ -1947,313 +1957,227 @@ const marker = L.marker([${
                       setFieldValue,
                     }) => (
                       <View>
-                        {/* Common Fields (Title, Pricing Type, Price Type, Price) */}
-                        <View style={styles.commonFieldsWrap}>
-                          <View
-                            style={[
-                              {
-                                flexDirection: "row",
-                                alignItems: "center",
-                                paddingHorizontal: "3%",
-                              },
-                              rtlView,
-                            ]}
-                          >
-                            <View style={styles.iconWrap}>
-                              <Image
-                                style={{
-                                  height: 25,
-                                  width: 25,
-                                  resizeMode: "contain",
-                                }}
-                                source={require("../assets/product_info_icon.png")}
-                              />
+                        <View
+                          style={{
+                            backgroundColor: COLORS.white,
+                            marginHorizontal: "3%",
+                            borderRadius: 6,
+                            elevation: 0.5,
+                            shadowColor: COLORS.border_light,
+                            shadowOpacity: 0.1,
+                            shadowRadius: 3,
+                            shadowOffset: { height: 1, width: 1 },
+                            // paddingHorizontal: "3%",
+                            paddingVertical: 15,
+                            marginVertical: 10,
+                          }}
+                        >
+                          {/* Common Fields (Title, Pricing Type, Price Type, Price) */}
+                          <View style={styles.commonFieldsWrap}>
+                            <View>
+                              <Text style={[styles.title, rtlTextA]}>
+                                {__(
+                                  "editListingScreenTexts.formFieldLabels.formTitle",
+                                  appSettings.lng
+                                )}
+                              </Text>
                             </View>
-                            <Text style={styles.title}>
-                              {__(
-                                "editListingScreenTexts.formFieldLabels.formTitle",
-                                appSettings.lng
-                              )}
-                            </Text>
-                          </View>
-                          <AppSeparator
-                            style={{
-                              marginVertical: 20,
-                              width: "94%",
-                              marginHorizontal: "3%",
-                            }}
-                          />
-                          <View style={styles.commonInputWrap}>
-                            {ios ? (
-                              <Text style={[styles.commonInputLabel, rtlTextA]}>
-                                {__(
-                                  "editListingScreenTexts.formFieldLabels.listingTitle",
-                                  appSettings.lng
-                                )}
-                                <Text style={styles.required}> *</Text>
-                              </Text>
-                            ) : (
-                              <Text style={[styles.commonInputLabel, rtlTextA]}>
-                                <Text style={styles.required}>* </Text>
-                                {__(
-                                  "editListingScreenTexts.formFieldLabels.listingTitle",
-                                  appSettings.lng
-                                )}
-                              </Text>
-                            )}
-                            <TextInput
-                              style={[styles.commonInputField, rtlTextA]}
-                              onChangeText={handleChange("title")}
-                              onBlur={() => setFieldTouched("title")}
-                              value={values.title}
+                            <AppSeparator
+                              style={{
+                                marginVertical: 20,
+                                width: "94%",
+                                marginHorizontal: "3%",
+                                backgroundColor: COLORS.border_light,
+                                height: 0.7,
+                              }}
                             />
-                            <View style={styles.inputFieldErrorWrap}>
-                              {errors.title && touched.title && (
+                            <View style={styles.commonInputWrap}>
+                              {ios ? (
                                 <Text
-                                  style={[
-                                    styles.inputFieldErrorMessage,
-                                    rtlTextA,
-                                  ]}
+                                  style={[styles.commonInputLabel, rtlTextA]}
                                 >
-                                  {errors.title}
+                                  {__(
+                                    "editListingScreenTexts.formFieldLabels.listingTitle",
+                                    appSettings.lng
+                                  )}
+                                  <Text style={styles.required}> *</Text>
+                                </Text>
+                              ) : (
+                                <Text
+                                  style={[styles.commonInputLabel, rtlTextA]}
+                                >
+                                  <Text style={styles.required}>* </Text>
+                                  {__(
+                                    "editListingScreenTexts.formFieldLabels.listingTitle",
+                                    appSettings.lng
+                                  )}
                                 </Text>
                               )}
+                              <TextInput
+                                style={[styles.commonInputField, rtlTextA]}
+                                onChangeText={handleChange("title")}
+                                onBlur={() => setFieldTouched("title")}
+                                value={values.title}
+                              />
+                              <View style={styles.inputFieldErrorWrap}>
+                                {errors.title && touched.title && (
+                                  <Text
+                                    style={[
+                                      styles.inputFieldErrorMessage,
+                                      rtlTextA,
+                                    ]}
+                                  >
+                                    {errors.title}
+                                  </Text>
+                                )}
+                              </View>
                             </View>
-                          </View>
-                          {/* Pricing Type */}
-                          {!listingData.config.hidden_fields.includes(
-                            "pricing_type"
-                          ) &&
-                            listingData?.config?.pricing_types && (
-                              <View style={styles.commonInputWrap}>
-                                {ios ? (
-                                  <Text
-                                    style={[styles.commonInputLabel, rtlTextA]}
-                                  >
-                                    {__(
-                                      "editListingScreenTexts.formFieldLabels.pricingLabel",
-                                      appSettings.lng
-                                    )}
-                                    <Text style={styles.required}> *</Text>
-                                  </Text>
-                                ) : (
-                                  <Text
-                                    style={[styles.commonInputLabel, rtlTextA]}
-                                  >
-                                    <Text style={styles.required}>* </Text>
-                                    {__(
-                                      "editListingScreenTexts.formFieldLabels.pricingLabel",
-                                      appSettings.lng
-                                    )}
-                                  </Text>
-                                )}
-                                <View
-                                  style={[
-                                    styles.priceTypePickerWrap,
-                                    {
-                                      alignItems: rtl_support
-                                        ? "flex-end"
-                                        : "flex-start",
-                                    },
-                                  ]}
-                                >
-                                  <AppRadioButton
-                                    field={listingData.config.pricing_types}
-                                    handleClick={updatePricingType}
-                                    selected={listingCommonData.pricing_type}
-                                  />
-                                </View>
-
-                                <View style={styles.inputFieldErrorWrap}>
-                                  {!listingCommonData.pricing_type && (
+                            {/* Pricing Type */}
+                            {!listingData.config.hidden_fields.includes(
+                              "pricing_type"
+                            ) &&
+                              listingData?.config?.pricing_types && (
+                                <View style={styles.commonInputWrap}>
+                                  {ios ? (
                                     <Text
                                       style={[
-                                        styles.inputFieldErrorMessage,
+                                        styles.commonInputLabel,
                                         rtlTextA,
                                       ]}
                                     >
                                       {__(
-                                        "editListingScreenTexts.requiredFieldCustomError",
+                                        "editListingScreenTexts.formFieldLabels.pricingLabel",
                                         appSettings.lng
                                       )}
+                                      <Text style={styles.required}> *</Text>
                                     </Text>
-                                  )}
-                                </View>
-                              </View>
-                            )}
-                          {/* Price Type */}
-                          {!listingData.config.hidden_fields.includes(
-                            "price_type"
-                          ) &&
-                            listingCommonData.pricing_type !== "disabled" && (
-                              <View style={styles.commonInputWrap}>
-                                {ios ? (
-                                  <Text
-                                    style={[styles.commonInputLabel, rtlTextA]}
-                                  >
-                                    {__(
-                                      "editListingScreenTexts.formFieldLabels.priceType",
-                                      appSettings.lng
-                                    )}
-                                    <Text style={styles.required}> *</Text>
-                                  </Text>
-                                ) : (
-                                  <Text
-                                    style={[styles.commonInputLabel, rtlTextA]}
-                                  >
-                                    <Text style={styles.required}>* </Text>
-                                    {__(
-                                      "editListingScreenTexts.formFieldLabels.priceType",
-                                      appSettings.lng
-                                    )}
-                                  </Text>
-                                )}
-                                <View
-                                  style={[
-                                    styles.priceTypePickerWrap,
-                                    {
-                                      alignItems: rtl_support
-                                        ? "flex-end"
-                                        : "flex-start",
-                                    },
-                                  ]}
-                                >
-                                  <AppRadioButton
-                                    field={listingData.config.price_types}
-                                    handleClick={updatePriceType}
-                                    selected={listingCommonData.price_type}
-                                  />
-                                </View>
-
-                                <View style={styles.inputFieldErrorWrap}>
-                                  {!listingCommonData.price_type && (
+                                  ) : (
                                     <Text
                                       style={[
-                                        styles.inputFieldErrorMessage,
+                                        styles.commonInputLabel,
                                         rtlTextA,
                                       ]}
                                     >
+                                      <Text style={styles.required}>* </Text>
                                       {__(
-                                        "editListingScreenTexts.requiredFieldCustomError",
+                                        "editListingScreenTexts.formFieldLabels.pricingLabel",
                                         appSettings.lng
                                       )}
                                     </Text>
                                   )}
-                                </View>
-                              </View>
-                            )}
-                          {/* Price */}
-                          {!listingData.config.hidden_fields.includes(
-                            "price"
-                          ) &&
-                            listingCommonData.price_type !== "on_call" &&
-                            listingCommonData.pricing_type !== "disabled" && (
-                              <>
-                                {listingCommonData.pricing_type !== "range" ||
-                                listingData.config.hidden_fields.includes(
-                                  "pricing_type"
-                                ) ? (
-                                  <View style={styles.commonInputWrap}>
-                                    {ios ? (
-                                      <Text
-                                        style={[
-                                          styles.commonInputLabel,
-                                          rtlTextA,
-                                        ]}
-                                      >
-                                        {`${__(
-                                          "editListingScreenTexts.formFieldLabels.price",
-                                          appSettings.lng
-                                        )} (${getCurrencySymbol(
-                                          config.currency
-                                        )})`}
-                                        {listingCommonData.price_type !==
-                                          "on_call" && (
-                                          <Text style={styles.required}>
-                                            {" "}
-                                            *
-                                          </Text>
-                                        )}
-                                      </Text>
-                                    ) : (
-                                      <Text
-                                        style={[
-                                          styles.commonInputLabel,
-                                          rtlTextA,
-                                        ]}
-                                      >
-                                        {listingCommonData.price_type !==
-                                          "on_call" && (
-                                          <Text style={styles.required}>
-                                            *{" "}
-                                          </Text>
-                                        )}
-                                        {`${__(
-                                          "editListingScreenTexts.formFieldLabels.price",
-                                          appSettings.lng
-                                        )} (${getCurrencySymbol(
-                                          config.currency
-                                        )})`}
-                                      </Text>
-                                    )}
-                                    <TextInput
-                                      style={[
-                                        styles.commonInputField,
-                                        rtlTextA,
-                                      ]}
-                                      onChangeText={(value) => {
-                                        setListingCommonData(
-                                          (listingCommonData) => {
-                                            return {
-                                              ...listingCommonData,
-                                              ["price"]: value,
-                                            };
-                                          }
-                                        );
-                                      }}
-                                      onBlur={() => {
-                                        setTouchedFields((prevTouchedFields) =>
-                                          Array.from(
-                                            new Set([
-                                              ...prevTouchedFields,
-                                              "price",
-                                            ])
-                                          )
-                                        );
-                                      }}
-                                      value={listingCommonData.price}
-                                      keyboardType="decimal-pad"
-                                    />
-                                    <View style={styles.inputFieldErrorWrap}>
-                                      {commonErrorFields.includes("price") && (
-                                        <Text
-                                          style={[
-                                            styles.inputFieldErrorMessage,
-                                            rtlTextA,
-                                          ]}
-                                        >
-                                          {__(
-                                            "editListingScreenTexts.requiredFieldCustomError",
-                                            appSettings.lng
-                                          )}
-                                        </Text>
-                                      )}
-                                    </View>
-                                  </View>
-                                ) : (
                                   <View
                                     style={[
-                                      styles.commonInputWrap,
+                                      styles.priceTypePickerWrap,
                                       {
-                                        flexDirection: rtl_support
-                                          ? "row-reverse"
-                                          : "row",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
+                                        alignItems: rtl_support
+                                          ? "flex-end"
+                                          : "flex-start",
                                       },
                                     ]}
                                   >
-                                    <View style={{ width: "48.5%" }}>
+                                    <AppRadioButton
+                                      field={listingData.config.pricing_types}
+                                      handleClick={updatePricingType}
+                                      selected={listingCommonData.pricing_type}
+                                    />
+                                  </View>
+
+                                  <View style={styles.inputFieldErrorWrap}>
+                                    {!listingCommonData.pricing_type && (
+                                      <Text
+                                        style={[
+                                          styles.inputFieldErrorMessage,
+                                          rtlTextA,
+                                        ]}
+                                      >
+                                        {__(
+                                          "editListingScreenTexts.requiredFieldCustomError",
+                                          appSettings.lng
+                                        )}
+                                      </Text>
+                                    )}
+                                  </View>
+                                </View>
+                              )}
+                            {/* Price Type */}
+                            {!listingData.config.hidden_fields.includes(
+                              "price_type"
+                            ) &&
+                              listingCommonData.pricing_type !== "disabled" && (
+                                <View style={styles.commonInputWrap}>
+                                  {ios ? (
+                                    <Text
+                                      style={[
+                                        styles.commonInputLabel,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {__(
+                                        "editListingScreenTexts.formFieldLabels.priceType",
+                                        appSettings.lng
+                                      )}
+                                      <Text style={styles.required}> *</Text>
+                                    </Text>
+                                  ) : (
+                                    <Text
+                                      style={[
+                                        styles.commonInputLabel,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      <Text style={styles.required}>* </Text>
+                                      {__(
+                                        "editListingScreenTexts.formFieldLabels.priceType",
+                                        appSettings.lng
+                                      )}
+                                    </Text>
+                                  )}
+                                  <View
+                                    style={[
+                                      styles.priceTypePickerWrap,
+                                      {
+                                        alignItems: rtl_support
+                                          ? "flex-end"
+                                          : "flex-start",
+                                      },
+                                    ]}
+                                  >
+                                    <AppRadioButton
+                                      field={listingData.config.price_types}
+                                      handleClick={updatePriceType}
+                                      selected={listingCommonData.price_type}
+                                    />
+                                  </View>
+
+                                  <View style={styles.inputFieldErrorWrap}>
+                                    {!listingCommonData.price_type && (
+                                      <Text
+                                        style={[
+                                          styles.inputFieldErrorMessage,
+                                          rtlTextA,
+                                        ]}
+                                      >
+                                        {__(
+                                          "editListingScreenTexts.requiredFieldCustomError",
+                                          appSettings.lng
+                                        )}
+                                      </Text>
+                                    )}
+                                  </View>
+                                </View>
+                              )}
+                            {/* Price */}
+                            {!listingData.config.hidden_fields.includes(
+                              "price"
+                            ) &&
+                              listingCommonData.price_type !== "on_call" &&
+                              listingCommonData.pricing_type !== "disabled" && (
+                                <>
+                                  {listingCommonData.pricing_type !== "range" ||
+                                  listingData.config.hidden_fields.includes(
+                                    "pricing_type"
+                                  ) ? (
+                                    <View style={styles.commonInputWrap}>
                                       {ios ? (
                                         <Text
                                           style={[
@@ -2343,939 +2267,1134 @@ const marker = L.marker([${
                                         )}
                                       </View>
                                     </View>
-
-                                    <View style={{ width: "48.5%" }}>
-                                      {ios ? (
-                                        <Text
-                                          style={[
-                                            styles.commonInputLabel,
-                                            rtlTextA,
-                                          ]}
-                                        >
-                                          {`${__(
-                                            "editListingScreenTexts.formFieldLabels.maxPrice",
-                                            appSettings.lng
-                                          )} (${getCurrencySymbol(
-                                            config.currency
-                                          )})`}
-                                          {listingCommonData.price_type !==
-                                            "on_call" &&
-                                            listingCommonData.pricing_type ===
-                                              "range" && (
+                                  ) : (
+                                    <View
+                                      style={[
+                                        styles.commonInputWrap,
+                                        {
+                                          flexDirection: rtl_support
+                                            ? "row-reverse"
+                                            : "row",
+                                          alignItems: "center",
+                                          justifyContent: "space-between",
+                                        },
+                                      ]}
+                                    >
+                                      <View style={{ width: "48.5%" }}>
+                                        {ios ? (
+                                          <Text
+                                            style={[
+                                              styles.commonInputLabel,
+                                              rtlTextA,
+                                            ]}
+                                          >
+                                            {`${__(
+                                              "editListingScreenTexts.formFieldLabels.price",
+                                              appSettings.lng
+                                            )} (${getCurrencySymbol(
+                                              config.currency
+                                            )})`}
+                                            {listingCommonData.price_type !==
+                                              "on_call" && (
                                               <Text style={styles.required}>
                                                 {" "}
                                                 *
                                               </Text>
                                             )}
-                                        </Text>
-                                      ) : (
-                                        <Text
-                                          style={[
-                                            styles.commonInputLabel,
-                                            rtlTextA,
-                                          ]}
-                                        >
-                                          {listingCommonData.price_type !==
-                                            "on_call" &&
-                                            listingCommonData.pricing_type ===
-                                              "range" && (
+                                          </Text>
+                                        ) : (
+                                          <Text
+                                            style={[
+                                              styles.commonInputLabel,
+                                              rtlTextA,
+                                            ]}
+                                          >
+                                            {listingCommonData.price_type !==
+                                              "on_call" && (
                                               <Text style={styles.required}>
                                                 *{" "}
                                               </Text>
                                             )}
-                                          {`${__(
-                                            "editListingScreenTexts.formFieldLabels.maxPrice",
-                                            appSettings.lng
-                                          )} (${getCurrencySymbol(
-                                            config.currency
-                                          )})`}
-                                        </Text>
-                                      )}
-                                      <TextInput
-                                        style={[
-                                          styles.commonInputField,
-                                          rtlTextA,
-                                        ]}
-                                        onChangeText={(value) => {
-                                          setListingCommonData(
-                                            (listingCommonData) => {
-                                              return {
-                                                ...listingCommonData,
-                                                ["max_price"]: value,
-                                              };
-                                            }
-                                          );
-                                        }}
-                                        onBlur={() => {
-                                          setTouchedFields(
-                                            (prevTouchedFields) =>
-                                              Array.from(
-                                                new Set([
-                                                  ...prevTouchedFields,
-                                                  "max_price",
-                                                ])
-                                              )
-                                          );
-                                        }}
-                                        value={listingCommonData.max_price}
-                                        keyboardType="decimal-pad"
-                                      />
-                                      <View style={styles.inputFieldErrorWrap}>
-                                        {commonErrorFields.includes(
-                                          "max_price"
-                                        ) && (
-                                          <Text
-                                            style={[
-                                              styles.inputFieldErrorMessage,
-                                              rtlTextA,
-                                            ]}
-                                          >
-                                            {__(
-                                              "editListingScreenTexts.requiredFieldCustomError",
+                                            {`${__(
+                                              "editListingScreenTexts.formFieldLabels.price",
                                               appSettings.lng
-                                            )}
+                                            )} (${getCurrencySymbol(
+                                              config.currency
+                                            )})`}
                                           </Text>
                                         )}
-                                      </View>
-                                    </View>
-                                  </View>
-                                )}
-                              </>
-                            )}
-
-                          {/* Price Unit Input Component */}
-                          {!listingData.config.hidden_fields.includes(
-                            "price_units"
-                          ) &&
-                            listingData?.config?.price_units?.length > 0 &&
-                            listingCommonData.pricing_type !== "disabled" &&
-                            listingCommonData.price_type !== "on_call" && (
-                              <View
-                                style={[
-                                  styles.commonInputWrap,
-                                  { marginBottom: 20 },
-                                ]}
-                              >
-                                {ios ? (
-                                  <Text style={[styles.label, rtlTextA]}>
-                                    {__(
-                                      "listingFormTexts.priceUnitLabel",
-                                      appSettings.lng
-                                    )}
-                                    <Text style={styles.required}> *</Text>
-                                  </Text>
-                                ) : (
-                                  <Text style={[styles.label, rtlTextA]}>
-                                    <Text style={styles.required}>* </Text>
-                                    {__(
-                                      "listingFormTexts.priceUnitLabel",
-                                      appSettings.lng
-                                    )}
-                                  </Text>
-                                )}
-                                <View style={styles.priceTypePickerWrap}>
-                                  <TouchableOpacity
-                                    style={[styles.priceTypePicker, rtlView]}
-                                    onPress={() => {
-                                      setPriceUnitPickerVisible(
-                                        !priceUnitPickerVisible
-                                      );
-                                      setListingCommonData(
-                                        (listingCommonData) => {
-                                          return {
-                                            ...listingCommonData,
-                                            ["price_unit"]: null,
-                                          };
-                                        }
-                                      );
-                                    }}
-                                  >
-                                    <Text style={styles.text}>
-                                      {listingCommonData.price_unit
-                                        ? `${
-                                            listingData.config.price_units.filter(
-                                              (item) =>
-                                                item.id ===
-                                                listingCommonData.price_unit
-                                            )[0].name
-                                          } (${
-                                            listingData.config.price_units.filter(
-                                              (item) =>
-                                                item.id ===
-                                                listingCommonData.price_unit
-                                            )[0].short
-                                          })`
-                                        : // ? `${listingCommonData.price_unit.name} (${listingCommonData.price_unit.short})`
-                                          __(
-                                            "listingFormTexts.priceUnitLabel",
-                                            appSettings.lng
-                                          )}
-                                    </Text>
-                                    <FontAwesome5
-                                      name="chevron-down"
-                                      size={14}
-                                      color={COLORS.text_gray}
-                                    />
-                                  </TouchableOpacity>
-                                  <Modal
-                                    animationType="slide"
-                                    transparent={true}
-                                    visible={priceUnitPickerVisible}
-                                  >
-                                    <TouchableWithoutFeedback
-                                      onPress={() =>
-                                        setPriceUnitPickerVisible(false)
-                                      }
-                                    >
-                                      <View style={styles.modalOverlay} />
-                                    </TouchableWithoutFeedback>
-                                    <View style={styles.centeredView}>
-                                      <View style={styles.modalView}>
-                                        <Text
-                                          style={styles.modalText}
-                                        >{`== ${__(
-                                          "listingFormTexts.priceUnitLabel",
-                                          appSettings.lng
-                                        )} ==`}</Text>
-                                        <ScrollView
-                                          contentContainerStyle={{
-                                            display: "flex",
-                                            width: "100%",
-                                            alignItems: "flex-start",
+                                        <TextInput
+                                          style={[
+                                            styles.commonInputField,
+                                            rtlTextA,
+                                          ]}
+                                          onChangeText={(value) => {
+                                            setListingCommonData(
+                                              (listingCommonData) => {
+                                                return {
+                                                  ...listingCommonData,
+                                                  ["price"]: value,
+                                                };
+                                              }
+                                            );
                                           }}
+                                          onBlur={() => {
+                                            setTouchedFields(
+                                              (prevTouchedFields) =>
+                                                Array.from(
+                                                  new Set([
+                                                    ...prevTouchedFields,
+                                                    "price",
+                                                  ])
+                                                )
+                                            );
+                                          }}
+                                          value={listingCommonData.price}
+                                          keyboardType="decimal-pad"
+                                        />
+                                        <View
+                                          style={styles.inputFieldErrorWrap}
                                         >
-                                          {listingData.config.price_units.map(
-                                            (item) => (
-                                              <TouchableOpacity
-                                                style={styles.pickerOptions}
-                                                key={`${item.id}`}
-                                                onPress={() => {
-                                                  setPriceUnitPickerVisible(
-                                                    false
-                                                  );
-                                                  setListingCommonData(
-                                                    (listingCommonData) => {
-                                                      return {
-                                                        ...listingCommonData,
-                                                        ["price_unit"]: item.id,
-                                                      };
-                                                    }
-                                                  );
-                                                }}
-                                              >
-                                                <Text
-                                                  style={[
-                                                    styles.pickerOptionsText,
-                                                    rtlTextA,
-                                                  ]}
-                                                >
-                                                  {item.name} ({item.short})
-                                                </Text>
-                                              </TouchableOpacity>
-                                            )
+                                          {commonErrorFields.includes(
+                                            "price"
+                                          ) && (
+                                            <Text
+                                              style={[
+                                                styles.inputFieldErrorMessage,
+                                                rtlTextA,
+                                              ]}
+                                            >
+                                              {__(
+                                                "editListingScreenTexts.requiredFieldCustomError",
+                                                appSettings.lng
+                                              )}
+                                            </Text>
                                           )}
-                                        </ScrollView>
+                                        </View>
                                       </View>
-                                    </View>
-                                  </Modal>
-                                </View>
-                                <View style={styles.errorWrap}>
-                                  {touchedFields.includes("price_unit") &&
-                                    !listingCommonData.price_unit && (
-                                      <Text
-                                        style={[styles.errorMessage, rtlTextA]}
-                                      >
-                                        {__(
-                                          "listingFormTexts.fieldRequiredErrorMessage",
-                                          appSettings.lng
-                                        )}
-                                      </Text>
-                                    )}
-                                </View>
-                              </View>
-                            )}
-                        </View>
 
-                        {/* Custom Fields */}
-                        {listingData.custom_fields && (
-                          <View style={styles.customFieldsWrap}>
-                            {listingData.custom_fields.map((field) => (
-                              <View
-                                key={field.meta_key}
-                                style={styles.metaField}
-                              >
-                                {validateCfDependency.includes(field.id) && (
-                                  <>
-                                    {ios ? (
-                                      <Text style={[styles.label, rtlTextA]}>
-                                        {decodeString(field.label)}
-                                        {field.required && (
-                                          <Text style={styles.required}>
-                                            {" "}
-                                            *
-                                          </Text>
-                                        )}
-                                      </Text>
-                                    ) : (
-                                      <Text style={[styles.label, rtlTextA]}>
-                                        {field.required && (
-                                          <Text style={styles.required}>
-                                            *{" "}
-                                          </Text>
-                                        )}
-                                        {decodeString(field.label)}
-                                      </Text>
-                                    )}
-                                    {[
-                                      "text",
-                                      "textarea",
-                                      "url",
-                                      "number",
-                                    ].includes(field.type) && (
-                                      <TextInput
-                                        style={[
-                                          field.type === "textarea"
-                                            ? styles.metaField_TextArea
-                                            : styles.metaField_Text,
-                                          rtlTextA,
-                                        ]}
-                                        onChangeText={(value) =>
-                                          handleTextData(field.meta_key, value)
-                                        }
-                                        value={
-                                          listingCustomData[field.meta_key]
-                                            ? listingCustomData[field.meta_key]
-                                            : ""
-                                        }
-                                        textAlignVertical={
-                                          field.type === "textarea"
-                                            ? "top"
-                                            : "auto"
-                                        }
-                                        multiline={field.type === "textarea"}
-                                        keyboardType={
-                                          field.type === "number"
-                                            ? "decimal-pad"
-                                            : "default"
-                                        }
-                                        contextMenuHidden={
-                                          field.type === "number"
-                                        }
-                                        placeholder={field.placeholder}
-                                        onBlur={() =>
-                                          setTouchedFields(
-                                            (prevTouchedFields) =>
-                                              Array.from(
-                                                new Set([
-                                                  ...prevTouchedFields,
-                                                  field.meta_key,
-                                                ])
-                                              )
-                                          )
-                                        }
-                                      />
-                                    )}
-                                    {field.type === "select" && (
-                                      <View style={styles.dynamicPickerWrap}>
-                                        <DynamicListPicker
-                                          field={field}
-                                          onselect={(item) =>
-                                            setListingCustomData(
-                                              (listingCustomData) => {
-                                                return {
-                                                  ...listingCustomData,
-                                                  [field.meta_key]: item.id,
-                                                };
-                                              }
-                                            )
-                                          }
-                                          selected={
-                                            field.value
-                                              ? field.value
-                                              : undefined
-                                          }
-                                          handleTouch={() =>
-                                            setTouchedFields(
-                                              (prevTouchedFields) =>
-                                                Array.from(
-                                                  new Set([
-                                                    ...prevTouchedFields,
-                                                    field.meta_key,
-                                                  ])
-                                                )
-                                            )
-                                          }
-                                        />
-                                      </View>
-                                    )}
-                                    {field.type === "radio" && (
-                                      <View style={styles.dynamicRadioWrap}>
-                                        <DynamicRadioButton
-                                          field={field}
-                                          handleClick={(item) => {
-                                            setListingCustomData(
-                                              (listingCustomData) => {
-                                                return {
-                                                  ...listingCustomData,
-                                                  [field.meta_key]: item.id,
-                                                };
-                                              }
-                                            );
-                                            setTouchedFields(
-                                              (prevTouchedFields) =>
-                                                Array.from(
-                                                  new Set([
-                                                    ...prevTouchedFields,
-                                                    field.meta_key,
-                                                  ])
-                                                )
-                                            );
-                                          }}
-                                          selected={
-                                            listingCustomData[
-                                              `${field.meta_key}`
-                                            ]
-                                          }
-                                        />
-                                      </View>
-                                    )}
-                                    {field.type === "checkbox" && (
-                                      <View style={styles.dynamicCheckboxWrap}>
-                                        <DynamicCheckbox
-                                          field={field}
-                                          handleClick={(value) => {
-                                            setListingCustomData(
-                                              (listingCustomData) => {
-                                                return {
-                                                  ...listingCustomData,
-                                                  [field.meta_key]: value,
-                                                };
-                                              }
-                                            );
-                                            setTouchedFields(
-                                              (prevTouchedFields) =>
-                                                Array.from(
-                                                  new Set([
-                                                    ...prevTouchedFields,
-                                                    field.meta_key,
-                                                  ])
-                                                )
-                                            );
-                                          }}
-                                          selected={
-                                            field.value.length
-                                              ? field.value
-                                              : []
-                                          }
-                                        />
-                                      </View>
-                                    )}
-                                    {field.type === "date" && (
-                                      <View style={styles.dateFieldWrap}>
-                                        {["date", "date_time"].includes(
-                                          field.date.type
-                                        ) && (
-                                          <DatePicker
-                                            field={field}
-                                            onSelect={handleDateTime}
-                                            value={
-                                              listingCustomData[field.meta_key]
-                                                ? listingCustomData[
-                                                    field.meta_key
-                                                  ]
-                                                : null
-                                            }
-                                          />
-                                        )}
-                                        {[
-                                          "date_range",
-                                          "date_time_range",
-                                        ].includes(field.date.type) && (
-                                          <DateRangePicker
-                                            field={field}
-                                            value={
-                                              !!listingCustomData[
-                                                field.meta_key
-                                              ][0] ||
-                                              !!listingCustomData[
-                                                field.meta_key
-                                              ][1]
-                                                ? listingCustomData[
-                                                    field.meta_key
-                                                  ]
-                                                : null
-                                            }
-                                            onSelect={handleDateTimeRange}
-                                          />
-                                        )}
-                                      </View>
-                                    )}
-                                    <View style={styles.inputFieldErrorWrap}>
-                                      {customErrorFields.includes(field) &&
-                                        touchedFields.includes(
-                                          field.meta_key
-                                        ) && (
+                                      <View style={{ width: "48.5%" }}>
+                                        {ios ? (
                                           <Text
                                             style={[
-                                              styles.inputFieldErrorMessage,
+                                              styles.commonInputLabel,
                                               rtlTextA,
                                             ]}
                                           >
-                                            {__(
-                                              "editListingScreenTexts.requiredFieldCustomError",
+                                            {`${__(
+                                              "editListingScreenTexts.formFieldLabels.maxPrice",
                                               appSettings.lng
-                                            )}
+                                            )} (${getCurrencySymbol(
+                                              config.currency
+                                            )})`}
+                                            {listingCommonData.price_type !==
+                                              "on_call" &&
+                                              listingCommonData.pricing_type ===
+                                                "range" && (
+                                                <Text style={styles.required}>
+                                                  {" "}
+                                                  *
+                                                </Text>
+                                              )}
+                                          </Text>
+                                        ) : (
+                                          <Text
+                                            style={[
+                                              styles.commonInputLabel,
+                                              rtlTextA,
+                                            ]}
+                                          >
+                                            {listingCommonData.price_type !==
+                                              "on_call" &&
+                                              listingCommonData.pricing_type ===
+                                                "range" && (
+                                                <Text style={styles.required}>
+                                                  *{" "}
+                                                </Text>
+                                              )}
+                                            {`${__(
+                                              "editListingScreenTexts.formFieldLabels.maxPrice",
+                                              appSettings.lng
+                                            )} (${getCurrencySymbol(
+                                              config.currency
+                                            )})`}
                                           </Text>
                                         )}
+                                        <TextInput
+                                          style={[
+                                            styles.commonInputField,
+                                            rtlTextA,
+                                          ]}
+                                          onChangeText={(value) => {
+                                            setListingCommonData(
+                                              (listingCommonData) => {
+                                                return {
+                                                  ...listingCommonData,
+                                                  ["max_price"]: value,
+                                                };
+                                              }
+                                            );
+                                          }}
+                                          onBlur={() => {
+                                            setTouchedFields(
+                                              (prevTouchedFields) =>
+                                                Array.from(
+                                                  new Set([
+                                                    ...prevTouchedFields,
+                                                    "max_price",
+                                                  ])
+                                                )
+                                            );
+                                          }}
+                                          value={listingCommonData.max_price}
+                                          keyboardType="decimal-pad"
+                                        />
+                                        <View
+                                          style={styles.inputFieldErrorWrap}
+                                        >
+                                          {commonErrorFields.includes(
+                                            "max_price"
+                                          ) && (
+                                            <Text
+                                              style={[
+                                                styles.inputFieldErrorMessage,
+                                                rtlTextA,
+                                              ]}
+                                            >
+                                              {__(
+                                                "editListingScreenTexts.requiredFieldCustomError",
+                                                appSettings.lng
+                                              )}
+                                            </Text>
+                                          )}
+                                        </View>
+                                      </View>
                                     </View>
-                                  </>
-                                )}
-                              </View>
-                            ))}
-                          </View>
-                        )}
-                        {/* Common Fields (Video Url & Description) */}
-                        <View style={styles.commonFieldsWrap}>
-                          {!!listingData?.config?.video_urls && (
-                            <View style={styles.commonInputWrap}>
-                              <Text style={[styles.commonInputLabel, rtlTextA]}>
-                                {__(
-                                  "editListingScreenTexts.formFieldLabels.videoUrl",
-                                  appSettings.lng
-                                )}
-                              </Text>
-                              <TextInput
-                                style={[styles.metaField_Text, rtlTextA]}
-                                onChangeText={handleChange("video_urls")}
-                                onBlur={handleBlur("video_urls")}
-                                value={values.video_urls}
-                                placeholder={__(
-                                  "editListingScreenTexts.formFieldLabels.videoUrl",
-                                  appSettings.lng
-                                )}
-                              />
-                              <Text style={[styles.Text, rtlTextA]}>
-                                {__(
-                                  "editListingScreenTexts.videoUrlNote",
-                                  appSettings.lng
-                                )}
-                              </Text>
-                              <View style={styles.inputFieldErrorWrap}>
-                                {errors.video_urls && touched.video_urls && (
-                                  <Text
-                                    style={[
-                                      styles.inputFieldErrorMessage,
-                                      rtlTextA,
-                                    ]}
-                                  >
-                                    {errors.video_urls}
-                                  </Text>
-                                )}
-                              </View>
-                            </View>
-                          )}
-                          {!listingData.config.hidden_fields.includes(
-                            "description"
-                          ) && (
-                            <View style={styles.commonInputWrap}>
-                              <Text style={[styles.commonInputLabel, rtlTextA]}>
-                                {__(
-                                  "editListingScreenTexts.formFieldLabels.listingDescription",
-                                  appSettings.lng
-                                )}
-                              </Text>
-                              <TextInput
-                                style={[styles.metaField_TextArea, rtlTextA]}
-                                onChangeText={handleChange("description")}
-                                onBlur={handleBlur("description")}
-                                value={values.description}
-                                textAlignVertical="top"
-                                multiline
-                                placeholder={__(
-                                  "editListingScreenTexts.formFieldLabels.listingDescription",
-                                  appSettings.lng
-                                )}
-                              />
-                              <View style={styles.inputFieldErrorWrap}>
-                                {errors.description && touched.description && (
-                                  <Text
-                                    style={[
-                                      styles.inputFieldErrorMessage,
-                                      rtlTextA,
-                                    ]}
-                                  >
-                                    {errors.price}
-                                  </Text>
-                                )}
-                              </View>
-                            </View>
-                          )}
-                        </View>
-                        {/* Business Hours Component */}
-                        {listingData?.config?.bhs && (
-                          <View style={styles.bHWrap}>
-                            <View style={[styles.contactTitleWrap, rtlView]}>
-                              <View style={styles.iconWrap}>
-                                <FontAwesome
-                                  name="clock-o"
-                                  size={24}
-                                  color={COLORS.primary}
-                                />
-                              </View>
-                              <Text style={styles.title}>
-                                {__(
-                                  "listingFormTexts.businessHoursTitle",
-                                  appSettings.lng
-                                )}
-                              </Text>
-                            </View>
+                                  )}
+                                </>
+                              )}
 
-                            <View style={styles.bHContentWrap}>
-                              <View style={[styles.bHToggleBtnWrap, rtlView]}>
-                                <TouchableWithoutFeedback
-                                  style={styles.bHToggleBtnIcon}
-                                  onPress={handleBHToggle}
+                            {/* Price Unit Input Component */}
+                            {!listingData.config.hidden_fields.includes(
+                              "price_units"
+                            ) &&
+                              listingData?.config?.price_units?.length > 0 &&
+                              listingCommonData.pricing_type !== "disabled" &&
+                              listingCommonData.price_type !== "on_call" && (
+                                <View
+                                  style={[
+                                    styles.commonInputWrap,
+                                    { marginBottom: 20 },
+                                  ]}
                                 >
-                                  <MaterialCommunityIcons
-                                    name={
-                                      bHActive
-                                        ? "checkbox-marked"
-                                        : "checkbox-blank-outline"
-                                    }
-                                    size={24}
-                                    color={COLORS.primary}
-                                  />
-                                </TouchableWithoutFeedback>
-                                <TouchableWithoutFeedback
-                                  style={styles.bHToggleBtnTextWrap}
-                                  onPress={handleBHToggle}
-                                >
-                                  <Text
-                                    style={[
-                                      styles.bHToggleBtnText,
-                                      {
-                                        marginLeft: rtl_support ? 0 : 10,
-                                        marginRight: rtl_support ? 10 : 0,
-                                      },
-                                      rtlText,
-                                    ]}
-                                  >
-                                    {__(
-                                      "listingFormTexts.businessHoursToggleTitle",
-                                      appSettings.lng
-                                    )}
-                                  </Text>
-                                </TouchableWithoutFeedback>
-                              </View>
-
-                              {bHActive && (
-                                <>
-                                  <View style={styles.bHToggleNoteWrap}>
-                                    <Text
-                                      style={[styles.bHToggleNote, rtlTextA]}
-                                    >
+                                  {ios ? (
+                                    <Text style={[styles.label, rtlTextA]}>
                                       {__(
-                                        "listingFormTexts.businessHoursToggleNote",
+                                        "listingFormTexts.priceUnitLabel",
+                                        appSettings.lng
+                                      )}
+                                      <Text style={styles.required}> *</Text>
+                                    </Text>
+                                  ) : (
+                                    <Text style={[styles.label, rtlTextA]}>
+                                      <Text style={styles.required}>* </Text>
+                                      {__(
+                                        "listingFormTexts.priceUnitLabel",
                                         appSettings.lng
                                       )}
                                     </Text>
-                                  </View>
-                                  <View style={styles.bHs}>
-                                    {config.week_days.map((_day) => (
-                                      <BHComponent
-                                        day={_day.id}
-                                        dayName={_day.name}
-                                        key={_day.id}
+                                  )}
+                                  <View style={styles.priceTypePickerWrap}>
+                                    <TouchableOpacity
+                                      style={[styles.priceTypePicker, rtlView]}
+                                      onPress={() => {
+                                        setPriceUnitPickerVisible(
+                                          !priceUnitPickerVisible
+                                        );
+                                        setListingCommonData(
+                                          (listingCommonData) => {
+                                            return {
+                                              ...listingCommonData,
+                                              ["price_unit"]: null,
+                                            };
+                                          }
+                                        );
+                                      }}
+                                    >
+                                      <Text style={styles.text}>
+                                        {listingCommonData.price_unit
+                                          ? `${
+                                              listingData.config.price_units.filter(
+                                                (item) =>
+                                                  item.id ===
+                                                  listingCommonData.price_unit
+                                              )[0].name
+                                            } (${
+                                              listingData.config.price_units.filter(
+                                                (item) =>
+                                                  item.id ===
+                                                  listingCommonData.price_unit
+                                              )[0].short
+                                            })`
+                                          : // ? `${listingCommonData.price_unit.name} (${listingCommonData.price_unit.short})`
+                                            __(
+                                              "listingFormTexts.priceUnitLabel",
+                                              appSettings.lng
+                                            )}
+                                      </Text>
+                                      <FontAwesome5
+                                        name="chevron-down"
+                                        size={14}
+                                        color={COLORS.text_gray}
                                       />
-                                    ))}
-                                  </View>
-                                  <View style={styles.sBHs}>
-                                    <View
-                                      style={[styles.bHToggleBtnWrap, rtlView]}
+                                    </TouchableOpacity>
+                                    <Modal
+                                      animationType="slide"
+                                      transparent={true}
+                                      visible={priceUnitPickerVisible}
                                     >
                                       <TouchableWithoutFeedback
-                                        style={styles.bHToggleBtnIcon}
-                                        onPress={handleSBHToggle}
+                                        onPress={() =>
+                                          setPriceUnitPickerVisible(false)
+                                        }
                                       >
-                                        <MaterialCommunityIcons
-                                          name={
-                                            !!defaultSBH?.length
-                                              ? "checkbox-marked"
-                                              : "checkbox-blank-outline"
-                                          }
-                                          size={24}
-                                          color={COLORS.primary}
-                                        />
+                                        <View style={styles.modalOverlay} />
                                       </TouchableWithoutFeedback>
-                                      <TouchableWithoutFeedback
-                                        style={styles.bHToggleBtnTextWrap}
-                                        onPress={handleSBHToggle}
-                                      >
-                                        <Text style={styles.bHToggleBtnText}>
+                                      <View style={styles.centeredView}>
+                                        <View style={styles.modalView}>
+                                          <Text
+                                            style={styles.modalText}
+                                          >{`== ${__(
+                                            "listingFormTexts.priceUnitLabel",
+                                            appSettings.lng
+                                          )} ==`}</Text>
+                                          <ScrollView
+                                            contentContainerStyle={{
+                                              display: "flex",
+                                              width: "100%",
+                                              alignItems: "flex-start",
+                                            }}
+                                          >
+                                            {listingData.config.price_units.map(
+                                              (item) => (
+                                                <TouchableOpacity
+                                                  style={styles.pickerOptions}
+                                                  key={`${item.id}`}
+                                                  onPress={() => {
+                                                    setPriceUnitPickerVisible(
+                                                      false
+                                                    );
+                                                    setListingCommonData(
+                                                      (listingCommonData) => {
+                                                        return {
+                                                          ...listingCommonData,
+                                                          ["price_unit"]:
+                                                            item.id,
+                                                        };
+                                                      }
+                                                    );
+                                                  }}
+                                                >
+                                                  <Text
+                                                    style={[
+                                                      styles.pickerOptionsText,
+                                                      rtlTextA,
+                                                    ]}
+                                                  >
+                                                    {item.name} ({item.short})
+                                                  </Text>
+                                                </TouchableOpacity>
+                                              )
+                                            )}
+                                          </ScrollView>
+                                        </View>
+                                      </View>
+                                    </Modal>
+                                  </View>
+                                  <View style={styles.errorWrap}>
+                                    {touchedFields.includes("price_unit") &&
+                                      !listingCommonData.price_unit && (
+                                        <Text
+                                          style={[
+                                            styles.errorMessage,
+                                            rtlTextA,
+                                          ]}
+                                        >
                                           {__(
-                                            "listingFormTexts.specialHoursToggleTitle",
+                                            "listingFormTexts.fieldRequiredErrorMessage",
                                             appSettings.lng
                                           )}
                                         </Text>
-                                      </TouchableWithoutFeedback>
-                                    </View>
+                                      )}
+                                  </View>
+                                </View>
+                              )}
+                          </View>
+
+                          {/* Custom Fields */}
+                          {listingData.custom_fields && (
+                            <View style={styles.customFieldsWrap}>
+                              {listingData.custom_fields.map((field) => (
+                                <View
+                                  key={field.meta_key}
+                                  style={styles.metaField}
+                                >
+                                  {validateCfDependency.includes(field.id) && (
+                                    <>
+                                      {ios ? (
+                                        <Text style={[styles.label, rtlTextA]}>
+                                          {decodeString(field.label)}
+                                          {field.required && (
+                                            <Text style={styles.required}>
+                                              {" "}
+                                              *
+                                            </Text>
+                                          )}
+                                        </Text>
+                                      ) : (
+                                        <Text style={[styles.label, rtlTextA]}>
+                                          {field.required && (
+                                            <Text style={styles.required}>
+                                              *{" "}
+                                            </Text>
+                                          )}
+                                          {decodeString(field.label)}
+                                        </Text>
+                                      )}
+                                      {[
+                                        "text",
+                                        "textarea",
+                                        "url",
+                                        "number",
+                                      ].includes(field.type) && (
+                                        <TextInput
+                                          style={[
+                                            field.type === "textarea"
+                                              ? styles.metaField_TextArea
+                                              : styles.metaField_Text,
+                                            rtlTextA,
+                                          ]}
+                                          onChangeText={(value) =>
+                                            handleTextData(
+                                              field.meta_key,
+                                              value
+                                            )
+                                          }
+                                          value={
+                                            listingCustomData[field.meta_key]
+                                              ? listingCustomData[
+                                                  field.meta_key
+                                                ]
+                                              : ""
+                                          }
+                                          textAlignVertical={
+                                            field.type === "textarea"
+                                              ? "top"
+                                              : "auto"
+                                          }
+                                          multiline={field.type === "textarea"}
+                                          keyboardType={
+                                            field.type === "number"
+                                              ? "decimal-pad"
+                                              : "default"
+                                          }
+                                          contextMenuHidden={
+                                            field.type === "number"
+                                          }
+                                          placeholder={field.placeholder}
+                                          onBlur={() =>
+                                            setTouchedFields(
+                                              (prevTouchedFields) =>
+                                                Array.from(
+                                                  new Set([
+                                                    ...prevTouchedFields,
+                                                    field.meta_key,
+                                                  ])
+                                                )
+                                            )
+                                          }
+                                        />
+                                      )}
+                                      {field.type === "select" && (
+                                        <View style={styles.dynamicPickerWrap}>
+                                          <DynamicListPicker
+                                            field={field}
+                                            onselect={(item) =>
+                                              setListingCustomData(
+                                                (listingCustomData) => {
+                                                  return {
+                                                    ...listingCustomData,
+                                                    [field.meta_key]: item.id,
+                                                  };
+                                                }
+                                              )
+                                            }
+                                            selected={
+                                              field.value
+                                                ? field.value
+                                                : undefined
+                                            }
+                                            handleTouch={() =>
+                                              setTouchedFields(
+                                                (prevTouchedFields) =>
+                                                  Array.from(
+                                                    new Set([
+                                                      ...prevTouchedFields,
+                                                      field.meta_key,
+                                                    ])
+                                                  )
+                                              )
+                                            }
+                                          />
+                                        </View>
+                                      )}
+                                      {field.type === "radio" && (
+                                        <View style={styles.dynamicRadioWrap}>
+                                          <DynamicRadioButton
+                                            field={field}
+                                            handleClick={(item) => {
+                                              setListingCustomData(
+                                                (listingCustomData) => {
+                                                  return {
+                                                    ...listingCustomData,
+                                                    [field.meta_key]: item.id,
+                                                  };
+                                                }
+                                              );
+                                              setTouchedFields(
+                                                (prevTouchedFields) =>
+                                                  Array.from(
+                                                    new Set([
+                                                      ...prevTouchedFields,
+                                                      field.meta_key,
+                                                    ])
+                                                  )
+                                              );
+                                            }}
+                                            selected={
+                                              listingCustomData[
+                                                `${field.meta_key}`
+                                              ]
+                                            }
+                                          />
+                                        </View>
+                                      )}
+                                      {field.type === "checkbox" && (
+                                        <View
+                                          style={styles.dynamicCheckboxWrap}
+                                        >
+                                          <DynamicCheckbox
+                                            field={field}
+                                            handleClick={(value) => {
+                                              setListingCustomData(
+                                                (listingCustomData) => {
+                                                  return {
+                                                    ...listingCustomData,
+                                                    [field.meta_key]: value,
+                                                  };
+                                                }
+                                              );
+                                              setTouchedFields(
+                                                (prevTouchedFields) =>
+                                                  Array.from(
+                                                    new Set([
+                                                      ...prevTouchedFields,
+                                                      field.meta_key,
+                                                    ])
+                                                  )
+                                              );
+                                            }}
+                                            selected={
+                                              field.value.length
+                                                ? field.value
+                                                : []
+                                            }
+                                          />
+                                        </View>
+                                      )}
+                                      {field.type === "date" && (
+                                        <View style={styles.dateFieldWrap}>
+                                          {["date", "date_time"].includes(
+                                            field.date.type
+                                          ) && (
+                                            <DatePicker
+                                              field={field}
+                                              onSelect={handleDateTime}
+                                              value={
+                                                listingCustomData[
+                                                  field.meta_key
+                                                ]
+                                                  ? listingCustomData[
+                                                      field.meta_key
+                                                    ]
+                                                  : null
+                                              }
+                                            />
+                                          )}
+                                          {[
+                                            "date_range",
+                                            "date_time_range",
+                                          ].includes(field.date.type) && (
+                                            <DateRangePicker
+                                              field={field}
+                                              value={
+                                                !!listingCustomData[
+                                                  field.meta_key
+                                                ][0] ||
+                                                !!listingCustomData[
+                                                  field.meta_key
+                                                ][1]
+                                                  ? listingCustomData[
+                                                      field.meta_key
+                                                    ]
+                                                  : null
+                                              }
+                                              onSelect={handleDateTimeRange}
+                                            />
+                                          )}
+                                        </View>
+                                      )}
+                                      <View style={styles.inputFieldErrorWrap}>
+                                        {customErrorFields.includes(field) &&
+                                          touchedFields.includes(
+                                            field.meta_key
+                                          ) && (
+                                            <Text
+                                              style={[
+                                                styles.inputFieldErrorMessage,
+                                                rtlTextA,
+                                              ]}
+                                            >
+                                              {__(
+                                                "editListingScreenTexts.requiredFieldCustomError",
+                                                appSettings.lng
+                                              )}
+                                            </Text>
+                                          )}
+                                      </View>
+                                    </>
+                                  )}
+                                </View>
+                              ))}
+                            </View>
+                          )}
+                          {/* Common Fields (Video Url & Description) */}
+                          <View style={styles.commonFieldsWrap}>
+                            {!!listingData?.config?.video_urls && (
+                              <View style={styles.commonInputWrap}>
+                                <Text
+                                  style={[styles.commonInputLabel, rtlTextA]}
+                                >
+                                  {__(
+                                    "editListingScreenTexts.formFieldLabels.videoUrl",
+                                    appSettings.lng
+                                  )}
+                                </Text>
+                                <TextInput
+                                  style={[styles.metaField_Text, rtlTextA]}
+                                  onChangeText={handleChange("video_urls")}
+                                  onBlur={handleBlur("video_urls")}
+                                  value={values.video_urls}
+                                  placeholder={__(
+                                    "editListingScreenTexts.formFieldLabels.videoUrl",
+                                    appSettings.lng
+                                  )}
+                                />
+                                <Text style={[styles.Text, rtlTextA]}>
+                                  {__(
+                                    "editListingScreenTexts.videoUrlNote",
+                                    appSettings.lng
+                                  )}
+                                </Text>
+                                <View style={styles.inputFieldErrorWrap}>
+                                  {errors.video_urls && touched.video_urls && (
+                                    <Text
+                                      style={[
+                                        styles.inputFieldErrorMessage,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {errors.video_urls}
+                                    </Text>
+                                  )}
+                                </View>
+                              </View>
+                            )}
+                            {!listingData.config.hidden_fields.includes(
+                              "description"
+                            ) && (
+                              <View style={styles.commonInputWrap}>
+                                <Text
+                                  style={[styles.commonInputLabel, rtlTextA]}
+                                >
+                                  {__(
+                                    "editListingScreenTexts.formFieldLabels.listingDescription",
+                                    appSettings.lng
+                                  )}
+                                </Text>
+                                <TextInput
+                                  style={[styles.metaField_TextArea, rtlTextA]}
+                                  onChangeText={handleChange("description")}
+                                  onBlur={handleBlur("description")}
+                                  value={values.description}
+                                  textAlignVertical="top"
+                                  multiline
+                                  placeholder={__(
+                                    "editListingScreenTexts.formFieldLabels.listingDescription",
+                                    appSettings.lng
+                                  )}
+                                />
+                                <View style={styles.inputFieldErrorWrap}>
+                                  {errors.description &&
+                                    touched.description && (
+                                      <Text
+                                        style={[
+                                          styles.inputFieldErrorMessage,
+                                          rtlTextA,
+                                        ]}
+                                      >
+                                        {errors.price}
+                                      </Text>
+                                    )}
+                                </View>
+                              </View>
+                            )}
+                          </View>
+                        </View>
+                        {/* Business Hours Component */}
+                        {listingData?.config?.bhs && (
+                          <View
+                            style={{
+                              backgroundColor: COLORS.white,
+                              marginHorizontal: "3%",
+                              borderRadius: 6,
+                              elevation: 0.5,
+                              shadowColor: COLORS.border_light,
+                              shadowOpacity: 0.1,
+                              shadowRadius: 3,
+                              shadowOffset: { height: 1, width: 1 },
+                              paddingVertical: 10,
+                              marginVertical: 15,
+                            }}
+                          >
+                            <View style={styles.bHWrap}>
+                              <View style={styles.contactTitleWrap}>
+                                <Text style={[styles.title, rtlTextA]}>
+                                  {__(
+                                    "listingFormTexts.businessHoursTitle",
+                                    appSettings.lng
+                                  )}
+                                </Text>
+                              </View>
+
+                              <View style={styles.bHContentWrap}>
+                                <View style={[styles.bHToggleBtnWrap, rtlView]}>
+                                  <TouchableWithoutFeedback
+                                    style={styles.bHToggleBtnIcon}
+                                    onPress={handleBHToggle}
+                                  >
+                                    <MaterialCommunityIcons
+                                      name={
+                                        bHActive
+                                          ? "checkbox-marked"
+                                          : "checkbox-blank-outline"
+                                      }
+                                      size={24}
+                                      color={COLORS.primary}
+                                    />
+                                  </TouchableWithoutFeedback>
+                                  <TouchableWithoutFeedback
+                                    style={styles.bHToggleBtnTextWrap}
+                                    onPress={handleBHToggle}
+                                  >
+                                    <Text
+                                      style={[
+                                        styles.bHToggleBtnText,
+                                        {
+                                          marginLeft: rtl_support ? 0 : 10,
+                                          marginRight: rtl_support ? 10 : 0,
+                                        },
+                                        rtlText,
+                                      ]}
+                                    >
+                                      {__(
+                                        "listingFormTexts.businessHoursToggleTitle",
+                                        appSettings.lng
+                                      )}
+                                    </Text>
+                                  </TouchableWithoutFeedback>
+                                </View>
+
+                                {bHActive && (
+                                  <>
                                     <View style={styles.bHToggleNoteWrap}>
                                       <Text
                                         style={[styles.bHToggleNote, rtlTextA]}
                                       >
                                         {__(
-                                          "listingFormTexts.specialHoursToggleNote",
+                                          "listingFormTexts.businessHoursToggleNote",
                                           appSettings.lng
                                         )}
                                       </Text>
                                     </View>
-                                    {defaultSBH?.map((_sbh, index, arr) => (
-                                      <SBHComponent
-                                        specialDay={index}
-                                        dataArray={arr}
-                                        key={index}
-                                      />
-                                    ))}
-                                  </View>
-                                </>
-                              )}
+                                    <View style={styles.bHs}>
+                                      {config.week_days.map((_day) => (
+                                        <BHComponent
+                                          day={_day.id}
+                                          dayName={_day.name}
+                                          key={_day.id}
+                                        />
+                                      ))}
+                                    </View>
+                                    <View style={styles.sBHs}>
+                                      <View
+                                        style={[
+                                          styles.bHToggleBtnWrap,
+                                          rtlView,
+                                        ]}
+                                      >
+                                        <TouchableWithoutFeedback
+                                          style={styles.bHToggleBtnIcon}
+                                          onPress={handleSBHToggle}
+                                        >
+                                          <MaterialCommunityIcons
+                                            name={
+                                              !!defaultSBH?.length
+                                                ? "checkbox-marked"
+                                                : "checkbox-blank-outline"
+                                            }
+                                            size={24}
+                                            color={COLORS.primary}
+                                          />
+                                        </TouchableWithoutFeedback>
+                                        <TouchableWithoutFeedback
+                                          style={styles.bHToggleBtnTextWrap}
+                                          onPress={handleSBHToggle}
+                                        >
+                                          <Text style={styles.bHToggleBtnText}>
+                                            {__(
+                                              "listingFormTexts.specialHoursToggleTitle",
+                                              appSettings.lng
+                                            )}
+                                          </Text>
+                                        </TouchableWithoutFeedback>
+                                      </View>
+                                      <View style={styles.bHToggleNoteWrap}>
+                                        <Text
+                                          style={[
+                                            styles.bHToggleNote,
+                                            rtlTextA,
+                                          ]}
+                                        >
+                                          {__(
+                                            "listingFormTexts.specialHoursToggleNote",
+                                            appSettings.lng
+                                          )}
+                                        </Text>
+                                      </View>
+                                      {defaultSBH?.map((_sbh, index, arr) => (
+                                        <SBHComponent
+                                          specialDay={index}
+                                          dataArray={arr}
+                                          key={index}
+                                        />
+                                      ))}
+                                    </View>
+                                  </>
+                                )}
+                              </View>
                             </View>
                           </View>
                         )}
-
-                        {/* Contact Section */}
-                        <View style={styles.contactSectionWrap}>
-                          <View style={[styles.contactTitleWrap, rtlView]}>
-                            <View style={styles.iconWrap}>
-                              <Image
-                                style={{
-                                  height: 25,
-                                  width: 25,
-                                  resizeMode: "contain",
-                                }}
-                                source={require("../assets/my_profile.png")}
-                              />
-                            </View>
-                            <Text style={styles.title}>
-                              {__(
-                                "editListingScreenTexts.formFieldLabels.contact",
-                                appSettings.lng
-                              )}
-                            </Text>
-                          </View>
-                          {/* Name Input */}
-                          {!listingData.config.hidden_fields.includes(
-                            "name"
-                          ) && (
-                            <View style={styles.commonInputWrap}>
-                              <Text style={[styles.commonInputLabel, rtlTextA]}>
+                        <View
+                          style={{
+                            backgroundColor: COLORS.white,
+                            marginHorizontal: "3%",
+                            borderRadius: 6,
+                            elevation: 0.5,
+                            shadowColor: COLORS.border_light,
+                            shadowOpacity: 0.1,
+                            shadowRadius: 3,
+                            shadowOffset: { height: 1, width: 1 },
+                            paddingVertical: 10,
+                            marginVertical: 10,
+                          }}
+                        >
+                          {/* Contact Section */}
+                          <View style={styles.contactSectionWrap}>
+                            <View style={styles.contactTitleWrap}>
+                              <Text style={[styles.title, rtlTextA]}>
                                 {__(
-                                  "editListingScreenTexts.formFieldLabels.name",
-                                  appSettings.lng
-                                )}
-                                <Text style={styles.required}> *</Text>
-                              </Text>
-                              <TextInput
-                                style={[styles.commonInputField, rtlTextA]}
-                                onChangeText={handleChange("name")}
-                                onBlur={handleBlur("name")}
-                                value={values.name}
-                                editable={!user.first_name && !user.last_name}
-                              />
-                              <View style={styles.inputFieldErrorWrap}>
-                                {errors.name && touched.name && (
-                                  <Text
-                                    style={[
-                                      styles.inputFieldErrorMessage,
-                                      rtlTextA,
-                                    ]}
-                                  >
-                                    {errors.name}
-                                  </Text>
-                                )}
-                              </View>
-                            </View>
-                          )}
-                          {/* Phone Input */}
-                          {!listingData.config.hidden_fields.includes(
-                            "phone"
-                          ) && (
-                            <View style={styles.commonInputWrap}>
-                              <Text style={[styles.commonInputLabel, rtlTextA]}>
-                                {__(
-                                  "editListingScreenTexts.formFieldLabels.phone",
-                                  appSettings.lng
-                                )}
-                                <Text style={styles.required}> *</Text>
-                              </Text>
-                              <TextInput
-                                style={[styles.commonInputField, rtlTextA]}
-                                onChangeText={handleChange("phone")}
-                                onBlur={handleBlur("phone")}
-                                value={values.phone}
-                              />
-                              <View style={styles.inputFieldErrorWrap}>
-                                {errors.phone && touched.phone && (
-                                  <Text
-                                    style={[
-                                      styles.inputFieldErrorMessage,
-                                      rtlTextA,
-                                    ]}
-                                  >
-                                    {errors.phone}
-                                  </Text>
-                                )}
-                              </View>
-                            </View>
-                          )}
-                          {/* Whatsapp Input */}
-                          {!listingData.config.hidden_fields.includes(
-                            "whatsapp_number"
-                          ) && (
-                            <View style={styles.commonInputWrap}>
-                              <Text style={[styles.commonInputLabel, rtlTextA]}>
-                                {__(
-                                  "editListingScreenTexts.formFieldLabels.whatsapp",
+                                  "editListingScreenTexts.formFieldLabels.contact",
                                   appSettings.lng
                                 )}
                               </Text>
-                              <TextInput
-                                style={[styles.commonInputField, rtlTextA]}
-                                onChangeText={handleChange("whatsapp_number")}
-                                onBlur={handleBlur("whatsapp_number")}
-                                value={values.whatsapp_number}
-                              />
-                              <Text style={[styles.Text, rtlTextA]}>
-                                {__(
-                                  "editListingScreenTexts.whatsappNote",
-                                  appSettings.lng
-                                )}
-                              </Text>
-                              <View style={styles.inputFieldErrorWrap}>
-                                {errors.whatsapp_number &&
-                                  touched.whatsapp_number && (
-                                    <Text
-                                      style={[
-                                        styles.inputFieldErrorMessage,
-                                        rtlTextA,
-                                      ]}
-                                    >
-                                      {errors.whatsapp_number}
-                                    </Text>
-                                  )}
-                              </View>
                             </View>
-                          )}
-                          {/* Email Input */}
-                          {!listingData.config.hidden_fields.includes(
-                            "email"
-                          ) && (
-                            <View style={styles.commonInputWrap}>
-                              <Text style={[styles.commonInputLabel, rtlTextA]}>
-                                {__(
-                                  "editListingScreenTexts.formFieldLabels.email",
-                                  appSettings.lng
-                                )}
-                                <Text style={styles.required}> *</Text>
-                              </Text>
-                              <TextInput
-                                style={[styles.commonInputField, rtlTextA]}
-                                onChangeText={handleChange("email")}
-                                onBlur={handleBlur("email")}
-                                value={values.email}
-                                editable={!values.email}
-                              />
-                              <View style={styles.inputFieldErrorWrap}>
-                                {errors.email && touched.email && (
-                                  <Text
-                                    style={[
-                                      styles.inputFieldErrorMessage,
-                                      rtlTextA,
-                                    ]}
-                                  >
-                                    {errors.email}
-                                  </Text>
-                                )}
-                              </View>
-                            </View>
-                          )}
-                          {/* Website Input */}
-                          {!listingData.config.hidden_fields.includes(
-                            "website"
-                          ) && (
-                            <View style={styles.commonInputWrap}>
-                              <Text style={[styles.commonInputLabel, rtlTextA]}>
-                                {__(
-                                  "editListingScreenTexts.formFieldLabels.website",
-                                  appSettings.lng
-                                )}
-                              </Text>
-                              <TextInput
-                                style={[styles.commonInputField, rtlTextA]}
-                                onChangeText={handleChange("website")}
-                                onBlur={handleBlur("website")}
-                                value={values.website}
-                              />
-                              <View style={styles.inputFieldErrorWrap}>
-                                {errors.website && touched.website && (
-                                  <Text
-                                    style={[
-                                      styles.inputFieldErrorMessage,
-                                      rtlTextA,
-                                    ]}
-                                  >
-                                    {errors.website}
-                                  </Text>
-                                )}
-                              </View>
-                            </View>
-                          )}
-                          {/* ZipCode Input */}
-                          {!listingData.config.hidden_fields.includes(
-                            "zipcode"
-                          ) &&
-                            config.location_type === "local" && (
+                            {/* Name Input */}
+                            {!listingData.config.hidden_fields.includes(
+                              "name"
+                            ) && (
                               <View style={styles.commonInputWrap}>
                                 <Text
                                   style={[styles.commonInputLabel, rtlTextA]}
                                 >
                                   {__(
-                                    "editListingScreenTexts.formFieldLabels.zipCode",
+                                    "editListingScreenTexts.formFieldLabels.name",
                                     appSettings.lng
                                   )}
+                                  <Text style={styles.required}> *</Text>
                                 </Text>
                                 <TextInput
                                   style={[styles.commonInputField, rtlTextA]}
-                                  onChangeText={(text) => {
-                                    setFieldValue("zipcode", text);
-                                    if (!geoCoderFail) {
-                                      handleReGeocoding(values, {
-                                        zipcode: text,
-                                      });
-                                    }
-                                  }}
-                                  onBlur={handleBlur("zipcode")}
-                                  value={values.zipcode}
+                                  onChangeText={handleChange("name")}
+                                  onBlur={handleBlur("name")}
+                                  value={values.name}
+                                  editable={!user.first_name && !user.last_name}
                                 />
                                 <View style={styles.inputFieldErrorWrap}>
-                                  {errors.zipcode && touched.zipcode && (
+                                  {errors.name && touched.name && (
                                     <Text
                                       style={[
                                         styles.inputFieldErrorMessage,
                                         rtlTextA,
                                       ]}
                                     >
-                                      {errors.zipcode}
+                                      {errors.name}
                                     </Text>
                                   )}
                                 </View>
                               </View>
                             )}
-                          {/* Address Input */}
-                          {!listingData.config.hidden_fields.includes(
-                            "address"
-                          ) &&
-                            config.location_type === "local" && (
+                            {/* Phone Input */}
+                            {!listingData.config.hidden_fields.includes(
+                              "phone"
+                            ) && (
+                              <View style={styles.commonInputWrap}>
+                                <Text
+                                  style={[styles.commonInputLabel, rtlTextA]}
+                                >
+                                  {__(
+                                    "editListingScreenTexts.formFieldLabels.phone",
+                                    appSettings.lng
+                                  )}
+                                  <Text style={styles.required}> *</Text>
+                                </Text>
+                                <TextInput
+                                  style={[styles.commonInputField, rtlTextA]}
+                                  onChangeText={handleChange("phone")}
+                                  onBlur={handleBlur("phone")}
+                                  value={values.phone}
+                                />
+                                <View style={styles.inputFieldErrorWrap}>
+                                  {errors.phone && touched.phone && (
+                                    <Text
+                                      style={[
+                                        styles.inputFieldErrorMessage,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {errors.phone}
+                                    </Text>
+                                  )}
+                                </View>
+                              </View>
+                            )}
+                            {/* Whatsapp Input */}
+                            {!listingData.config.hidden_fields.includes(
+                              "whatsapp_number"
+                            ) && (
+                              <View style={styles.commonInputWrap}>
+                                <Text
+                                  style={[styles.commonInputLabel, rtlTextA]}
+                                >
+                                  {__(
+                                    "editListingScreenTexts.formFieldLabels.whatsapp",
+                                    appSettings.lng
+                                  )}
+                                </Text>
+                                <TextInput
+                                  style={[styles.commonInputField, rtlTextA]}
+                                  onChangeText={handleChange("whatsapp_number")}
+                                  onBlur={handleBlur("whatsapp_number")}
+                                  value={values.whatsapp_number}
+                                />
+                                <Text style={[styles.Text, rtlTextA]}>
+                                  {__(
+                                    "editListingScreenTexts.whatsappNote",
+                                    appSettings.lng
+                                  )}
+                                </Text>
+                                <View style={styles.inputFieldErrorWrap}>
+                                  {errors.whatsapp_number &&
+                                    touched.whatsapp_number && (
+                                      <Text
+                                        style={[
+                                          styles.inputFieldErrorMessage,
+                                          rtlTextA,
+                                        ]}
+                                      >
+                                        {errors.whatsapp_number}
+                                      </Text>
+                                    )}
+                                </View>
+                              </View>
+                            )}
+                            {/* Email Input */}
+                            {!listingData.config.hidden_fields.includes(
+                              "email"
+                            ) && (
+                              <View style={styles.commonInputWrap}>
+                                <Text
+                                  style={[styles.commonInputLabel, rtlTextA]}
+                                >
+                                  {__(
+                                    "editListingScreenTexts.formFieldLabels.email",
+                                    appSettings.lng
+                                  )}
+                                  <Text style={styles.required}> *</Text>
+                                </Text>
+                                <TextInput
+                                  style={[styles.commonInputField, rtlTextA]}
+                                  onChangeText={handleChange("email")}
+                                  onBlur={handleBlur("email")}
+                                  value={values.email}
+                                  editable={!values.email}
+                                />
+                                <View style={styles.inputFieldErrorWrap}>
+                                  {errors.email && touched.email && (
+                                    <Text
+                                      style={[
+                                        styles.inputFieldErrorMessage,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {errors.email}
+                                    </Text>
+                                  )}
+                                </View>
+                              </View>
+                            )}
+                            {/* Website Input */}
+                            {!listingData.config.hidden_fields.includes(
+                              "website"
+                            ) && (
+                              <View style={styles.commonInputWrap}>
+                                <Text
+                                  style={[styles.commonInputLabel, rtlTextA]}
+                                >
+                                  {__(
+                                    "editListingScreenTexts.formFieldLabels.website",
+                                    appSettings.lng
+                                  )}
+                                </Text>
+                                <TextInput
+                                  style={[styles.commonInputField, rtlTextA]}
+                                  onChangeText={handleChange("website")}
+                                  onBlur={handleBlur("website")}
+                                  value={values.website}
+                                />
+                                <View style={styles.inputFieldErrorWrap}>
+                                  {errors.website && touched.website && (
+                                    <Text
+                                      style={[
+                                        styles.inputFieldErrorMessage,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {errors.website}
+                                    </Text>
+                                  )}
+                                </View>
+                              </View>
+                            )}
+                            {/* ZipCode Input */}
+                            {!listingData.config.hidden_fields.includes(
+                              "zipcode"
+                            ) &&
+                              config.location_type === "local" && (
+                                <View style={styles.commonInputWrap}>
+                                  <Text
+                                    style={[styles.commonInputLabel, rtlTextA]}
+                                  >
+                                    {__(
+                                      "editListingScreenTexts.formFieldLabels.zipCode",
+                                      appSettings.lng
+                                    )}
+                                  </Text>
+                                  <TextInput
+                                    style={[styles.commonInputField, rtlTextA]}
+                                    onChangeText={(text) => {
+                                      setFieldValue("zipcode", text);
+                                      if (!geoCoderFail) {
+                                        handleReGeocoding(values, {
+                                          zipcode: text,
+                                        });
+                                      }
+                                    }}
+                                    onBlur={handleBlur("zipcode")}
+                                    value={values.zipcode}
+                                  />
+                                  <View style={styles.inputFieldErrorWrap}>
+                                    {errors.zipcode && touched.zipcode && (
+                                      <Text
+                                        style={[
+                                          styles.inputFieldErrorMessage,
+                                          rtlTextA,
+                                        ]}
+                                      >
+                                        {errors.zipcode}
+                                      </Text>
+                                    )}
+                                  </View>
+                                </View>
+                              )}
+                            {/* Address Input */}
+                            {!listingData.config.hidden_fields.includes(
+                              "address"
+                            ) &&
+                              config.location_type === "local" && (
+                                <View style={styles.commonInputWrap}>
+                                  <Text
+                                    style={[styles.commonInputLabel, rtlTextA]}
+                                  >
+                                    {__(
+                                      "editListingScreenTexts.formFieldLabels.address",
+                                      appSettings.lng
+                                    )}
+                                  </Text>
+                                  <TextInput
+                                    style={[styles.commonInputField, rtlTextA]}
+                                    onChangeText={(text) => {
+                                      setFieldValue("address", text);
+                                      if (!geoCoderFail) {
+                                        handleReGeocoding(values, {
+                                          address: text,
+                                        });
+                                      }
+                                    }}
+                                    onBlur={handleBlur("address")}
+                                    value={values.address}
+                                    placeholder={__(
+                                      "editListingScreenTexts.formFieldLabels.address",
+                                      appSettings.lng
+                                    )}
+                                  />
+                                  <View style={styles.inputFieldErrorWrap}>
+                                    {errors.address && touched.address && (
+                                      <Text
+                                        style={[
+                                          styles.inputFieldErrorMessage,
+                                          rtlTextA,
+                                        ]}
+                                      >
+                                        {errors.address}
+                                      </Text>
+                                    )}
+                                  </View>
+                                </View>
+                              )}
+                            {/* Geo Address Component */}
+                            {config.location_type === "geo" && !geoCoderFail && (
                               <View style={styles.commonInputWrap}>
                                 <Text
                                   style={[styles.commonInputLabel, rtlTextA]}
@@ -3285,23 +3404,70 @@ const marker = L.marker([${
                                     appSettings.lng
                                   )}
                                 </Text>
-                                <TextInput
-                                  style={[styles.commonInputField, rtlTextA]}
-                                  onChangeText={(text) => {
-                                    setFieldValue("address", text);
-                                    if (!geoCoderFail) {
-                                      handleReGeocoding(values, {
-                                        address: text,
-                                      });
+
+                                <GooglePlacesAutocomplete
+                                  type={config.map?.type || "osm"}
+                                  placeholder={
+                                    listingGeoAddress
+                                      ? listingGeoAddress
+                                      : __(
+                                          "listingFormTexts.geoAddressPlaceholder",
+                                          appSettings.lng
+                                        )
+                                  }
+                                  textInputProps={{
+                                    placeholderTextColor: listingGeoAddress
+                                      ? COLORS.black
+                                      : "#b6b6b6",
+                                  }}
+                                  onPress={(data, details = null, inputRef) => {
+                                    if (data.description) {
+                                      setListingGeoAddress(data.description);
+                                    }
+                                    let geoLocation = null;
+                                    if (
+                                      "google" === config.map?.type &&
+                                      details?.geometry?.location
+                                    ) {
+                                      geoLocation = {
+                                        latitude: details.geometry.location.lat,
+                                        longitude:
+                                          details.geometry.location.lng,
+                                      };
+                                    } else if (
+                                      data?.details?.geometry?.location
+                                    ) {
+                                      geoLocation = {
+                                        latitude: parseFloat(
+                                          data.details.geometry.location.lat
+                                        ),
+                                        longitude: parseFloat(
+                                          data.details.geometry.location.lng
+                                        ),
+                                      };
+                                    }
+                                    if (geoLocation) {
+                                      setRegion({ ...geoLocation });
+                                      setMarkerPosition({ ...geoLocation });
+                                    }
+
+                                    if (inputRef) {
+                                      inputRef.clear();
                                     }
                                   }}
-                                  onBlur={handleBlur("address")}
-                                  value={values.address}
-                                  placeholder={__(
-                                    "editListingScreenTexts.formFieldLabels.address",
-                                    appSettings.lng
-                                  )}
+                                  fetchDetails={"google" === config.map?.type}
+                                  query={
+                                    "google" === config.map?.type
+                                      ? {
+                                          key: config.map.api_key,
+                                          language: "en",
+                                        }
+                                      : { language: "en" }
+                                  }
+                                  debounce={200}
+                                  timeout={15000} //15 seconds
                                 />
+
                                 <View style={styles.inputFieldErrorWrap}>
                                   {errors.address && touched.address && (
                                     <Text
@@ -3316,411 +3482,6 @@ const marker = L.marker([${
                                 </View>
                               </View>
                             )}
-                          {/* Geo Address Component */}
-                          {config.location_type === "geo" && !geoCoderFail && (
-                            <View style={styles.commonInputWrap}>
-                              <Text style={[styles.commonInputLabel, rtlTextA]}>
-                                {__(
-                                  "editListingScreenTexts.formFieldLabels.address",
-                                  appSettings.lng
-                                )}
-                              </Text>
-
-                              <GooglePlacesAutocomplete
-                                type={config.map?.type || "osm"}
-                                placeholder={
-                                  listingGeoAddress
-                                    ? listingGeoAddress
-                                    : "Search Address"
-                                }
-                                textInputProps={{
-                                  placeholderTextColor: listingGeoAddress
-                                    ? COLORS.black
-                                    : "#b6b6b6",
-                                }}
-                                onPress={(data, details = null, inputRef) => {
-                                  if (data.description) {
-                                    setListingGeoAddress(data.description);
-                                  }
-                                  let geoLocation = null;
-                                  if (
-                                    "google" === config.map?.type &&
-                                    details?.geometry?.location
-                                  ) {
-                                    geoLocation = {
-                                      latitude: details.geometry.location.lat,
-                                      longitude: details.geometry.location.lng,
-                                    };
-                                  } else if (
-                                    data?.details?.geometry?.location
-                                  ) {
-                                    geoLocation = {
-                                      latitude: parseFloat(
-                                        data.details.geometry.location.lat
-                                      ),
-                                      longitude: parseFloat(
-                                        data.details.geometry.location.lng
-                                      ),
-                                    };
-                                  }
-                                  if (geoLocation) {
-                                    setRegion({ ...geoLocation });
-                                    setMarkerPosition({ ...geoLocation });
-                                  }
-
-                                  if (inputRef) {
-                                    inputRef.clear();
-                                  }
-                                }}
-                                fetchDetails={"google" === config.map?.type}
-                                query={
-                                  "google" === config.map?.type
-                                    ? {
-                                        key: config.map.api_key,
-                                        language: "en",
-                                      }
-                                    : { language: "en" }
-                                }
-                                debounce={200}
-                                timeout={15000} //15 seconds
-                              />
-
-                              <View style={styles.inputFieldErrorWrap}>
-                                {errors.address && touched.address && (
-                                  <Text
-                                    style={[
-                                      styles.inputFieldErrorMessage,
-                                      rtlTextA,
-                                    ]}
-                                  >
-                                    {errors.address}
-                                  </Text>
-                                )}
-                              </View>
-                            </View>
-                          )}
-                          {!osmOverlay && !ios && (
-                            <View
-                              style={{
-                                position: "absolute",
-                                zIndex: 2,
-                                top: 0,
-                                bottom: 0,
-                                right: 0,
-                                left: 0,
-                                opacity: 0,
-                              }}
-                            >
-                              <TouchableWithoutFeedback
-                                onPress={() => setOsmOverlay(true)}
-                              >
-                                <View
-                                  style={{
-                                    height: "100%",
-                                    width: "100%",
-                                  }}
-                                />
-                              </TouchableWithoutFeedback>
-                            </View>
-                          )}
-                        </View>
-                        {/* MapView */}
-                        {config.map && (
-                          <View>
-                            {geoCoderFail ? (
-                              <View
-                                style={{
-                                  marginHorizontal: "3%",
-                                }}
-                              >
-                                <View style={styles.geoCoderFailWrap}>
-                                  <Text
-                                    style={[styles.geoCoderFailTitle, rtlTextA]}
-                                  >
-                                    {__(
-                                      "editListingScreenTexts.geoCoderFail",
-                                      appSettings.lng
-                                    )}
-                                  </Text>
-                                  <Text
-                                    style={[
-                                      styles.geoCoderFailMessage,
-                                      rtlTextA,
-                                    ]}
-                                  >
-                                    {geoCoderFailedMessage}
-                                  </Text>
-                                </View>
-                              </View>
-                            ) : (
-                              <>
-                                {/* Loading Component Inside Map */}
-                                {locationLoading && (
-                                  <View style={styles.mapOverlay}>
-                                    <ActivityIndicator
-                                      size="large"
-                                      color={COLORS.primary}
-                                    />
-                                  </View>
-                                )}
-                                {/* Map Mode Toggle Button */}
-                                {"google" === config?.map?.type && (
-                                  <View style={styles.mapViewButtonsWrap}>
-                                    <TouchableOpacity
-                                      style={[
-                                        styles.mapViewButton,
-                                        {
-                                          backgroundColor:
-                                            mapType == "standard"
-                                              ? COLORS.dodgerblue
-                                              : "transparent",
-                                        },
-                                      ]}
-                                      onPress={handleMapTypeChange}
-                                      disabled={mapType == "standard"}
-                                    >
-                                      <Text
-                                        style={[
-                                          styles.mapViewButtonTitle,
-                                          {
-                                            color:
-                                              mapType == "standard"
-                                                ? COLORS.white
-                                                : COLORS.text_gray,
-                                          },
-                                        ]}
-                                      >
-                                        {__(
-                                          "editListingScreenTexts.buttonTitles.mapStandard",
-                                          appSettings.lng
-                                        )}
-                                      </Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                      style={[
-                                        styles.mapViewButton,
-                                        {
-                                          backgroundColor:
-                                            mapType == "hybrid"
-                                              ? COLORS.dodgerblue
-                                              : "transparent",
-                                        },
-                                      ]}
-                                      onPress={handleMapTypeChange}
-                                      disabled={mapType == "hybrid"}
-                                    >
-                                      <Text
-                                        style={[
-                                          styles.mapViewButtonTitle,
-                                          {
-                                            color:
-                                              mapType == "hybrid"
-                                                ? COLORS.white
-                                                : COLORS.text_gray,
-                                          },
-                                        ]}
-                                      >
-                                        {__(
-                                          "editListingScreenTexts.buttonTitles.mapHybrid",
-                                          appSettings.lng
-                                        )}
-                                      </Text>
-                                    </TouchableOpacity>
-                                  </View>
-                                )}
-                                {/* Map Component */}
-                                {"google" === config?.map?.type ? (
-                                  <MapView
-                                    ref={mapViewRef}
-                                    style={{
-                                      width: screenWidth,
-                                      height: screenWidth * 0.8,
-                                    }}
-                                    region={{
-                                      ...region,
-                                      latitudeDelta: 0.0135135,
-                                      longitudeDelta: 0.0135135 * 0.8,
-                                    }}
-                                    provider={MapView.PROVIDER_GOOGLE}
-                                    mapType={mapType}
-                                    loadingEnabled={true}
-                                    loadingIndicatorColor={COLORS.primary_soft}
-                                    loadingBackgroundColor={COLORS.white}
-                                  >
-                                    <Marker
-                                      coordinate={markerPosition}
-                                      draggable
-                                      onDragEnd={(event) =>
-                                        handleMarkerReleaseEvent(
-                                          event.nativeEvent.coordinate,
-                                          setFieldValue
-                                        )
-                                      }
-                                    />
-                                  </MapView>
-                                ) : (
-                                  <View
-                                    style={{
-                                      width: screenWidth,
-                                      height: screenWidth * 0.8,
-                                      zIndex: 3,
-                                    }}
-                                  >
-                                    {!loading && (
-                                      <WebView
-                                        ref={mapRef}
-                                        source={{ html: html_script }}
-                                        style={{ flex: 1 }}
-                                        onMessage={(event) => {
-                                          const rawData =
-                                            event.nativeEvent.data;
-                                          if (rawData) {
-                                            const data = JSON.parse(rawData);
-
-                                            handleMarkerReleaseEvent(
-                                              {
-                                                latitude: data?.lat,
-                                                longitude: data?.lng,
-                                              },
-                                              setFieldValue
-                                            );
-                                          }
-                                        }}
-                                      />
-                                    )}
-                                    {!ios && osmOverlay && (
-                                      <View
-                                        style={{
-                                          position: "absolute",
-                                          top: 0,
-                                          bottom: 0,
-                                          right: 0,
-                                          left: 0,
-
-                                          zIndex: 4,
-                                          opacity: 0,
-                                        }}
-                                      >
-                                        <TouchableWithoutFeedback
-                                          onPress={() => setOsmOverlay(false)}
-                                        >
-                                          <View
-                                            style={{
-                                              width: "100%",
-                                              height: "100%",
-                                            }}
-                                          />
-                                        </TouchableWithoutFeedback>
-                                      </View>
-                                    )}
-                                  </View>
-                                )}
-                                {/* Hide Map Toggle */}
-                                <View style={styles.view}>
-                                  {!osmOverlay && !ios && (
-                                    <View
-                                      style={{
-                                        position: "absolute",
-                                        zIndex: 2,
-                                        top: 0,
-                                        bottom: 0,
-                                        right: 0,
-                                        left: 0,
-                                        opacity: 0,
-                                      }}
-                                    >
-                                      <TouchableWithoutFeedback
-                                        onPress={() => setOsmOverlay(true)}
-                                      >
-                                        <View
-                                          style={{
-                                            height: "100%",
-                                            width: "100%",
-                                          }}
-                                        />
-                                      </TouchableWithoutFeedback>
-                                    </View>
-                                  )}
-
-                                  <View style={styles.mapDisplayInputWrap}>
-                                    <TouchableWithoutFeedback
-                                      onPress={() =>
-                                        setHideMap(
-                                          (prevHideMap) => !prevHideMap
-                                        )
-                                      }
-                                    >
-                                      <View
-                                        style={[
-                                          styles.mapCheckboxWrap,
-                                          rtlView,
-                                        ]}
-                                      >
-                                        <MaterialCommunityIcons
-                                          name={
-                                            hideMap
-                                              ? "checkbox-marked"
-                                              : "checkbox-blank-outline"
-                                          }
-                                          size={20}
-                                          color={COLORS.primary}
-                                        />
-                                        <Text
-                                          style={[
-                                            styles.mapToggleMessage,
-                                            {
-                                              paddingLeft: rtl_support ? 0 : 5,
-                                              paddingRight: rtl_support ? 5 : 0,
-                                            },
-                                          ]}
-                                        >
-                                          {__(
-                                            "editListingScreenTexts.mapToggleMessage",
-                                            appSettings.lng
-                                          )}
-                                        </Text>
-                                      </View>
-                                    </TouchableWithoutFeedback>
-                                  </View>
-                                </View>
-                                {/* Device Location Button */}
-                                <TouchableOpacity
-                                  style={[
-                                    styles.deviceLocationButton,
-                                    ios
-                                      ? {
-                                          shadowColor: "#000",
-                                          shadowRadius: 4,
-                                          shadowOpacity: 0.2,
-                                          shadowOffset: {
-                                            height: 2,
-                                            width: 2,
-                                          },
-                                        }
-                                      : { elevation: 1 },
-                                  ]}
-                                  onPress={() =>
-                                    handleGetDeviceLocation(setFieldValue)
-                                  }
-                                  disabled={locationLoading}
-                                >
-                                  <MaterialIcons
-                                    name="my-location"
-                                    size={24}
-                                    color={
-                                      locationLoading
-                                        ? COLORS.primary_soft
-                                        : COLORS.primary
-                                    }
-                                  />
-                                </TouchableOpacity>
-                              </>
-                            )}
-                          </View>
-                        )}
-                        {/* Social Profiles Component */}
-                        {!!listingData?.config?.social_profiles?.length && (
-                          <View style={styles.socialProfilesSectionWrap}>
                             {!osmOverlay && !ios && (
                               <View
                                 style={{
@@ -3745,73 +3506,419 @@ const marker = L.marker([${
                                 </TouchableWithoutFeedback>
                               </View>
                             )}
-                            <View style={[styles.contactTitleWrap, rtlView]}>
-                              <View style={styles.iconWrap}>
-                                <FontAwesome
-                                  name="share-alt"
-                                  size={24}
-                                  color={COLORS.primary}
-                                />
-                              </View>
-                              <Text style={styles.title}>
-                                {__(
-                                  "editListingScreenTexts.socialProfileTitle",
-                                  appSettings.lng
-                                )}
-                              </Text>
-                            </View>
-
-                            {listingData.config.social_profiles.map(
-                              (_profile) => (
+                          </View>
+                          {/* MapView */}
+                          {config.map && (
+                            <View>
+                              {geoCoderFail ? (
                                 <View
-                                  style={styles.commonInputWrap}
-                                  key={_profile.id}
+                                  style={{
+                                    marginHorizontal: "3%",
+                                  }}
                                 >
-                                  <Text
-                                    style={[styles.commonInputLabel, rtlTextA]}
-                                  >
-                                    {decodeString(_profile.name)}
-                                  </Text>
-                                  <TextInput
-                                    style={[styles.commonInputField, rtlTextA]}
-                                    onChangeText={(text) =>
-                                      handleSclPrflFldValue(text, _profile)
-                                    }
-                                    onBlur={() =>
-                                      setTouchedFields((prevTouchedFields) =>
-                                        Array.from(
-                                          new Set([
-                                            ...prevTouchedFields,
-                                            _profile.id,
-                                          ])
-                                        )
-                                      )
-                                    }
-                                    value={socialProfiles[_profile.id]}
-                                    placeholder={decodeString(_profile.name)}
-                                    placeholderTextColor={COLORS.text_gray}
-                                  />
-                                  <View style={styles.inputFieldErrorWrap}>
-                                    {touchedFields.includes(_profile.id) &&
-                                      socialErrors.includes(_profile.id) && (
+                                  <View style={styles.geoCoderFailWrap}>
+                                    <Text
+                                      style={[
+                                        styles.geoCoderFailTitle,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {__(
+                                        "editListingScreenTexts.geoCoderFail",
+                                        appSettings.lng
+                                      )}
+                                    </Text>
+                                    <Text
+                                      style={[
+                                        styles.geoCoderFailMessage,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {geoCoderFailedMessage}
+                                    </Text>
+                                  </View>
+                                </View>
+                              ) : (
+                                <>
+                                  {/* Loading Component Inside Map */}
+                                  {locationLoading && (
+                                    <View style={styles.mapOverlay}>
+                                      <ActivityIndicator
+                                        size="large"
+                                        color={COLORS.primary}
+                                      />
+                                    </View>
+                                  )}
+                                  {/* Map Mode Toggle Button */}
+                                  {"google" === config?.map?.type && (
+                                    <View style={styles.mapViewButtonsWrap}>
+                                      <TouchableOpacity
+                                        style={[
+                                          styles.mapViewButton,
+                                          {
+                                            backgroundColor:
+                                              mapType == "standard"
+                                                ? COLORS.dodgerblue
+                                                : "transparent",
+                                          },
+                                        ]}
+                                        onPress={handleMapTypeChange}
+                                        disabled={mapType == "standard"}
+                                      >
                                         <Text
                                           style={[
-                                            styles.inputFieldErrorMessage,
-                                            rtlTextA,
+                                            styles.mapViewButtonTitle,
+                                            {
+                                              color:
+                                                mapType == "standard"
+                                                  ? COLORS.white
+                                                  : COLORS.text_gray,
+                                            },
                                           ]}
                                         >
                                           {__(
-                                            "editListingScreenTexts.websiteErrorLabel",
+                                            "editListingScreenTexts.buttonTitles.mapStandard",
                                             appSettings.lng
                                           )}
                                         </Text>
+                                      </TouchableOpacity>
+                                      <TouchableOpacity
+                                        style={[
+                                          styles.mapViewButton,
+                                          {
+                                            backgroundColor:
+                                              mapType == "hybrid"
+                                                ? COLORS.dodgerblue
+                                                : "transparent",
+                                          },
+                                        ]}
+                                        onPress={handleMapTypeChange}
+                                        disabled={mapType == "hybrid"}
+                                      >
+                                        <Text
+                                          style={[
+                                            styles.mapViewButtonTitle,
+                                            {
+                                              color:
+                                                mapType == "hybrid"
+                                                  ? COLORS.white
+                                                  : COLORS.text_gray,
+                                            },
+                                          ]}
+                                        >
+                                          {__(
+                                            "editListingScreenTexts.buttonTitles.mapHybrid",
+                                            appSettings.lng
+                                          )}
+                                        </Text>
+                                      </TouchableOpacity>
+                                    </View>
+                                  )}
+                                  {/* Map Component */}
+                                  {"google" === config?.map?.type ? (
+                                    <MapView
+                                      ref={mapViewRef}
+                                      style={{
+                                        width: "100%",
+                                        height: screenWidth * 0.8,
+                                      }}
+                                      region={{
+                                        ...region,
+                                        latitudeDelta: 0.0135135,
+                                        longitudeDelta: 0.0135135 * 0.8,
+                                      }}
+                                      provider={MapView.PROVIDER_GOOGLE}
+                                      mapType={mapType}
+                                      loadingEnabled={true}
+                                      loadingIndicatorColor={
+                                        COLORS.primary_soft
+                                      }
+                                      loadingBackgroundColor={COLORS.white}
+                                    >
+                                      <Marker
+                                        coordinate={markerPosition}
+                                        draggable
+                                        onDragEnd={(event) =>
+                                          handleMarkerReleaseEvent(
+                                            event.nativeEvent.coordinate,
+                                            setFieldValue
+                                          )
+                                        }
+                                      />
+                                    </MapView>
+                                  ) : (
+                                    <View
+                                      style={{
+                                        width: "100%",
+                                        height: screenWidth * 0.8,
+                                        zIndex: 3,
+                                      }}
+                                    >
+                                      {!loading && (
+                                        <WebView
+                                          ref={mapRef}
+                                          source={{ html: html_script }}
+                                          style={{ flex: 1, opacity: 0.99 }}
+                                          onMessage={(event) => {
+                                            const rawData =
+                                              event.nativeEvent.data;
+                                            if (rawData) {
+                                              const data = JSON.parse(rawData);
+
+                                              handleMarkerReleaseEvent(
+                                                {
+                                                  latitude: data?.lat,
+                                                  longitude: data?.lng,
+                                                },
+                                                setFieldValue
+                                              );
+                                            }
+                                          }}
+                                        />
                                       )}
+                                      {!ios && osmOverlay && (
+                                        <View
+                                          style={{
+                                            position: "absolute",
+                                            top: 0,
+                                            bottom: 0,
+                                            right: 0,
+                                            left: 0,
+
+                                            zIndex: 4,
+                                            opacity: 0,
+                                          }}
+                                        >
+                                          <TouchableWithoutFeedback
+                                            onPress={() => setOsmOverlay(false)}
+                                          >
+                                            <View
+                                              style={{
+                                                width: "100%",
+                                                height: "100%",
+                                              }}
+                                            />
+                                          </TouchableWithoutFeedback>
+                                        </View>
+                                      )}
+                                    </View>
+                                  )}
+                                  {/* Hide Map Toggle */}
+                                  <View style={styles.view}>
+                                    {!osmOverlay && !ios && (
+                                      <View
+                                        style={{
+                                          position: "absolute",
+                                          zIndex: 2,
+                                          top: 0,
+                                          bottom: 0,
+                                          right: 0,
+                                          left: 0,
+                                          opacity: 0,
+                                        }}
+                                      >
+                                        <TouchableWithoutFeedback
+                                          onPress={() => setOsmOverlay(true)}
+                                        >
+                                          <View
+                                            style={{
+                                              height: "100%",
+                                              width: "100%",
+                                            }}
+                                          />
+                                        </TouchableWithoutFeedback>
+                                      </View>
+                                    )}
+
+                                    <View style={styles.mapDisplayInputWrap}>
+                                      <TouchableWithoutFeedback
+                                        onPress={() =>
+                                          setHideMap(
+                                            (prevHideMap) => !prevHideMap
+                                          )
+                                        }
+                                      >
+                                        <View
+                                          style={[
+                                            styles.mapCheckboxWrap,
+                                            rtlView,
+                                          ]}
+                                        >
+                                          <MaterialCommunityIcons
+                                            name={
+                                              hideMap
+                                                ? "checkbox-marked"
+                                                : "checkbox-blank-outline"
+                                            }
+                                            size={20}
+                                            color={COLORS.primary}
+                                          />
+                                          <Text
+                                            style={[
+                                              styles.mapToggleMessage,
+                                              {
+                                                paddingLeft: rtl_support
+                                                  ? 0
+                                                  : 5,
+                                                paddingRight: rtl_support
+                                                  ? 5
+                                                  : 0,
+                                              },
+                                            ]}
+                                          >
+                                            {__(
+                                              "editListingScreenTexts.mapToggleMessage",
+                                              appSettings.lng
+                                            )}
+                                          </Text>
+                                        </View>
+                                      </TouchableWithoutFeedback>
+                                    </View>
                                   </View>
+                                  {/* Device Location Button */}
+                                  <TouchableOpacity
+                                    style={[
+                                      styles.deviceLocationButton,
+                                      ios
+                                        ? {
+                                            shadowColor: "#000",
+                                            shadowRadius: 4,
+                                            shadowOpacity: 0.2,
+                                            shadowOffset: {
+                                              height: 2,
+                                              width: 2,
+                                            },
+                                          }
+                                        : { elevation: 1 },
+                                    ]}
+                                    onPress={() =>
+                                      handleGetDeviceLocation(setFieldValue)
+                                    }
+                                    disabled={locationLoading}
+                                  >
+                                    <MaterialIcons
+                                      name="my-location"
+                                      size={24}
+                                      color={
+                                        locationLoading
+                                          ? COLORS.primary_soft
+                                          : COLORS.primary
+                                      }
+                                    />
+                                  </TouchableOpacity>
+                                </>
+                              )}
+                            </View>
+                          )}
+                        </View>
+                        <View
+                          style={{
+                            backgroundColor: COLORS.white,
+                            marginHorizontal: "3%",
+                            borderRadius: 6,
+                            elevation: 0.5,
+                            shadowColor: COLORS.border_light,
+                            shadowOpacity: 0.1,
+                            shadowRadius: 3,
+                            shadowOffset: { height: 1, width: 1 },
+                            paddingVertical: 10,
+                            marginVertical: 10,
+                          }}
+                        >
+                          {/* Social Profiles Component */}
+                          {!!listingData?.config?.social_profiles?.length && (
+                            <View style={styles.socialProfilesSectionWrap}>
+                              {!osmOverlay && !ios && (
+                                <View
+                                  style={{
+                                    position: "absolute",
+                                    zIndex: 2,
+                                    top: 0,
+                                    bottom: 0,
+                                    right: 0,
+                                    left: 0,
+                                    opacity: 0,
+                                  }}
+                                >
+                                  <TouchableWithoutFeedback
+                                    onPress={() => setOsmOverlay(true)}
+                                  >
+                                    <View
+                                      style={{
+                                        height: "100%",
+                                        width: "100%",
+                                      }}
+                                    />
+                                  </TouchableWithoutFeedback>
                                 </View>
-                              )
-                            )}
-                          </View>
-                        )}
+                              )}
+                              <View style={styles.contactTitleWrap}>
+                                <Text style={[styles.title, rtlTextA]}>
+                                  {__(
+                                    "editListingScreenTexts.socialProfileTitle",
+                                    appSettings.lng
+                                  )}
+                                </Text>
+                              </View>
+
+                              {listingData.config.social_profiles.map(
+                                (_profile) => (
+                                  <View
+                                    style={styles.commonInputWrap}
+                                    key={_profile.id}
+                                  >
+                                    <Text
+                                      style={[
+                                        styles.commonInputLabel,
+                                        rtlTextA,
+                                      ]}
+                                    >
+                                      {decodeString(_profile.name)}
+                                    </Text>
+                                    <TextInput
+                                      style={[
+                                        styles.commonInputField,
+                                        rtlTextA,
+                                      ]}
+                                      onChangeText={(text) =>
+                                        handleSclPrflFldValue(text, _profile)
+                                      }
+                                      onBlur={() =>
+                                        setTouchedFields((prevTouchedFields) =>
+                                          Array.from(
+                                            new Set([
+                                              ...prevTouchedFields,
+                                              _profile.id,
+                                            ])
+                                          )
+                                        )
+                                      }
+                                      value={socialProfiles[_profile.id]}
+                                      placeholder={decodeString(_profile.name)}
+                                      placeholderTextColor={COLORS.text_gray}
+                                    />
+                                    <View style={styles.inputFieldErrorWrap}>
+                                      {touchedFields.includes(_profile.id) &&
+                                        socialErrors.includes(_profile.id) && (
+                                          <Text
+                                            style={[
+                                              styles.inputFieldErrorMessage,
+                                              rtlTextA,
+                                            ]}
+                                          >
+                                            {__(
+                                              "editListingScreenTexts.websiteErrorLabel",
+                                              appSettings.lng
+                                            )}
+                                          </Text>
+                                        )}
+                                    </View>
+                                  </View>
+                                )
+                              )}
+                            </View>
+                          )}
+                        </View>
                         {/* Bottom notes */}
                         <View style={[styles.noteWrap]}>
                           <Text
@@ -3898,9 +4005,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 15,
   },
-  bHWrap: {
-    marginVertical: 20,
-  },
+  bHWrap: { marginBottom: 10 },
   btnWrap: {
     flexDirection: "row",
     flex: 1,
@@ -3914,8 +4019,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   commonInputField: {
-    borderWidth: 1,
-    borderColor: "#b6b6b6",
+    borderWidth: 0.7,
+    borderColor: COLORS.border_light,
     borderRadius: 3,
     paddingHorizontal: 5,
     minHeight: 32,
@@ -3930,10 +4035,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: "3%",
   },
   contactTitleWrap: {
-    flexDirection: "row",
-    alignItems: "center",
     marginBottom: 10,
-    paddingHorizontal: "3%",
   },
   container: {},
   deviceLocationButton: {
@@ -3986,37 +4088,39 @@ const styles = StyleSheet.create({
   geoCoderFailWrap: {
     padding: "3%",
     alignItems: "center",
-    width: screenWidth * 0.94,
+    width: "100%",
     height: screenWidth * 0.6,
-    borderWidth: 1,
-    borderColor: "#b6b6b6",
+    borderWidth: 0.7,
+    borderColor: COLORS.border_light,
     borderRadius: 3,
     justifyContent: "center",
     marginBottom: 10,
   },
   imageInputLabel: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: COLORS.text_gray,
+    color: COLORS.text_dark,
   },
   imageInputNotes: {
-    backgroundColor: "#ffe4d2",
-
-    borderRadius: 3,
-    marginTop: 10,
-    padding: 10,
+    paddingVertical: 10,
   },
   imageInputNotesText: {
     fontSize: 14,
-    fontWeight: "bold",
-    color: "#f60",
+    color: COLORS.text_gray,
   },
-  imageInputTitleWrap: {
-    flexDirection: "row",
-    alignItems: "center",
+  imageInputTitleWrap: {},
+  imageInputWrap: {
+    marginBottom: 15,
+    backgroundColor: COLORS.white,
+    marginHorizontal: "3%",
+    borderRadius: 6,
+    elevation: 0.5,
+    shadowColor: COLORS.border_light,
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    shadowOffset: { height: 1, width: 1 },
     paddingHorizontal: "3%",
+    paddingVertical: 10,
   },
-  imageInputWrap: {},
   inputFieldErrorMessage: {
     color: COLORS.red,
     fontSize: 12,
@@ -4059,9 +4163,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     height: 32,
   },
-  mainWrap: {
-    backgroundColor: COLORS.white,
-  },
+  mainWrap: {},
   mapCheckboxWrap: {
     flexDirection: "row",
     alignItems: "center",
@@ -4107,16 +4209,16 @@ const styles = StyleSheet.create({
   },
   metaField_Text: {
     backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: "#b6b6b6",
+    borderWidth: 0.7,
+    borderColor: COLORS.border_light,
     borderRadius: 3,
     paddingHorizontal: 5,
     minHeight: 32,
   },
   metaField_TextArea: {
     backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: "#b6b6b6",
+    borderWidth: 0.7,
+    borderColor: COLORS.border_light,
     borderRadius: 3,
     minHeight: 70,
     paddingHorizontal: 5,
@@ -4212,11 +4314,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: COLORS.text_gray,
+    color: COLORS.text_dark,
     paddingHorizontal: "3%",
   },
   titleWrap: {
-    backgroundColor: COLORS.white,
     alignItems: "center",
   },
   updateButton: {

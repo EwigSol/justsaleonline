@@ -8,7 +8,7 @@ export const initialState = {
   appSettings: {
     lng: defaultLng || "en",
     notifications: ["listing_approved", "listing_expired", "chat"],
-    listView: listViewConfig?.defaultListViewStyle || false,
+    listView: listViewConfig?.defaultListViewStyle || true,
   },
   auth_token: null,
   user: null,
@@ -21,7 +21,6 @@ export const initialState = {
   chat_badge: null,
   is_connected: true,
   rtl_support: false,
-  admobPermission: true,
   config: {
     currency: {
       id: "USD",
@@ -196,11 +195,6 @@ const reducer = (state, action) => {
       return {
         ...state,
         push_token: action.push_token,
-      };
-    case "SET_ADMOB_PERMISSION":
-      return {
-        ...state,
-        admobPermission: action.admobPermission,
       };
 
     default:

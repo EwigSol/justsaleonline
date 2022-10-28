@@ -65,6 +65,7 @@ const PaymentsScreen = ({ navigation }) => {
     api
       .get("orders", arg)
       .then((res) => {
+        console.log(res.data);
         if (res?.ok) {
           //
           if (moreLoading) {

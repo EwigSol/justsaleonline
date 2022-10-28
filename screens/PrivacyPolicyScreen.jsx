@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Linking } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Linking,
+  Image,
+  Dimensions,
+} from "react-native";
 
 // Vector Icons
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -9,6 +17,7 @@ import { COLORS } from "../variables/color";
 import { useStateValue } from "../StateProvider";
 import { getPrivacyPolicy } from "../language/stringPicker";
 
+const { width: deviceWidth } = Dimensions.get("window");
 const PrivacyPolicyScreen = () => {
   const [{ appSettings, rtl_support, ios }] = useStateValue();
   const [privacyPolicyData, setPrivacyPolicyData] = useState(
@@ -26,6 +35,12 @@ const PrivacyPolicyScreen = () => {
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.mainWrap}>
+          <View style={styles.bgImgWrap}>
+            <Image
+              source={require("../assets/pp_bg.png")}
+              style={styles.bgImg}
+            />
+          </View>
           <View style={styles.detailWrap}>
             {privacyPolicyData.paras.map((_para, index) => (
               <View key={index} style={styles.descriptionParaWrap}>
@@ -83,6 +98,18 @@ const PrivacyPolicyScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  bgImg: {
+    width: deviceWidth * 0.35,
+    height: deviceWidth * 0.35 * 1.5,
+    resizeMode: "contain",
+  },
+  bgImgWrap: {
+    width: deviceWidth,
+    height: deviceWidth * 0.35 * 1.5,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 30,
+  },
   bulletDetail: {
     paddingHorizontal: 5,
     fontSize: 14,

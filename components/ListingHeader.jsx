@@ -8,7 +8,11 @@ import {
 } from "react-native";
 
 // Vector Icons
-import { FontAwesome } from "@expo/vector-icons";
+import {
+  AntDesign,
+  FontAwesome,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import { Fontisto } from "@expo/vector-icons";
 
@@ -52,7 +56,7 @@ const ListingHeader = ({
         ]}
       >
         <TouchableOpacity onPress={onBack}>
-          <Feather name="arrow-left" size={24} color={COLORS.white} />
+          <AntDesign name="arrowleft" size={24} color={COLORS.white} />
         </TouchableOpacity>
         <Text
           style={[
@@ -77,7 +81,11 @@ const ListingHeader = ({
                 user !== null && user.id !== author && !!author ? 15 : 0,
             }}
           >
-            <Fontisto name="share" size={22} color={COLORS.white} />
+            <MaterialCommunityIcons
+              name="share-variant"
+              size={20}
+              color={COLORS.white}
+            />
           </TouchableOpacity>
         )}
         {user !== null && user.id !== author && !!author && (
@@ -90,7 +98,7 @@ const ListingHeader = ({
               ) : (
                 <FontAwesome
                   name={is_favourite ? "star" : "star-o"}
-                  size={25}
+                  size={20}
                   color={COLORS.white}
                 />
               )}

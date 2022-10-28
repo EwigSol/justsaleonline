@@ -9,7 +9,7 @@ import {
 } from "react-native";
 
 // Vector Fonts
-import { FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome5, FontAwesome } from "@expo/vector-icons";
 
 // Custom Components & Constants
 import { decodeString, getPrice } from "../helper/helper";
@@ -42,19 +42,8 @@ const ListingCard = ({ onPress, item }) => {
     if (!items?.length) return false;
     return decodeString(items[items.length - 1].name);
   };
-  const getBackgroundColor = () => {
-    if (!item?.badges?.length > 0) {
-      return null;
-    } else {
-      if (item?.badges?.includes("is-top")) {
-        return COLORS.cardBg["_top"];
-      } else if (item?.badges?.includes("is-featured")) {
-        return COLORS.cardBg["featured"];
-      }
-    }
-  };
 
-  return item.listAd && admobConfig?.admobEnabled ? (
+  return item?.listAd && admobConfig?.admobEnabled ? (
     <ListAdComponent dummy={item.dummy} />
   ) : (
     <View
@@ -73,16 +62,27 @@ const ListingCard = ({ onPress, item }) => {
           style={[
             styles.featuredItemWrap,
             {
-              backgroundColor: getBackgroundColor()
-                ? getBackgroundColor()
-                : COLORS.white,
+              backgroundColor: COLORS.white,
               flex: 1,
             },
           ]}
         >
           {item?.badges?.includes("is-bump-up") && (
-            <View style={styles.badgeSection}>
-              <Badge badgeName="is-bump-up" type="card" />
+            <View
+              style={{
+                position: "absolute",
+                zIndex: 5,
+                height: 20,
+                width: 20,
+                backgroundColor: "#FD9E11",
+                alignItems: "center",
+                justifyContent: "center",
+                top: 0,
+                right: 0,
+                borderBottomLeftRadius: 3,
+              }}
+            >
+              <FontAwesome name="clock-o" size={15} color={COLORS.white} />
             </View>
           )}
           {item?.badges?.includes("is-sold") && (
@@ -101,8 +101,89 @@ const ListingCard = ({ onPress, item }) => {
               </Text>
             </View>
           )}
-          {item?.badges?.includes("is-bump-up") && (
-            <View style={styles.bumpUpBadge}></View>
+          {item?.badges?.includes("is-featured") && (
+            <View
+              style={{
+                position: "absolute",
+                zIndex: 5,
+                top: "5%",
+                left: 0,
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <View
+                style={{
+                  height: 24,
+                  justifyContent: "center",
+                  backgroundColor: "#FD9E11",
+                }}
+              >
+                <Text
+                  style={{
+                    paddingHorizontal: 5,
+                    fontWeight: "bold",
+                    color: COLORS.white,
+                  }}
+                >
+                  {config.promotions.featured}
+                </Text>
+              </View>
+              <View
+                style={{
+                  height: 0,
+                  width: 0,
+                  borderTopWidth: 12,
+                  borderTopColor: "transparent",
+                  borderBottomColor: "transparent",
+                  borderBottomWidth: 12,
+                  borderLeftWidth: 12,
+                  borderColor: "#FD9E11",
+                }}
+              />
+            </View>
+          )}
+          {item?.badges?.includes("is-top") && (
+            <View
+              style={{
+                position: "absolute",
+                zIndex: 5,
+                top: item?.badges?.includes("is-featured") ? "20%" : "5%",
+                left: 0,
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <View
+                style={{
+                  height: 24,
+                  justifyContent: "center",
+                  backgroundColor: "#FD9E11",
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    color: COLORS.white,
+                    paddingHorizontal: 5,
+                  }}
+                >
+                  {config.promotions._top}
+                </Text>
+              </View>
+              <View
+                style={{
+                  height: 0,
+                  width: 0,
+                  borderTopWidth: 12,
+                  borderTopColor: "transparent",
+                  borderBottomColor: "transparent",
+                  borderBottomWidth: 12,
+                  borderLeftWidth: 12,
+                  borderColor: "#FD9E11",
+                }}
+              />
+            </View>
           )}
 
           <View style={styles.featuredItemImageWrap}>
@@ -120,80 +201,92 @@ const ListingCard = ({ onPress, item }) => {
           <View
             style={[
               styles.featuredItemDetailWrap,
-              { alignItems: rtl_support ? "flex-end" : "flex-start" },
+              {
+                alignItems: rtl_support ? "flex-end" : "flex-start",
+                paddingHorizontal: ios ? 12 : 10,
+              },
             ]}
           >
-            <Text
-              style={[
-                styles.featuredItemCategory,
-                { paddingBottom: ios ? 3 : 1 },
-                rtlText,
-              ]}
-              numberOfLines={1}
-            >
-              {getTexonomy(item.categories)}
-            </Text>
-            <Text
-              style={[
-                styles.featuredItemTitle,
-                { paddingBottom: ios ? 3 : 1 },
-                rtlTextA,
-              ]}
-              numberOfLines={1}
-            >
-              {decodeString(item.title)}
-            </Text>
-            {(!!item?.contact?.locations?.length ||
-              !!item?.contact?.geo_address) && (
-              <>
-                {config.location_type === "local" ? (
-                  <>
-                    {!!item?.contact?.locations?.length && (
-                      <View
-                        style={[
-                          styles.featuredItemLocationWrap,
-                          { paddingBottom: ios ? 5 : 3 },
-                          rtlView,
-                        ]}
-                      >
-                        <FontAwesome5
-                          name="map-marker-alt"
-                          size={10}
-                          color={COLORS.text_gray}
-                        />
-                        <Text style={[styles.featuredItemLocation, rtlTextA]}>
-                          {getTexonomy(item.contact.locations)}
-                        </Text>
-                      </View>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    {!!item?.contact?.geo_address && (
-                      <View
-                        style={[
-                          styles.featuredItemLocationWrap,
-                          { paddingBottom: ios ? 5 : 3 },
-                          rtlView,
-                        ]}
-                      >
-                        <FontAwesome5
-                          name="map-marker-alt"
-                          size={10}
-                          color={COLORS.text_gray}
-                        />
-                        <Text
-                          style={[styles.featuredItemLocation, rtlTextA]}
-                          numberOfLines={1}
+            <View style={styles.view}>
+              <Text
+                style={[
+                  styles.featuredItemTitle,
+                  { paddingBottom: ios ? 3 : 1 },
+                  rtlTextA,
+                ]}
+                numberOfLines={2}
+              >
+                {decodeString(item.title)}
+              </Text>
+
+              <View
+                style={[
+                  styles.featuredItemLocationWrap,
+                  { paddingBottom: ios ? 5 : 3 },
+                  rtlView,
+                ]}
+              >
+                <FontAwesome name="tags" size={10} color={COLORS.text_gray} />
+                <Text
+                  style={[styles.featuredItemLocation, rtlTextA]}
+                  numberOfLines={1}
+                >
+                  {getTexonomy(item.categories)}
+                </Text>
+              </View>
+
+              {(!!item?.contact?.locations?.length ||
+                !!item?.contact?.geo_address) && (
+                <>
+                  {config.location_type === "local" ? (
+                    <>
+                      {!!item?.contact?.locations?.length && (
+                        <View
+                          style={[
+                            styles.featuredItemLocationWrap,
+                            { paddingBottom: ios ? 5 : 3 },
+                            rtlView,
+                          ]}
                         >
-                          {decodeString(item.contact.geo_address)}
-                        </Text>
-                      </View>
-                    )}
-                  </>
-                )}
-              </>
-            )}
+                          <FontAwesome5
+                            name="map-marker-alt"
+                            size={10}
+                            color={COLORS.text_gray}
+                          />
+                          <Text style={[styles.featuredItemLocation, rtlTextA]}>
+                            {getTexonomy(item.contact.locations)}
+                          </Text>
+                        </View>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {!!item?.contact?.geo_address && (
+                        <View
+                          style={[
+                            styles.featuredItemLocationWrap,
+                            { paddingBottom: ios ? 5 : 3 },
+                            rtlView,
+                          ]}
+                        >
+                          <FontAwesome5
+                            name="map-marker-alt"
+                            size={10}
+                            color={COLORS.text_gray}
+                          />
+                          <Text
+                            style={[styles.featuredItemLocation, rtlTextA]}
+                            numberOfLines={1}
+                          >
+                            {decodeString(item.contact.geo_address)}
+                          </Text>
+                        </View>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+            </View>
             <Text style={[styles.featuredItemPrice, rtlText]} numberOfLines={1}>
               {getPrice(
                 config.currency,
@@ -252,9 +345,10 @@ const styles = StyleSheet.create({
     color: COLORS.text_gray,
   },
   featuredItemDetailWrap: {
-    paddingHorizontal: 15,
     paddingVertical: 10,
     overflow: "hidden",
+    justifyContent: "space-between",
+    flex: 1,
   },
   featuredItemImage: {
     height: "100%",
@@ -266,7 +360,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     overflow: "hidden",
     width: "100%",
-    height: screenWidth * 0.455,
+    height: (screenWidth * 0.455 * 2) / 3,
   },
   featuredItemLocation: {
     color: COLORS.text_gray,
@@ -280,7 +374,7 @@ const styles = StyleSheet.create({
   },
   featuredItemPrice: {
     color: COLORS.primary,
-    fontSize: 14.5,
+    fontSize: 15.5,
     fontWeight: "bold",
   },
   featuredItemTitle: {

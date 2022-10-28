@@ -25,91 +25,101 @@ const MembershipCard = ({ memPlan, onSelect, selected }) => {
   const rtlView = rtl_support && {
     flexDirection: "row-reverse",
   };
-  if (!memPlan?.promotion?.membership && !memPlan?.regular_ads) {
-    return null;
-  }
+
   return (
     <TouchableWithoutFeedback style={styles.container} onPress={onSelect}>
-      <View style={styles.content}>
-        <View style={styles.titleWrap}>
-          <Text style={[styles.title, rtlTextA]}>{memPlan.title}</Text>
+      <View
+        style={[
+          styles.content,
+          {
+            borderColor:
+              memPlan?.id === selected?.id ? COLORS.primary : COLORS.white,
+            borderWidth: 1,
+          },
+          rtlView,
+        ]}
+      >
+        <View style={styles.chkBoxWrap}>
+          <View
+            style={[
+              styles.chkBxOuter,
+              {
+                borderWidth: 1,
+                borderColor:
+                  memPlan?.id === selected?.id
+                    ? COLORS.white
+                    : COLORS.border_light,
+                backgroundColor:
+                  memPlan?.id === selected?.id ? COLORS.primary : COLORS.white,
+              },
+            ]}
+          >
+            <View style={styles.chkBxInner} />
+          </View>
         </View>
-        <View style={[styles.featuresWrap, rtlView]}>
-          <View style={styles.chkBoxWrap}>
-            <View style={styles.chkBxOuter}>
-              {memPlan?.id === selected?.id && (
-                <View style={styles.chkBxInner} />
-              )}
+        <View style={{ flex: 1 }}>
+          <View style={[styles.titleWrap, rtlView]}>
+            <View style={styles.priceWrapp}>
+              <Text style={styles.price}>
+                {getPrice(config.payment_currency, {
+                  pricing_type: "price",
+                  price_type: "fixed",
+                  price: memPlan.price,
+                  max_price: 0,
+                })}
+              </Text>
+            </View>
+            <View
+              style={{
+                backgroundColor: COLORS.bg_primary,
+                paddingVertical: 5,
+                paddingHorizontal: 8,
+                borderRadius: 3,
+                marginHorizontal: 10,
+              }}
+            >
+              <Text style={[styles.title, rtlTextA]} numberOfLines={1}>
+                {memPlan.title}
+              </Text>
             </View>
           </View>
-          <View style={{ flex: 1 }}>
-            <View style={[styles.tableHeaderRowWrap, rtlView]}>
-              <View style={{ flex: 1.5 }} />
-              <View style={styles.headerContent}>
-                <Text style={[styles.headerText, rtlText]}>
-                  {__("membershipCardTexts.ads", appSettings.lng)}
-                </Text>
-              </View>
-              <View style={styles.headerContent}>
-                <Text style={[styles.headerText, rtlText]}>
-                  {__("membershipCardTexts.validityUnit", appSettings.lng)}
-                </Text>
-              </View>
-            </View>
-            {!!memPlan?.regular_ads && (
-              <View
-                style={[
-                  styles.tableRowWrap,
-                  {
-                    borderBottomColor: COLORS.border_light,
-                    borderBottomWidth: !!memPlan?.promotion?.membership
-                      ? 0
-                      : 0.7,
-                    paddingBottom: !!memPlan?.promotion?.membership ? 5 : 10,
-                  },
-                  rtlView,
-                ]}
-              >
-                <View
-                  style={[
-                    styles.tableRowContent,
-                    {
-                      alignItems: rtl_support ? "flex-end" : "flex-start",
-                      flex: 1.5,
-                    },
-                  ]}
-                >
-                  <Text style={[styles.contentText, rtlText]}>
-                    {__("membershipCardTexts.regular", appSettings.lng)}
+          <View
+            style={[
+              styles.featuresWrap,
+              {
+                marginRight: rtl_support ? 0 : 10,
+                marginLeft: rtl_support ? 10 : 0,
+                marginVertical: 10,
+              },
+            ]}
+          >
+            <View>
+              <View style={[styles.tableHeaderRowWrap, rtlView]}>
+                <View style={{ flex: 1.5 }} />
+                <View style={styles.headerContent}>
+                  <Text style={[styles.headerText, rtlText]}>
+                    {__("membershipCardTexts.ads", appSettings.lng)}
                   </Text>
                 </View>
-                <View style={styles.tableRowContent}>
-                  <Text style={[styles.contentText, rtlText]}>
-                    {memPlan.regular_ads}
-                  </Text>
-                </View>
-                <View style={styles.tableRowContent}>
-                  <Text style={[styles.contentText, rtlText]}>
-                    {memPlan.visible}
+                <View style={styles.headerContent}>
+                  <Text style={[styles.headerText, rtlText]}>
+                    {__("membershipCardTexts.validityUnit", appSettings.lng)}
                   </Text>
                 </View>
               </View>
-            )}
-
-            {!!memPlan?.promotion?.membership &&
-              Object.keys(memPlan.promotion.membership).map((memPkg, index) => (
+              {!!memPlan?.regular_ads && (
                 <View
                   style={[
                     styles.tableRowWrap,
                     {
-                      backgroundColor:
-                        !!memPlan?.regular_ads && index % 2 === 0
-                          ? COLORS.bg_light
-                          : COLORS.white,
+                      borderBottomColor: COLORS.border_light,
+                      borderBottomWidth: !!memPlan?.promotion?.membership
+                        ? 0
+                        : 0.7,
+                      paddingBottom: !!memPlan?.promotion?.membership ? 5 : 10,
                     },
                     rtlView,
                   ]}
-                  key={index}
                 >
                   <View
                     style={[
@@ -121,34 +131,55 @@ const MembershipCard = ({ memPlan, onSelect, selected }) => {
                     ]}
                   >
                     <Text style={[styles.contentText, rtlText]}>
-                      {config?.promotions[memPkg] || memPkg}
+                      {__("membershipCardTexts.regular", appSettings.lng)}
                     </Text>
                   </View>
                   <View style={styles.tableRowContent}>
                     <Text style={[styles.contentText, rtlText]}>
-                      {memPlan?.promotion?.membership[memPkg].ads}
+                      {memPlan.regular_ads}
                     </Text>
                   </View>
                   <View style={styles.tableRowContent}>
                     <Text style={[styles.contentText, rtlText]}>
-                      {memPlan?.promotion?.membership[memPkg].validate}
+                      {memPlan.visible}
                     </Text>
                   </View>
                 </View>
-              ))}
-          </View>
-          <View style={styles.priceWrapp}>
-            <Text style={styles.price}>
-              {getPrice(config.payment_currency, {
-                pricing_type: "price",
-                price_type: "fixed",
-                price: memPlan.price,
-                max_price: 0,
-              })}
-            </Text>
+              )}
+
+              {!!memPlan?.promotion?.membership &&
+                Object.keys(memPlan.promotion.membership).map(
+                  (memPkg, index) => (
+                    <View style={[styles.tableRowWrap, rtlView]} key={index}>
+                      <View
+                        style={[
+                          styles.tableRowContent,
+                          {
+                            alignItems: rtl_support ? "flex-end" : "flex-start",
+                            flex: 1.5,
+                          },
+                        ]}
+                      >
+                        <Text style={[styles.contentText, rtlText]}>
+                          {config?.promotions[memPkg] || memPkg}
+                        </Text>
+                      </View>
+                      <View style={styles.tableRowContent}>
+                        <Text style={[styles.contentText, rtlText]}>
+                          {memPlan?.promotion?.membership[memPkg].ads}
+                        </Text>
+                      </View>
+                      <View style={styles.tableRowContent}>
+                        <Text style={[styles.contentText, rtlText]}>
+                          {memPlan?.promotion?.membership[memPkg].validate}
+                        </Text>
+                      </View>
+                    </View>
+                  )
+                )}
+            </View>
           </View>
         </View>
-        <View style={styles.bottomContentWrap}></View>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -163,36 +194,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   chkBxInner: {
-    height: 9,
-    width: 9,
-    borderRadius: 9 / 2,
-    backgroundColor: COLORS.primary,
+    height: 8,
+    width: 8,
+    borderRadius: 8 / 2,
+    backgroundColor: COLORS.white,
   },
   chkBxOuter: {
-    height: 16,
-    width: 16,
-    borderRadius: 16 / 2,
-    borderWidth: 1.5,
-    borderColor: COLORS.border_light,
+    height: 20,
+    width: 20,
+    borderRadius: 20 / 2,
+
     margin: 10,
     alignItems: "center",
     justifyContent: "center",
   },
-  chkBoxWrap: {},
-  container: {},
   content: {
     borderRadius: 5,
     backgroundColor: COLORS.white,
-    elevation: 3,
+    elevation: 1,
     marginVertical: 10,
-    shadowRadius: 5,
+    shadowRadius: 1,
     shadowOffset: {
-      height: 2,
-      width: 0,
+      height: 1,
+      width: 1,
     },
-    shadowOpacity: 0.9,
+    shadowOpacity: 0.2,
     shadowColor: COLORS.gray,
     marginHorizontal: windowWidth * 0.03,
+    flexDirection: "row",
+    // width: windowWidth * 0.94 - 2,
   },
   contentText: {
     fontSize: 13,
@@ -200,10 +230,7 @@ const styles = StyleSheet.create({
     color: COLORS.text_gray,
   },
   featuresWrap: {
-    marginVertical: 10,
     paddingBottom: 5,
-    flexDirection: "row",
-    alignItems: "center",
   },
   headerContent: {
     flex: 1,
@@ -232,15 +259,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   price: {
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: "bold",
-    color: COLORS.white,
-  },
-  priceWrapp: {
-    margin: 10,
-    padding: 10,
-    backgroundColor: COLORS.primary,
-    borderRadius: 10,
+    color: COLORS.text_dark,
   },
   tableHeaderRowWrap: {
     flexDirection: "row",
@@ -259,27 +280,17 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "bold",
-    fontSize: 16,
-    color: COLORS.white,
+    // fontSize: 16,
+    color: COLORS.primary,
   },
   titleWrap: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 5,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
-  },
-  priceTag: {
-    backgroundColor: COLORS.primary,
-
-    paddingVertical: 10,
-    paddingLeft: 30,
     flexDirection: "row",
     alignItems: "center",
-    minWidth: 100,
-    justifyContent: "center",
+    justifyContent: "space-between",
   },
-  priceWrap: {},
 });
 
 export default MembershipCard;

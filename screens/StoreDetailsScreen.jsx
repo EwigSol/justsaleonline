@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -16,15 +16,14 @@ import {
 
 // External Libraries
 import moment from "moment";
+import "moment/locale/en-gb";
 
 // Vector Icons
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
-import { Fontisto } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { Zocial } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
 import { EvilIcons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -36,14 +35,18 @@ import { useStateValue } from "../StateProvider";
 import AppButton from "../components/AppButton";
 import AppTextButton from "../components/AppTextButton";
 import { paginationData } from "../app/pagination/paginationData";
-import { __ } from "../language/stringPicker";
+import { getRelativeTimeConfig, getWeek, __ } from "../language/stringPicker";
 import { routes } from "../navigation/routes";
+import CallIcon from "../components/svgComponents/CallIcon";
+import MessageIcon from "../components/svgComponents/MessageIcon";
+import GlobeIcon from "../components/svgComponents/GlobeIcon";
+import ReadMore from "react-native-read-more-text";
 
 const storeDetailsTexts = {
-  membershipMomentFormate: "MMM Do YYYY",
+  membershipMomentFormate: "D MMM, YYYY",
 };
 
-const { width: windowWidth, height: windowHeight } = Dimensions.get("window");
+const { width: windowWidth } = Dimensions.get("window");
 
 const storeDetailfallbackImage = {
   listingCardImage: require("../assets/100x100.png"),
@@ -51,7 +54,7 @@ const storeDetailfallbackImage = {
   banner: require("../assets/200X150.png"),
 };
 
-const week = {
+const weekData = {
   0: "sunday",
   1: "monday",
   2: "tuesday",
@@ -60,6 +63,15 @@ const week = {
   5: "friday",
   6: "saturday",
 };
+const week = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+];
 
 const StoreDetailsScreen = ({ route, navigation }) => {
   const [{ config, user, ios, appSettings, rtl_support }] = useStateValue();
@@ -67,21 +79,24 @@ const StoreDetailsScreen = ({ route, navigation }) => {
   const [storeData, setStoreData] = useState();
   const [storeExpired, setStoreExpired] = useState(false);
   const [storeId, setStoreId] = useState(route.params.storeId);
-  const [listHeaderHeight, setListHeaderHeight] = useState(
-    windowWidth * 0.06 + 70 + 21 + 78 + 16 + 42 + 25 + 40 + 5
-  );
-  const [listHeaderHeightChanged, setListHeaderHeightChanged] = useState(false);
+
   const [initial, setInitial] = useState(true);
   const [storeListingSData, setStoreListingsData] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [moreLoading, setMoreLoading] = useState(false);
   const [pagination, setPagination] = useState({});
+  const [weekDays, setWeekDays] = useState(getWeek(appSettings.lng) || {});
+
   const [currentPage, setCurrentPage] = useState(
     pagination.page || paginationData.storeDetails.page
   );
   // {* Get Store Detail Call *}
   useEffect(() => {
+    const timeConfig = getRelativeTimeConfig(appSettings.lng);
+    moment.updateLocale("en-gb", {
+      relativeTime: timeConfig,
+    });
     if (storeData) return;
     getStoreDetail(route.params.storeId);
   }, []);
@@ -112,6 +127,7 @@ const StoreDetailsScreen = ({ route, navigation }) => {
 
   const getStoreDetail = (storeId) => {
     api.get(`stores/${storeId}`).then((res) => {
+      console.log(res.data);
       if (res.ok) {
         if (res.data) {
           setStoreData(res.data);
@@ -210,7 +226,22 @@ const StoreDetailsScreen = ({ route, navigation }) => {
     []
   );
   const StoreListingCard = ({ item }) => (
-    <View style={styles.storeListingCardWrap}>
+    <View
+      style={{
+        backgroundColor: COLORS.white,
+        padding: "3%",
+        marginHorizontal: "3%",
+        borderRadius: 5,
+        elevation: 1,
+        shadowColor: COLORS.border_light,
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        shadowOffset: {
+          height: 2,
+          width: 2,
+        },
+      }}
+    >
       <TouchableOpacity
         style={[styles.storeListingCardContent, rtlView]}
         onPress={() => handleViewListing(item)}
@@ -344,52 +375,41 @@ const StoreDetailsScreen = ({ route, navigation }) => {
         height: 1,
         width: "94%",
         backgroundColor: COLORS.bg_dark,
-        marginVertical: 15,
+        marginVertical: 5,
         marginHorizontal: "3%",
       }}
     ></View>
   );
 
   const getOpenHours = () => {
-    if (storeData?.opening_hours?.type === "always") {
-      return __("storeDetailsTexts.alwaysOpen", appSettings.lng);
-    }
-    if (storeData?.opening_hours?.type === "selected") {
-      const today = week[new Date().getDay()];
+    if (storeData) {
+      if (storeData?.opening_hours?.type === "always") {
+        return __("storeDetailsTexts.alwaysOpen", appSettings.lng);
+      }
+      if (storeData?.opening_hours?.type === "selected") {
+        const today = weekData[new Date().getDay()];
 
-      if (storeData?.opening_hours?.hours[today]?.active) {
-        if (
-          storeData?.opening_hours?.hours[today]?.open ||
-          storeData?.opening_hours?.hours[today]?.close
-        ) {
-          return (
-            __("storeDetailsTexts.openDayStarting", appSettings.lng) +
-            storeData.opening_hours.hours[today].open +
-            __("storeDetailsTexts.openDayClosing", appSettings.lng) +
-            storeData.opening_hours.hours[today].close
-          );
+        if (storeData?.opening_hours?.hours[today]?.active) {
+          if (
+            storeData?.opening_hours?.hours[today]?.open ||
+            storeData?.opening_hours?.hours[today]?.close
+          ) {
+            return __("storeDetailsTexts.openingHourOpen", appSettings.lng);
+          } else {
+            return __("storeDetailsTexts.fullDayOpen", appSettings.lng);
+          }
         } else {
-          return __("storeDetailsTexts.fullDayOpen", appSettings.lng);
+          return __("storeDetailsTexts.closed", appSettings.lng);
         }
-      } else {
-        return __("storeDetailsTexts.closed", appSettings.lng);
       }
     }
-    return __("storeDetailsTexts.noData", appSettings.lng);
+    return null;
   };
 
   const keyExtractor = useCallback((item, index) => `${index}`, []);
 
   const handleMoreDetailPress = () => {
     navigation.navigate(routes.storeMoreDetailsScreen, { data: storeData });
-  };
-
-  const handleHeaderLayout = (e) => {
-    if (e.nativeEvent.layout.height > 1 && !listHeaderHeightChanged) {
-      setListHeaderHeight(e.nativeEvent.layout.height);
-      setListHeaderHeightChanged(true);
-    }
-    return;
   };
 
   const handleLoginAlert = () => {
@@ -415,142 +435,335 @@ const StoreDetailsScreen = ({ route, navigation }) => {
     );
   };
 
-  const ListHeader = useCallback(
-    () => (
+  const habdleSocialLinkOpen = (url) => {
+    Linking.openURL(url);
+  };
+
+  const renderTruncatedFooter = (handleDescriptionToggle) => {
+    return (
+      <Text
+        style={{
+          color: COLORS.text_gray,
+          marginTop: 10,
+          fontWeight: "bold",
+          textAlign: "center",
+        }}
+        onPress={handleDescriptionToggle}
+      >
+        {__("listingDetailScreenTexts.showMore", appSettings.lng)}
+      </Text>
+    );
+  };
+  const renderRevealedFooter = (handleDescriptionToggle) => {
+    return (
+      <Text
+        style={{
+          color: COLORS.text_gray,
+          marginTop: 10,
+          fontWeight: "bold",
+          textAlign: "center",
+        }}
+        onPress={handleDescriptionToggle}
+      >
+        {__("listingDetailScreenTexts.showLess", appSettings.lng)}
+      </Text>
+    );
+  };
+
+  const getOpeningHours = () => {
+    const data = storeData.opening_hours.hours;
+    if (storeData.opening_hours.type === "selected") {
+      return week.map((item, index) => (
+        <OpeningDay
+          item={item}
+          key={index}
+          data={data}
+          today={week[new Date().getDay()] === item}
+          index={index}
+        />
+      ));
+    } else {
+      return (
+        <View
+          style={{ width: "100%", alignItems: "center", paddingVertical: 5 }}
+        >
+          <Text
+            style={[{ fontWeight: "bold", color: COLORS.text_dark }, rtlTextA]}
+          >
+            {__("storeMoreDetailTexts.alwaysOpen", appSettings.lng)}
+          </Text>
+        </View>
+      );
+    }
+  };
+
+  const OpeningDay = ({ item, data, today, index }) => (
+    <View style={[styles.dayWrap, rtlView]}>
       <View
         style={[
-          styles.storeTop,
+          styles.dayContentWrap,
           {
-            height:
-              listHeaderHeight +
-              (200 - (70 + 15 + windowWidth * 0.03)) +
-              40 +
-              5,
+            paddingLeft: rtl_support ? 0 : 18,
+            paddingRight: rtl_support ? 18 : 0,
+            alignItems: rtl_support ? "flex-end" : "flex-start",
           },
         ]}
       >
-        {/* Store Banner */}
-        <View style={styles.bannerWrap}>
-          <Image
-            source={
-              !!storeData.banner
-                ? { uri: storeData.banner }
-                : storeDetailfallbackImage.banner
-            }
-            style={styles.banner}
-          />
-        </View>
-        {/* Store Detail */}
-        <View
-          onLayout={(event) => handleHeaderLayout(event)}
-          style={styles.storeDetailWrap}
+        <Text
+          style={[
+            styles.dayTitle,
+            {
+              fontWeight: today ? "bold" : "normal",
+              color: today ? COLORS.text_dark : COLORS.text_gray,
+            },
+            rtlText,
+          ]}
+          numberOfLines={1}
         >
-          {/* Logo, Title, Rating, Slogan */}
-          <View style={[styles.storeDetatilTopWrap, rtlView]}>
-            <View style={styles.storeLogo}>
-              <Image
-                style={styles.logo}
-                source={
-                  storeData.logo
-                    ? { uri: storeData.logo }
-                    : storeDetailfallbackImage.logo
-                }
-              />
-            </View>
-            <View
-              style={[
-                styles.storeDetailTopRight,
-                {
-                  paddingLeft: rtl_support ? 0 : 10,
-                  paddingRight: rtl_support ? 10 : 0,
-                  alignItems: rtl_support ? "flex-end" : "flex-start",
-                },
-              ]}
-            >
-              <View style={[styles.storeTitleRow, rtlView]}>
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: rtl_support ? "flex-end" : "flex-start",
-                  }}
-                >
-                  <Text style={[styles.storeTitle, rtlText]} numberOfLines={1}>
-                    {storeData.title
-                      ? decodeString(storeData.title)
-                      : __("storeDetailsTexts.nullText", appSettings.lng)}
+          {weekDays[index]}
+        </Text>
+      </View>
+      <View style={styles.dayContentWrap}>
+        {data[item]?.active ? (
+          <>
+            {!!data[item]?.open && !!data[item]?.close ? (
+              <>
+                {rtl_support ? (
+                  <Text
+                    style={[
+                      styles.hoursText,
+                      {
+                        fontWeight: today ? "bold" : "normal",
+                        color: today ? COLORS.text_dark : COLORS.text_gray,
+                      },
+                      rtlTextA,
+                    ]}
+                  >
+                    {data[item].close}
+                    {" - "}
+                    {data[item].open}
                   </Text>
-                </View>
-
-                {!!storeData.review.average && (
-                  <View style={[styles.storeRatingWrap, rtlView]}>
-                    <Text
-                      style={[
-                        styles.rating,
-                        {
-                          marginRight: rtl_support ? 0 : 5,
-                          marginLeft: rtl_support ? 5 : 0,
-                        },
-                        rtlText,
-                      ]}
-                    >
-                      {parseFloat(storeData.review.average)}
-                    </Text>
-
-                    <FontAwesome name="star" size={12} color={COLORS.white} />
-                  </View>
+                ) : (
+                  <Text
+                    style={[
+                      styles.hoursText,
+                      {
+                        fontWeight: today ? "bold" : "normal",
+                        color: today ? COLORS.text_dark : COLORS.text_gray,
+                      },
+                    ]}
+                  >
+                    {data[item].open}
+                    {" - "}
+                    {data[item].close}
+                  </Text>
                 )}
-              </View>
+              </>
+            ) : (
+              <Text
+                style={[
+                  styles.hoursText,
+                  {
+                    fontWeight: today ? "bold" : "normal",
+                    color: today ? COLORS.text_dark : COLORS.text_gray,
+                  },
+                  rtlTextA,
+                ]}
+              >
+                {__("storeMoreDetailTexts.fullDayOpen", appSettings.lng)}
+              </Text>
+            )}
+          </>
+        ) : (
+          <Text
+            style={[
+              styles.closedText,
+              {
+                fontWeight: today ? "bold" : "normal",
+              },
+              rtlTextA,
+            ]}
+          >
+            {__("storeMoreDetailTexts.closed", appSettings.lng)}
+          </Text>
+        )}
+      </View>
+    </View>
+  );
 
-              {!!storeData.slogan && (
-                <Text style={[styles.storeSlogan, rtlText]} numberOfLines={2}>
-                  {decodeString(storeData.slogan)}
-                </Text>
-              )}
+  const ListHeader = useCallback(
+    () => (
+      <View style={[styles.storeTop]}>
+        {/* Store Detail */}
+        <View style={[styles.storeDetailWrap, { paddingBottom: 10 }]}>
+          {/* Store Banner */}
+          <View style={styles.bannerWrap}>
+            <Image
+              source={
+                !!storeData.banner
+                  ? { uri: storeData.banner }
+                  : storeDetailfallbackImage.banner
+              }
+              style={styles.banner}
+            />
+          </View>
+
+          <View style={{ width: "100%", height: windowWidth * 0.94 * 0.15 }}>
+            <View
+              style={{
+                height: windowWidth * 0.94 * 0.24,
+                width: windowWidth * 0.94 * 0.24,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: COLORS.white,
+                borderRadius: windowWidth * 0.94 * 0.12,
+                position: "absolute",
+                zIndex: 2,
+                top: 0,
+                left: "50%",
+                transform: [
+                  { translateY: -windowWidth * 0.94 * 0.12 },
+                  { translateX: -windowWidth * 0.94 * 0.12 },
+                ],
+              }}
+            >
+              <View style={styles.storeLogo}>
+                <Image
+                  style={styles.logo}
+                  source={
+                    storeData?.logo
+                      ? { uri: storeData.logo }
+                      : storeDetailfallbackImage.logo
+                  }
+                />
+              </View>
             </View>
           </View>
 
           <View
             style={{
-              height: 1,
-              width: "100%",
-              backgroundColor: COLORS.gray,
-              marginTop: 15,
-              marginBottom: 5,
+              alignItems: rtl_support ? "flex-end" : "flex-start",
             }}
-          />
-          {/* Address, Opening hours, Membership, Website */}
-          <View style={styles.storeDetatilMidWrap}>
-            <View style={[styles.storeDetailMidrow, rtlView]}>
-              <View style={styles.storeDetailMidrowIconWrap}>
-                <Fontisto
-                  name="map-marker-alt"
-                  size={14}
-                  color={COLORS.primary}
-                />
-              </View>
-              <View style={[{ flex: 1 }, rtlView]}>
+          >
+            <Text style={[styles.storeTitle, rtlText]} numberOfLines={1}>
+              {storeData?.title
+                ? decodeString(storeData.title)
+                : __("storeDetailsTexts.nullText", appSettings.lng)}
+            </Text>
+          </View>
+          {
+            <View
+              style={{
+                flexDirection: rtl_support ? "row-reverse" : "row",
+                alignItems: "center",
+                paddingVertical: 5,
+              }}
+            >
+              <MaterialIcons
+                name="verified"
+                size={20}
+                color={config?.seller_verification?.badge_color || "green"}
+              />
+              <View style={{ paddingHorizontal: 5 }}>
                 <Text
                   style={[
-                    styles.storeDetailMidrowText,
                     {
-                      marginRight: rtl_support ? 5 : 0,
-                      marginLeft: rtl_support ? 0 : 5,
+                      fontSize: 15,
+                      color:
+                        config?.seller_verification?.badge_color || "green",
                     },
                     rtlText,
                   ]}
-                  numberOfLines={2}
                 >
-                  {storeData.address
-                    ? decodeString(storeData.address)
-                    : __("storeDetailsTexts.nullText", appSettings.lng)}
+                  {__("listingDetailScreenTexts.verified", appSettings.lng)}
                 </Text>
               </View>
             </View>
-            <View style={[styles.storeDetailMidrow, rtlView]}>
-              <View style={styles.storeDetailMidrowIconWrap}>
-                <Fontisto name="clock" size={13} color={COLORS.primary} />
+          }
+          <View style={{ paddingVertical: 5 }}>
+            <Text
+              style={[
+                styles.storeDetailMidrowText,
+                {
+                  fontSize: 15,
+                  color: COLORS.text_dark,
+                },
+                rtlText,
+              ]}
+            >
+              {__("storeDetailsTexts.membership", appSettings.lng)}
+              {" : "}
+              <Text style={{ color: COLORS.text_gray }}>
+                {moment(storeData.created_at).format(
+                  storeDetailsTexts.membershipMomentFormate
+                )}
+              </Text>
+            </Text>
+          </View>
+          <View
+            style={{
+              height: 1,
+              width: "90%",
+              backgroundColor: COLORS.border_light,
+              marginTop: 10,
+              marginBottom: 10,
+            }}
+          />
+          {/* Phone, Email, Website */}
+          <View>
+            {!!storeData?.phone && (
+              <View style={[styles.storeDetailMidrow, rtlView]}>
+                <View style={styles.storeDetailMidrowIconWrap}>
+                  <CallIcon fillColor={COLORS.primary} />
+                </View>
+                <View style={[rtlView]}>
+                  <Text
+                    style={[
+                      styles.storeDetailMidrowText,
+                      {
+                        marginRight: rtl_support ? 5 : 0,
+                        marginLeft: rtl_support ? 0 : 5,
+                      },
+                      rtlText,
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {!!storeData?.phone
+                      ? decodeString(storeData.phone)
+                      : __("storeDetailsTexts.nullText", appSettings.lng)}
+                  </Text>
+                </View>
               </View>
-              <View style={[{ flex: 1 }, rtlView]}>
+            )}
+            {!!storeData?.email && (
+              <View style={[styles.storeDetailMidrow, rtlView]}>
+                <View style={styles.storeDetailMidrowIconWrap}>
+                  <MessageIcon fillColor={COLORS.primary} />
+                </View>
+                <View style={[rtlView]}>
+                  <Text
+                    style={[
+                      styles.storeDetailMidrowText,
+                      {
+                        marginRight: rtl_support ? 5 : 0,
+                        marginLeft: rtl_support ? 0 : 5,
+                      },
+                      rtlText,
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {!!storeData?.email
+                      ? decodeString(storeData.email)
+                      : __("storeDetailsTexts.nullText", appSettings.lng)}
+                  </Text>
+                </View>
+              </View>
+            )}
+            {!!storeData?.website && (
+              <View style={[styles.storeDetailMidrow, rtlView]}>
+                <View style={styles.storeDetailMidrowIconWrap}>
+                  <GlobeIcon fillColor={COLORS.primary} />
+                </View>
                 <Text
                   style={[
                     styles.storeDetailMidrowText,
@@ -560,160 +773,299 @@ const StoreDetailsScreen = ({ route, navigation }) => {
                     },
                     rtlText,
                   ]}
+                >
+                  {!!storeData?.website
+                    ? storeData.website
+                    : __("storeDetailsTexts.nullText", appSettings.lng)}
+                </Text>
+              </View>
+            )}
+          </View>
+          {/* Social Section */}
+          {!!storeData?.social && (
+            <View
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "row",
+                paddingVertical: 10,
+              }}
+            >
+              {!!storeData?.social?.facebook && (
+                <TouchableOpacity
+                  style={{ marginHorizontal: 5 }}
+                  onPress={() =>
+                    habdleSocialLinkOpen(storeData.social.facebook)
+                  }
+                >
+                  <FontAwesome
+                    name="facebook-square"
+                    size={30}
+                    color="#008fd9"
+                  />
+                </TouchableOpacity>
+              )}
+              {!!storeData?.social?.twitter && (
+                <TouchableOpacity
+                  style={{ marginHorizontal: 5 }}
+                  onPress={() => habdleSocialLinkOpen(storeData.social.twitter)}
+                >
+                  <FontAwesome
+                    name="twitter-square"
+                    size={30}
+                    color="#30d7f2"
+                  />
+                </TouchableOpacity>
+              )}
+              {!!storeData?.social?.youtube && (
+                <TouchableOpacity
+                  style={{ marginHorizontal: 5 }}
+                  onPress={() => habdleSocialLinkOpen(storeData.social.youtube)}
+                >
+                  <FontAwesome
+                    name="youtube-square"
+                    size={30}
+                    color="#f50000"
+                  />
+                </TouchableOpacity>
+              )}
+              {!!storeData?.social?.linkedin && (
+                <TouchableOpacity
+                  style={{ marginHorizontal: 5 }}
+                  onPress={() =>
+                    habdleSocialLinkOpen(storeData.social.linkedin)
+                  }
+                >
+                  <FontAwesome
+                    name="linkedin-square"
+                    size={30}
+                    color="#00a0dc"
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+        </View>
+        {!!storeData?.description && (
+          <View style={[styles.storeDetailWrap, { paddingVertical: 10 }]}>
+            <View
+              style={{
+                paddingHorizontal: 10,
+                alignItems: rtl_support ? "flex-end" : "flex-start",
+                width: "100%",
+                paddingBottom: 10,
+                paddingTop: 5,
+              }}
+            >
+              <Text
+                style={[
+                  { fontSize: 16, fontWeight: "bold", color: COLORS.text_dark },
+                  rtlTextA,
+                ]}
+              >
+                {__("listingDetailScreenTexts.description", appSettings.lng)}
+              </Text>
+            </View>
+            <View
+              style={{
+                height: 1,
+                width: "94%",
+                marginVertical: 5,
+                backgroundColor: COLORS.border_light,
+              }}
+            />
+            <View
+              style={{
+                backgroundColor: COLORS.white,
+                borderRadius: 5,
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                width: "100%",
+              }}
+            >
+              <ReadMore
+                numberOfLines={3}
+                renderTruncatedFooter={renderTruncatedFooter}
+                renderRevealedFooter={renderRevealedFooter}
+              >
+                <Text
+                  style={[
+                    rtlText,
+                    {
+                      textAlign: "justify",
+                      color: COLORS.text_gray,
+                      lineHeight: 25,
+                    },
+                  ]}
+                >
+                  {decodeString(storeData.description).trim()}
+                </Text>
+              </ReadMore>
+            </View>
+          </View>
+        )}
+        <View style={[styles.storeDetailWrap, { paddingVertical: 5 }]}>
+          <View
+            style={{
+              flexDirection: rtl_support ? "row-reverse" : "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: 10,
+              width: "100%",
+            }}
+          >
+            <View style={styles.view}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "bold",
+                  color: COLORS.text_dark,
+                }}
+              >
+                {__(
+                  "storeMoreDetailTexts.sectionTitles.openinigDateTime",
+                  appSettings.lng
+                )}
+              </Text>
+            </View>
+
+            <View
+              style={{
+                flexDirection: rtl_support ? "row-reverse" : "row",
+                alignItems: "center",
+              }}
+            >
+              <View
+                style={{
+                  height: 0,
+                  width: 0,
+                  borderTopWidth: 15,
+                  borderTopColor: "transparent",
+                  borderBottomWidth: 15,
+                  borderBottomColor: "transparent",
+                  borderRightWidth: rtl_support ? 0 : 15,
+                  borderRightColor: COLORS.primary,
+                  borderLeftWidth: rtl_support ? 15 : 0,
+                  borderLeftColor: COLORS.primary,
+                }}
+              />
+              <View
+                style={[
+                  {
+                    paddingLeft: rtl_support ? 10 : 0,
+                    paddingRight: rtl_support ? 0 : 10,
+                    height: 30,
+                    justifyContent: "center",
+                    backgroundColor: COLORS.primary,
+                  },
+                ]}
+              >
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontWeight: "bold",
+                    color: COLORS.white,
+                  }}
                 >
                   {getOpenHours()}
                 </Text>
               </View>
             </View>
-            <View style={[styles.storeDetailMidrow, rtlView]}>
-              <View style={styles.storeDetailMidrowIconWrap}>
-                <FontAwesome name="user" size={16} color={COLORS.primary} />
-              </View>
-              <Text
-                style={[
-                  styles.storeDetailMidrowText,
-                  {
-                    marginRight: rtl_support ? 5 : 0,
-                    marginLeft: rtl_support ? 0 : 5,
-                  },
-                  rtlText,
-                ]}
-              >
-                {__("storeDetailsTexts.membership", appSettings.lng)}{" "}
-                {moment(storeData.created_at).format(
-                  storeDetailsTexts.membershipMomentFormate
-                )}
-              </Text>
-            </View>
-            <View style={[styles.storeDetailMidrow, rtlView]}>
-              <View style={styles.storeDetailMidrowIconWrap}>
-                <FontAwesome5
-                  name="globe-americas"
-                  size={14}
-                  color={COLORS.primary}
-                />
-              </View>
-              <Text
-                style={[
-                  styles.storeDetailMidrowText,
-                  {
-                    marginRight: rtl_support ? 5 : 0,
-                    marginLeft: rtl_support ? 0 : 5,
-                  },
-                  rtlText,
-                ]}
-              >
-                {storeData.website
-                  ? storeData.website
-                  : __("storeDetailsTexts.nullText", appSettings.lng)}
-              </Text>
-            </View>
           </View>
           <View
             style={{
+              width: "90%",
+              backgroundColor: COLORS.border_light,
               height: 1,
-              width: "100%",
-              backgroundColor: COLORS.gray,
-              marginTop: 5,
-              marginBottom: 10,
+              marginVertical: 5,
             }}
           />
-          {/* Call, Message, More Details */}
-          <View style={styles.storeDetatilBottomWrap}>
-            {(user === null || user?.id !== storeData.owner_id) &&
-              (!!storeData.phone || !!storeData.email) && (
-                <View
+          <View style={{ width: "100%" }}>
+            {["selected", "always"].includes(storeData?.opening_hours?.type) ? (
+              getOpeningHours()
+            ) : (
+              <View
+                style={{
+                  width: "100%",
+                  alignItems: "center",
+                  paddingVertical: 10,
+                }}
+              >
+                <Text
                   style={[
-                    styles.storeContactWrap,
-                    {
-                      justifyContent:
-                        !!storeData.phone && !!storeData.email
-                          ? "space-between"
-                          : "center",
-                    },
+                    { fontWeight: "bold", color: COLORS.text_dark },
+                    rtlText,
                   ]}
                 >
-                  {!!storeData.phone && (
-                    <TouchableOpacity
-                      style={[
-                        styles.storeContactButton,
-                        { backgroundColor: COLORS.bg_dark },
-                      ]}
-                      onPress={() => {
-                        if (
-                          user === null &&
-                          config?.registered_only?.store_contact
-                        ) {
-                          handleLoginAlert();
-                        } else {
-                          setModalVisible(true);
-                        }
-                      }}
-                    >
-                      <Ionicons name="call" size={18} color={COLORS.primary} />
-                      <Text
-                        style={[
-                          styles.storeContactButtonText,
-                          { color: COLORS.text_gray },
-                          rtlText,
-                        ]}
-                      >
-                        {__("sellerContactTexts.call", appSettings.lng)}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                  {!!storeData.email && (
-                    <TouchableOpacity
-                      style={[
-                        styles.storeContactButton,
-                        { backgroundColor: COLORS.primary },
-                      ]}
-                      onPress={handleEmail}
-                    >
-                      <Zocial name="email" size={18} color={COLORS.white} />
-                      <Text
-                        style={[
-                          styles.storeContactButtonText,
-                          { color: COLORS.white },
-                          rtlText,
-                        ]}
-                      >
-                        {__("sellerContactTexts.email", appSettings.lng)}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              )}
-            <TouchableOpacity
-              style={[
-                styles.viewMoreDetailsButton,
-                {
-                  marginTop:
-                    (!storeData.phone && !storeData.email) ||
-                    user?.id === storeData.owner_id
-                      ? 0
-                      : 15,
-                  justifyContent: "center",
-                },
-              ]}
-              onPress={handleMoreDetailPress}
-            >
-              <Text style={[styles.viewMoreDetailsButtonText, rtlText]}>
-                {__("storeDetailsTexts.viewMore", appSettings.lng)}
-              </Text>
-              <AntDesign name="arrowright" size={18} color={COLORS.primary} />
-            </TouchableOpacity>
+                  {__("storeMoreDetailTexts.noData", appSettings.lng)}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
+        {!!storeData?.address && (
+          <View style={[styles.storeDetailWrap, { paddingVertical: 10 }]}>
+            <View
+              style={{
+                paddingHorizontal: 10,
+                alignItems: rtl_support ? "flex-end" : "flex-start",
+                width: "100%",
+                paddingBottom: 10,
+                paddingTop: 5,
+              }}
+            >
+              <Text
+                style={[
+                  { fontSize: 16, fontWeight: "bold", color: COLORS.text_dark },
+                  rtlTextA,
+                ]}
+              >
+                {__(
+                  "storeMoreDetailTexts.sectionTitles.storeAddress",
+                  appSettings.lng
+                )}
+              </Text>
+            </View>
+            <View
+              style={{
+                height: 1,
+                width: "94%",
+                marginVertical: 5,
+                backgroundColor: COLORS.border_light,
+              }}
+            />
+            <View
+              style={{
+                backgroundColor: COLORS.white,
+                borderRadius: 5,
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                width: "100%",
+              }}
+            >
+              <Text
+                style={[
+                  rtlTextA,
+                  {
+                    textAlign: "justify",
+                    color: COLORS.text_gray,
+                    lineHeight: 25,
+                  },
+                ]}
+              >
+                {decodeString(storeData.address).trim()}
+              </Text>
+            </View>
+          </View>
+        )}
+
         {/* Flatlist Title */}
         <View
           style={[
             {
               width: "100%",
-              position: "absolute",
-              top:
-                listHeaderHeight + (200 - (70 + 15 + windowWidth * 0.03)) + 15,
               paddingHorizontal: "3%",
+              marginVertical: 10,
             },
             rtlView,
           ]}
@@ -734,7 +1086,7 @@ const StoreDetailsScreen = ({ route, navigation }) => {
         </View>
       </View>
     ),
-    [storeData, listHeaderHeight]
+    [storeData]
   );
 
   const EmptyListComponent = () => {
@@ -843,7 +1195,7 @@ const StoreDetailsScreen = ({ route, navigation }) => {
               style={styles.headerBackButton}
               onPress={() => navigation.goBack()}
             >
-              <Feather name="arrow-left" size={24} color={COLORS.black} />
+              <Feather name="arrow-left" size={24} color={COLORS.white} />
             </TouchableOpacity>
           </View>
           {/* Listing FlatList */}
@@ -862,6 +1214,9 @@ const StoreDetailsScreen = ({ route, navigation }) => {
               ListHeaderComponent={ListHeader}
               ListEmptyComponent={EmptyListComponent}
               ItemSeparatorComponent={ListSeparator}
+              contentContainerStyle={{
+                paddingBottom: 70,
+              }}
             />
           </View>
           {/* Call prompt */}
@@ -934,30 +1289,122 @@ const StoreDetailsScreen = ({ route, navigation }) => {
           />
         </View>
       )}
+      {(user === null || user?.id !== storeData?.owner_id) &&
+        !config?.disabled?.listing_contact &&
+        (!!storeData?.phone || !!storeData?.email) && (
+          <View
+            style={{
+              paddingVertical: 10,
+              position: "absolute",
+              bottom: 0,
+              width: "100%",
+              paddingHorizontal: "1.5%",
+            }}
+          >
+            <View
+              style={[
+                styles.storeContactWrap,
+                {
+                  justifyContent: "center",
+                },
+              ]}
+            >
+              {!!storeData?.phone && (
+                <TouchableOpacity
+                  style={[
+                    styles.storeContactButton,
+                    { backgroundColor: COLORS.primary },
+                  ]}
+                  onPress={() => {
+                    if (
+                      user === null &&
+                      config?.registered_only?.store_contact
+                    ) {
+                      handleLoginAlert();
+                    } else {
+                      setModalVisible(true);
+                    }
+                  }}
+                >
+                  <Ionicons name="call" size={18} color={COLORS.white} />
+                  <Text
+                    style={[
+                      styles.storeContactButtonText,
+                      { color: COLORS.white },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {__("sellerContactTexts.call", appSettings.lng)}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              {!!storeData?.email && (
+                <TouchableOpacity
+                  style={[
+                    styles.storeContactButton,
+                    { backgroundColor: COLORS.primary },
+                  ]}
+                  onPress={handleEmail}
+                >
+                  <Zocial name="email" size={18} color={COLORS.white} />
+                  <Text
+                    style={[
+                      styles.storeContactButtonText,
+                      { color: COLORS.white },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {__("sellerContactTexts.email", appSettings.lng)}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   banner: {
-    height: 200,
-    width: "100%",
+    height: windowWidth * 0.94 * 0.35,
+    width: windowWidth * 0.94,
     resizeMode: "cover",
   },
   bannerWrap: {
-    width: "100%",
-    height: 200,
+    width: windowWidth * 0.94,
+    height: windowWidth * 0.94 * 0.35,
+    borderTopRightRadius: 10,
+    borderTopLeftRadius: 10,
+    overflow: "hidden",
   },
   callText: {
     fontSize: 20,
     color: COLORS.text_dark,
     textAlign: "center",
   },
+  closedText: {
+    color: COLORS.red,
+  },
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
-    width: "100%",
-    height: "100%",
+    backgroundColor: "#F8F8F8",
+    flex: 1,
+  },
+  dayContentWrap: {
+    flex: 1,
+  },
+  dayTitle: {
+    fontSize: 14,
+
+    textTransform: "capitalize",
+  },
+  dayWrap: {
+    paddingVertical: 5,
+
+    marginVertical: 5,
+    flexDirection: "row",
+    alignItems: "center",
   },
   expiredText: {
     fontSize: 15,
@@ -980,10 +1427,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 50,
     width: "100%",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    zIndex: 2,
+    backgroundColor: COLORS.primary,
   },
   headerBackButton: {
     position: "absolute",
@@ -1049,8 +1493,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logo: {
-    height: 70,
-    width: 80,
+    height: windowWidth * 0.94 * 0.21,
+    width: windowWidth * 0.94 * 0.21,
     resizeMode: "contain",
   },
   modalOverlay: {
@@ -1081,22 +1525,22 @@ const styles = StyleSheet.create({
   },
   screenTitle: {
     fontSize: 20,
-    color: COLORS.black,
+    color: COLORS.white,
     fontWeight: "bold",
     elevation: 2,
   },
   storeBottom: {
     width: "100%",
     flex: 1,
-    position: "relative",
   },
   storeContactButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 3,
-    width: "48%",
+    width: "45.5%",
     height: 32,
+    marginHorizontal: "1.5%",
   },
   storeContactButtonText: {
     fontSize: 14,
@@ -1111,8 +1555,8 @@ const styles = StyleSheet.create({
   storeDetailMidrow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-start",
-    marginVertical: 5,
+    justifyContent: "center",
+    marginVertical: 8,
   },
   storeDetailMidrowIconWrap: {
     height: 16,
@@ -1123,7 +1567,7 @@ const styles = StyleSheet.create({
   },
   storeDetailMidrowText: {
     fontSize: 14,
-    color: COLORS.text_gray,
+    color: COLORS.text_dark,
   },
   storeDetailTopRight: {
     flex: 1,
@@ -1131,36 +1575,34 @@ const styles = StyleSheet.create({
     width: windowWidth * 0.724,
   },
   storeDetatilTopWrap: {
-    width: windowWidth * 0.88,
-    flexDirection: "row",
     alignItems: "center",
   },
   storeDetailWrap: {
     backgroundColor: COLORS.white,
-    position: "absolute",
     width: windowWidth * 0.94,
-    top: 200 - (70 + 15 + windowWidth * 0.03),
-    borderRadius: 5,
-    elevation: 5,
-    padding: windowWidth * 0.03,
-    shadowColor: "#000",
+    borderRadius: 10,
+    elevation: 2,
+    shadowColor: COLORS.gray,
     shadowRadius: 3,
     shadowOffset: {
-      width: 3,
-      height: 3,
+      width: 0,
+      height: 0,
     },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     zIndex: 1,
+    marginTop: windowWidth * 0.03,
+    alignItems: "center",
   },
   storeListingCardContent: {
     flexDirection: "row",
     alignItems: "flex-start",
-    paddingHorizontal: "3%",
+    // paddingHorizontal: "3%",
   },
   storeLogo: {
-    height: 70,
-    width: 80,
+    height: windowWidth * 0.94 * 0.21,
+    width: windowWidth * 0.94 * 0.21,
     overflow: "hidden",
+    borderRadius: windowWidth * 0.94 * 0.11,
   },
   storeRatingWrap: {
     paddingHorizontal: 10,
@@ -1184,7 +1626,6 @@ const styles = StyleSheet.create({
     lineHeight: 25,
   },
   storeTitleRow: {
-    flexDirection: "row",
     alignItems: "center",
   },
   storeTop: {

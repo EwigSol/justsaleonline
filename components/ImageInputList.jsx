@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { View } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 
 // External Libraries
 import DraggableFlatList from "react-native-draggable-flatlist";
 
 // Custom Components & Constants
 import ImageInput from "./ImageInput";
-import AppButton from "./AppButton";
 import { useStateValue } from "../StateProvider";
 import { __ } from "../language/stringPicker";
+import { AntDesign } from "@expo/vector-icons";
+import { COLORS } from "../variables/color";
 
 const ImageInputList = ({
   imageUris = [],
@@ -19,7 +20,7 @@ const ImageInputList = ({
 }) => {
   const [{ appSettings }] = useStateValue();
   const [photoModalVisible, setPhotoModalVisible] = useState(false);
-  const renderImageItem = ({ item, drag, isActive }) => {
+  const renderImageItem = ({ item, drag, isActive, index }) => {
     return (
       <ImageInput
         imageUri={item}
@@ -27,18 +28,47 @@ const ImageInputList = ({
         drag={drag}
         active={isActive}
         display={true}
+        index={index}
       />
     );
   };
 
   return (
-    <>
-      <View
-        style={{
-          paddingHorizontal: "3%",
-          marginVertical: !imageUris.length ? 15 / 2 : 15,
+    <View
+      style={{
+        marginVertical: !imageUris.length ? 15 / 2 : 15,
+        flexDirection: "row",
+        alignItems: "center",
+      }}
+    >
+      <TouchableOpacity
+        style={{ alignItems: "center", paddingHorizontal: 5 }}
+        onPress={() => {
+          setPhotoModalVisible(true);
         }}
+        disabled={imageUris.length >= maxCount}
       >
+        <View
+          style={{
+            backgroundColor: COLORS.primary,
+            height: 50,
+            width: 50,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 25,
+          }}
+        >
+          <AntDesign name="plus" size={28} color={COLORS.white} />
+        </View>
+        <View style={{ paddingTop: 5 }}>
+          <Text style={{ fontSize: 12, color: COLORS.text_light }}>
+            {!maxCount || maxCount == 1
+              ? __("imageInputListTexts.addPhotoButtonTitle", appSettings.lng)
+              : __("imageInputListTexts.addPhotosButtonTitle", appSettings.lng)}
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <View style={{ flex: 1 }}>
         <DraggableFlatList
           ListHeaderComponent={
             imageUris.length < maxCount && (
@@ -62,21 +92,7 @@ const ImageInputList = ({
           horizontal
         />
       </View>
-      <View style={{ alignItems: "center" }}>
-        <AppButton
-          title={
-            !maxCount || maxCount == 1
-              ? __("imageInputListTexts.addPhotoButtonTitle", appSettings.lng)
-              : __("imageInputListTexts.addPhotosButtonTitle", appSettings.lng)
-          }
-          style={{ width: "40%" }}
-          onPress={() => {
-            setPhotoModalVisible(true);
-          }}
-          disabled={imageUris.length >= maxCount}
-        />
-      </View>
-    </>
+    </View>
   );
 };
 

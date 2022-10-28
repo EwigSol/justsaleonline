@@ -58,15 +58,6 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: COLORS.button.disabled,
   },
-  buttonLogin: {
-    display: "flex",
-    borderRadius: 3,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
-    width: "100%",
-    backgroundColor: COLORS.button.login,
-  },
   loading: {
     left: 0,
     right: 0,

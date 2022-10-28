@@ -20,7 +20,11 @@ import * as Yup from "yup";
 import moment from "moment";
 
 // Vector Icons
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  FontAwesome5,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 
 // Custom Components & Functions
@@ -30,6 +34,7 @@ import api, { setAuthToken, removeAuthToken } from "../api/client";
 import { decodeString } from "../helper/helper";
 import { __ } from "../language/stringPicker";
 import { routes } from "../navigation/routes";
+import SendIcon from "../components/svgComponents/SendIcon";
 
 const chatScreenImagesUrls = {
   fallbackImageUrl: require("../assets/200X150.png"),
@@ -54,7 +59,6 @@ const ChatScreen = ({ navigation, route }) => {
     recipient_id: parseInt(route.params.recipient_id) || 0,
   });
   const scrollView = useRef();
-  console.log(route.params);
   // scroll to end effect
   useEffect(() => {
     if (loading) return;
@@ -215,6 +219,7 @@ const ChatScreen = ({ navigation, route }) => {
         width: "100%",
         marginVertical: 15,
         alignItems: sender ? "flex-end" : "flex-start",
+        paddingHorizontal: "3%",
       }}
     >
       <View style={styles.messageBubble}>
@@ -256,12 +261,20 @@ const ChatScreen = ({ navigation, route }) => {
           flexDirection: "row",
         }}
       >
-        <Text style={{ fontSize: 12, color: COLORS.text_gray }}>{time}</Text>
+        <Text
+          style={{
+            fontSize: 12,
+            color: COLORS.text_gray,
+            paddingHorizontal: sender ? 5 : 12,
+          }}
+        >
+          {moment(time).format("D MMM, h:m a")}
+        </Text>
         {sender && (
           <MaterialCommunityIcons
             name={is_read ? "check-all" : "check"}
             size={15}
-            color={is_read ? COLORS.primary : COLORS.gray}
+            color={COLORS.gray}
           />
         )}
       </View>
@@ -280,7 +293,7 @@ const ChatScreen = ({ navigation, route }) => {
   };
 
   return !ios ? (
-    <>
+    <View style={{ flex: 1, backgroundColor: "#ededed" }}>
       {/* Chat Header Component */}
       {!!route?.params?.from && (
         <TouchableOpacity
@@ -294,7 +307,7 @@ const ChatScreen = ({ navigation, route }) => {
               flexDirection: "row",
               backgroundColor: COLORS.white,
               alignItems: "center",
-              height: 50,
+              paddingVertical: 10,
               paddingHorizontal: "3%",
             },
             rtlView,
@@ -306,16 +319,17 @@ const ChatScreen = ({ navigation, route }) => {
           <View
             style={{
               height: 50,
-              width: 70,
+              width: 50,
               alignItems: "center",
               justifyContent: "center",
               overflow: "hidden",
+              borderRadius: 25,
             }}
           >
             <Image
               style={{
                 height: 50,
-                width: 70,
+                width: 50,
                 resizeMode: "cover",
               }}
               source={
@@ -348,17 +362,27 @@ const ChatScreen = ({ navigation, route }) => {
             >
               {decodeString(listingData.title)}
             </Text>
-            <View>
-              <Text
-                style={{
-                  color: COLORS.text_gray,
-                  // writingDirection: "rtl",
-                  textAlign: rtl_support ? "right" : "left",
-                }}
-                numberOfLines={1}
-              >
-                {handleLocationNCategoryData()}
-              </Text>
+            <View
+              style={[{ flexDirection: "row", alignItems: "center" }, rtlView]}
+            >
+              <View style={styles.view}>
+                {rtl_support ? (
+                  <FontAwesome name="tag" size={14} color={COLORS.primary} />
+                ) : (
+                  <Ionicons name="pricetag" size={14} color={COLORS.primary} />
+                )}
+              </View>
+              <View style={{ paddingHorizontal: 5 }}>
+                <Text
+                  style={{
+                    color: COLORS.primary,
+                    textAlign: rtl_support ? "right" : "left",
+                  }}
+                  numberOfLines={1}
+                >
+                  {handleLocationNCategoryData()}
+                </Text>
+              </View>
             </View>
           </View>
         </TouchableOpacity>
@@ -373,7 +397,7 @@ const ChatScreen = ({ navigation, route }) => {
         </View>
       )}
       {!loading && (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: "#ededed" }}>
           {/* Chat List Component */}
           <ScrollView
             ref={scrollView}
@@ -432,15 +456,7 @@ const ChatScreen = ({ navigation, route }) => {
                 onPress={handleSubmit}
                 disabled={!!errors.message || !values.message.trim().length}
               >
-                <FontAwesome
-                  name="send-o"
-                  size={25}
-                  color={
-                    errors.message || !values.message.trim().length
-                      ? COLORS.gray
-                      : COLORS.primary
-                  }
-                />
+                <SendIcon fillColor={COLORS.red} />
               </TouchableOpacity>
             </View>
           )}
@@ -453,9 +469,9 @@ const ChatScreen = ({ navigation, route }) => {
           </Text>
         </View>
       )}
-    </>
+    </View>
   ) : (
-    <>
+    <View style={{ flex: 1, backgroundColor: "#ededed" }}>
       {/* Chat Header Component */}
       {!!route?.params?.from && (
         <TouchableOpacity
@@ -469,7 +485,7 @@ const ChatScreen = ({ navigation, route }) => {
               flexDirection: "row",
               backgroundColor: COLORS.white,
               alignItems: "center",
-              height: 50,
+              paddingVertical: 10,
               paddingHorizontal: "3%",
             },
             rtlView,
@@ -481,16 +497,17 @@ const ChatScreen = ({ navigation, route }) => {
           <View
             style={{
               height: 50,
-              width: 70,
+              width: 50,
               alignItems: "center",
               justifyContent: "center",
               overflow: "hidden",
+              borderRadius: 25,
             }}
           >
             <Image
               style={{
                 height: 50,
-                width: 70,
+                width: 50,
                 resizeMode: "cover",
               }}
               source={
@@ -507,6 +524,7 @@ const ChatScreen = ({ navigation, route }) => {
               marginLeft: rtl_support ? 0 : 10,
               marginRight: rtl_support ? 10 : 0,
               flex: 1,
+              // flexDirection: "column-reverse",
             }}
           >
             <Text
@@ -515,20 +533,34 @@ const ChatScreen = ({ navigation, route }) => {
                   fontWeight: "bold",
                   fontSize: 16,
                   color: COLORS.text_dark,
+                  textAlign: rtl_support ? "right" : "left",
                 },
-                rtlText,
               ]}
               numberOfLines={1}
             >
               {decodeString(listingData.title)}
             </Text>
-            <View>
-              <Text
-                style={[{ color: COLORS.text_gray }, rtlText]}
-                numberOfLines={1}
-              >
-                {handleLocationNCategoryData()}
-              </Text>
+            <View
+              style={[{ flexDirection: "row", alignItems: "center" }, rtlView]}
+            >
+              <View style={styles.view}>
+                {rtl_support ? (
+                  <FontAwesome name="tag" size={14} color={COLORS.primary} />
+                ) : (
+                  <Ionicons name="pricetag" size={14} color={COLORS.primary} />
+                )}
+              </View>
+              <View style={{ paddingHorizontal: 5 }}>
+                <Text
+                  style={{
+                    color: COLORS.primary,
+                    textAlign: rtl_support ? "right" : "left",
+                  }}
+                  numberOfLines={1}
+                >
+                  {handleLocationNCategoryData()}
+                </Text>
+              </View>
             </View>
           </View>
         </TouchableOpacity>
@@ -604,15 +636,7 @@ const ChatScreen = ({ navigation, route }) => {
                     onPress={handleSubmit}
                     disabled={!!errors.message || !values.message.trim().length}
                   >
-                    <FontAwesome
-                      name="send-o"
-                      size={25}
-                      color={
-                        errors.message || !values.message.trim().length
-                          ? COLORS.gray
-                          : COLORS.primary
-                      }
-                    />
+                    <SendIcon fillColor={COLORS.red} />
                   </TouchableOpacity>
                 </View>
               )}
@@ -627,7 +651,7 @@ const ChatScreen = ({ navigation, route }) => {
           )}
         </KeyboardAvoidingView>
       )}
-    </>
+    </View>
   );
 };
 
@@ -638,17 +662,19 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     marginHorizontal: "2%",
     marginVertical: 5,
+    borderRadius: 30,
   },
   chatInput: {
     minHeight: 40,
     backgroundColor: COLORS.white,
-    paddingHorizontal: 5,
     flex: 1,
     paddingTop: Platform.OS === "ios" ? 11 : 0,
+    borderRadius: 30,
+    paddingHorizontal: 15,
   },
 
   container: {
-    backgroundColor: COLORS.bg_dark,
+    backgroundColor: "#ededed",
     flex: 1,
   },
   deletedMessageWrap: {
@@ -666,7 +692,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     opacity: 1,
-    backgroundColor: "transparent",
+    backgroundColor: COLORS.bg_dark,
     justifyContent: "center",
     alignItems: "center",
     zIndex: 5,
@@ -680,12 +706,17 @@ const styles = StyleSheet.create({
   messageBubble: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 10,
+    borderRadius: 5,
     backgroundColor: COLORS.white,
     flex: 1,
   },
   sendButton: {
-    paddingHorizontal: 10,
+    padding: 6,
+    marginHorizontal: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.bg_primary,
+    borderRadius: 20,
   },
 });
 

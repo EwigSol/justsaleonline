@@ -38,65 +38,52 @@ const SelectCategoryScreen = ({ route, navigation }) => {
   const Category = ({ index, onPress, item }) => (
     <TouchableOpacity
       onPress={onPress}
-      style={[
-        {
-          justifyContent: "flex-start",
-          alignItems: "center",
-          width: screenWidth / 4,
-          minHeight: windowHeight / 7,
-          paddingVertical: 10,
-          paddingHorizontal: 5,
-          backgroundColor: COLORS.bg_light,
+      style={{
+        alignItems: "center",
+        width: (screenWidth * 0.88) / 3,
+        paddingTop: "5%",
+        backgroundColor: COLORS.white,
+        marginHorizontal: screenWidth * 0.015,
+        height: (screenWidth * 0.88 * 1.04) / 3,
+        marginBottom: screenWidth * 0.03,
+        borderRadius: 5,
+        overflow: "hidden",
+        shadowColor: COLORS.black,
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        shadowOffset: {
+          height: 2,
+          width: 2,
         },
-        index % 4 !== 0 && {
-          borderLeftWidth: 1,
-          borderLeftColor: COLORS.bg_dark,
-        },
-        categoryData.length - 1 === index && {
-          borderRightWidth: 1,
-        },
-      ]}
+        elevation: 5,
+      }}
     >
+      {item?.icon?.url ? (
+        <CategoryImage size={(screenWidth * 0.88) / 9} uri={item.icon.url} />
+      ) : (
+        <CategoryIcon
+          iconName={item.icon.class}
+          iconSize={(screenWidth * 0.88) / 9}
+          iconColor={
+            currentCategory.includes(item.term_id)
+              ? COLORS.white
+              : COLORS.primary
+          }
+        />
+      )}
       <View
-        style={[
-          {
-            height: screenWidth / 8,
-            width: screenWidth / 8,
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: currentCategory.includes(item.term_id)
-              ? COLORS.primary
-              : COLORS.white,
-            borderRadius: screenWidth / 16,
-          },
-          ios
-            ? {
-                shadowColor: "#000",
-                shadowOffset: { width: -2, height: 2 },
-                shadowOpacity: 0.2,
-                shadowRadius: 3,
-              }
-            : { elevation: 2 },
-        ]}
+        style={{
+          paddingTop: "12%",
+          alignItems: "center",
+          paddingHorizontal: 5,
+          flex: 1,
+          justifyContent: "center",
+        }}
       >
-        {item?.icon?.url ? (
-          <CategoryImage size={screenWidth / 20} uri={item.icon.url} />
-        ) : (
-          <CategoryIcon
-            iconName={item.icon.class}
-            iconSize={screenWidth / 20}
-            iconColor={
-              currentCategory.includes(item.term_id)
-                ? COLORS.white
-                : COLORS.primary
-            }
-          />
-        )}
+        <Text style={{ textAlign: "center", marginTop: 5 }} numberOfLines={2}>
+          {decodeString(item.name)}
+        </Text>
       </View>
-
-      <Text style={{ textAlign: "center", marginTop: 5 }}>
-        {decodeString(item.name)}
-      </Text>
     </TouchableOpacity>
   );
   const Picker = () => (
@@ -236,6 +223,35 @@ const SelectCategoryScreen = ({ route, navigation }) => {
     flexDirection: "row-reverse",
   };
 
+  const ListHeaderComponent = () => (
+    <View
+      style={[
+        {
+          paddingHorizontal: "3%",
+          justifyContent: "center",
+          height: 37,
+          alignItems: rtl_support ? "flex-end" : "flex-start",
+          marginVertical: 10,
+        },
+        rtlView,
+      ]}
+    >
+      <Text
+        style={[
+          {
+            fontSize: 16,
+            fontWeight: "bold",
+            paddingHorizontal: 5,
+            color: COLORS.text_dark,
+          },
+          rtlText,
+        ]}
+      >
+        {__("selectCategoryScreenTexts.allCategory", appSettings.lng)}
+      </Text>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       {loading && (
@@ -243,88 +259,52 @@ const SelectCategoryScreen = ({ route, navigation }) => {
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       )}
-      {!currentCategory.length && (
-        <>
-          <View
-            style={[
-              {
-                backgroundColor: COLORS.bg_light,
-                paddingHorizontal: "3%",
-                flexDirection: "row",
-                alignItems: "center",
-                height: 37,
-              },
-              rtlView,
-            ]}
-          >
-            <View
-              style={{
-                height: 10,
-                width: 3,
-                backgroundColor: COLORS.primary,
-                borderRadius: 3,
-              }}
-            ></View>
-            <Text
-              style={[
-                {
-                  fontSize: 12,
-                  fontWeight: "bold",
-                  paddingHorizontal: 5,
-                },
-                rtlText,
-              ]}
-            >
-              {__("selectCategoryScreenTexts.allCategory", appSettings.lng)}
-            </Text>
-          </View>
-          <View
-            style={{
-              height: windowHeight - (73 + 37 + 50),
+      {!currentCategory?.length && (
+        <View
+          style={{
+            flex: 1,
+          }}
+        >
+          <FlatList
+            data={categoryData[0]}
+            renderItem={renderCategory}
+            keyExtractor={keyExtractor}
+            numColumns={3}
+            contentContainerStyle={{
+              paddingHorizontal: screenWidth * 0.015,
             }}
-          >
-            <FlatList
-              data={categoryData[0]}
-              renderItem={renderCategory}
-              keyExtractor={keyExtractor}
-              numColumns={4}
-              ItemSeparatorComponent={({ highlighted }) => (
-                <View style={styles.itemSeparator} />
-              )}
-              contentContainerStyle={{
-                borderTopWidth: 1,
-                borderBottomWidth: 1,
-                borderColor: COLORS.bg_dark,
-              }}
-              showsVerticalScrollIndicator={false}
-            />
-          </View>
-        </>
+            showsVerticalScrollIndicator={false}
+            ListHeaderComponent={ListHeaderComponent}
+          />
+        </View>
       )}
-      <View style={styles.catPickerWrap}>
-        <ScrollView>
-          {!loading && Object.keys(categoryData).length > 1 && !bottomLevel && (
-            <>
-              {!!currentCategory.length &&
-                currentCategory.map((cat, index) => (
-                  <TouchableOpacity
-                    key={cat}
-                    style={[styles.selected, rtlView]}
-                    onPress={() => handleSelectedCatagoryTouch(cat, index)}
-                  >
-                    <Text style={[styles.selectedText, rtlText]}>
-                      {decodeString(
-                        categoryData[index].find((i) => i.term_id === cat).name
-                      )}
-                    </Text>
-                    <Entypo name="cross" size={20} color={COLORS.primary} />
-                  </TouchableOpacity>
-                ))}
-              <Picker />
-            </>
-          )}
-        </ScrollView>
-      </View>
+      {!!currentCategory?.length && (
+        <View style={styles.catPickerWrap}>
+          <ScrollView>
+            {!loading && Object.keys(categoryData).length > 1 && !bottomLevel && (
+              <>
+                {!!currentCategory.length &&
+                  currentCategory.map((cat, index) => (
+                    <TouchableOpacity
+                      key={cat}
+                      style={[styles.selected, rtlView]}
+                      onPress={() => handleSelectedCatagoryTouch(cat, index)}
+                    >
+                      <Text style={[styles.selectedText, rtlText]}>
+                        {decodeString(
+                          categoryData[index].find((i) => i.term_id === cat)
+                            .name
+                        )}
+                      </Text>
+                      <Entypo name="cross" size={20} color={COLORS.primary} />
+                    </TouchableOpacity>
+                  ))}
+                <Picker />
+              </>
+            )}
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 };
@@ -334,9 +314,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   catPickerWrap: {
-    height: windowHeight - Constants.statusBarHeight - 50 - 50,
+    flex: 1,
   },
-  container: {},
+  container: { flex: 1, backgroundColor: COLORS.bg_dark },
   itemSeparator: {
     height: 1,
     backgroundColor: COLORS.bg_dark,

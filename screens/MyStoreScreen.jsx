@@ -25,7 +25,6 @@ import moment from "moment";
 // {* Vector Icons *}
 import { Fontisto } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 // {* Custom Components and Variables *}
@@ -41,7 +40,9 @@ import AppTextButton from "../components/AppTextButton";
 import { COLORS } from "../variables/color";
 import OHTimePicker from "../components/OHTimePicker";
 import FlashNotification from "../components/FlashNotification";
-import { __ } from "../language/stringPicker";
+import { getWeek, __ } from "../language/stringPicker";
+import GalleryButtonIcon from "../components/svgComponents/GalleryButtonIcon";
+import CameraButtonIcon from "../components/svgComponents/CameraButtonIcon";
 
 const myStoreIcons = {
   bannerTitleIcon: require("../assets/gallery_icon.png"),
@@ -66,40 +67,40 @@ const week = [
 ];
 
 const defaultOpeningHours = {
-  saturday: {
-    active: 1,
-    open: "1:00:00 PM",
-    close: "1:00:00 PM",
-  },
   sunday: {
     active: 1,
-    open: "1:00:00 PM",
-    close: "1:00:00 PM",
+    open: "8:00:00 AM",
+    close: "10:00:00 PM",
   },
   monday: {
     active: 1,
-    open: "1:00:00 PM",
-    close: "1:00:00 PM",
+    open: "8:00:00 AM",
+    close: "10:00:00 PM",
   },
   tuesday: {
     active: 1,
-    open: "1:00:00 PM",
-    close: "1:00:00 PM",
+    open: "8:00:00 AM",
+    close: "10:00:00 PM",
   },
   wednesday: {
     active: 1,
-    open: "1:00:00 PM",
-    close: "1:00:00 PM",
+    open: "8:00:00 AM",
+    close: "10:00:00 PM",
   },
   thursday: {
     active: 1,
-    open: "1:00:00 PM",
-    close: "1:00:00 PM",
+    open: "8:00:00 AM",
+    close: "10:00:00 PM",
   },
   friday: {
     active: 1,
-    open: "1:00:00 PM",
-    close: "1:00:00 PM",
+    open: "8:00:00 AM",
+    close: "10:00:00 PM",
+  },
+  saturday: {
+    active: 1,
+    open: "8:00:00 AM",
+    close: "10:00:00 PM",
   },
 };
 
@@ -188,6 +189,7 @@ const MyStoreScreen = (props) => {
   const [flashNotification, setFlashNotification] = useState(false);
   const [flashNotificationMessage, setFlashNotificationMessage] = useState();
   const [userHasNoStore, setUserHasNoStore] = useState(false);
+  const [weekDays, setWeekDays] = useState(getWeek(appSettings.lng) || {});
 
   // {* Initial Get Store Information Call *}
   useEffect(() => {
@@ -232,7 +234,12 @@ const MyStoreScreen = (props) => {
   };
 
   const LogoPickerModal = () => (
-    <Modal animationType="fade" transparent={true} visible={logoPickerVisible}>
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={logoPickerVisible}
+      statusBarTranslucent
+    >
       <TouchableWithoutFeedback
         onPress={() =>
           setLogoPickerVisible(
@@ -255,10 +262,10 @@ const MyStoreScreen = (props) => {
               onPress={() => requestCameraParmission("logo")}
               disabled={logoLoading || bannerLoading}
             >
-              <FontAwesome
-                name="camera-retro"
-                size={40}
-                color={COLORS.primary}
+              <CameraButtonIcon
+                fillColor={COLORS.bg_primary}
+                strokeColor={COLORS.primary}
+                iconColor={COLORS.primary}
               />
               <Text style={[styles.libraryText, rtlText]}>
                 {__("myStoreTexts.imagePickerCameraText", appSettings.lng)}
@@ -269,7 +276,11 @@ const MyStoreScreen = (props) => {
               onPress={() => requestGalleryParmission("logo")}
               disabled={logoLoading || bannerLoading}
             >
-              <Ionicons name="md-images" size={40} color={COLORS.primary} />
+              <GalleryButtonIcon
+                fillColor="#EBF9FF"
+                strokeColor="#2267ED"
+                iconColor="#2267ED"
+              />
               <Text style={[styles.libraryText, rtlText]}>
                 {__("myStoreTexts.imagePickerGalleryText", appSettings.lng)}
               </Text>
@@ -283,6 +294,7 @@ const MyStoreScreen = (props) => {
                 (prevLogoPickerVisible) => !prevLogoPickerVisible
               )
             }
+            textStyle={{ color: COLORS.text_dark, fontWeight: "bold" }}
           />
         </View>
       </View>
@@ -294,6 +306,7 @@ const MyStoreScreen = (props) => {
       animationType="fade"
       transparent={true}
       visible={bannerPickerVisible}
+      statusBarTranslucent
     >
       <TouchableWithoutFeedback
         onPress={() =>
@@ -317,10 +330,10 @@ const MyStoreScreen = (props) => {
               onPress={() => requestCameraParmission("banner")}
               disabled={logoLoading || bannerLoading}
             >
-              <FontAwesome
-                name="camera-retro"
-                size={40}
-                color={COLORS.primary}
+              <CameraButtonIcon
+                fillColor={COLORS.bg_primary}
+                strokeColor={COLORS.primary}
+                iconColor={COLORS.primary}
               />
               <Text style={[styles.libraryText, , rtlText]}>
                 {__("myStoreTexts.imagePickerCameraText", appSettings.lng)}
@@ -331,7 +344,11 @@ const MyStoreScreen = (props) => {
               onPress={() => requestGalleryParmission("banner")}
               disabled={logoLoading || bannerLoading}
             >
-              <Ionicons name="md-images" size={40} color={COLORS.primary} />
+              <GalleryButtonIcon
+                fillColor="#EBF9FF"
+                strokeColor="#2267ED"
+                iconColor="#2267ED"
+              />
               <Text style={[styles.libraryText, , rtlText]}>
                 {__("myStoreTexts.imagePickerGalleryText", appSettings.lng)}
               </Text>
@@ -345,6 +362,7 @@ const MyStoreScreen = (props) => {
                 (prevBannerPickerVisible) => !prevBannerPickerVisible
               )
             }
+            textStyle={{ color: COLORS.text_dark, fontWeight: "bold" }}
           />
         </View>
       </View>
@@ -894,7 +912,7 @@ const MyStoreScreen = (props) => {
                   </View>
                   {storeOpeningHoursType === "selected" && (
                     <View style={styles.openingHourPickerWrap}>
-                      {week.map((day) => (
+                      {week.map((day, index) => (
                         <View
                           style={[styles.dayOHPickerWrap, rtlView]}
                           key={day}
@@ -930,7 +948,9 @@ const MyStoreScreen = (props) => {
                                 },
                               ]}
                             >
-                              <Text style={styles.dayOHPickerText}>{day}</Text>
+                              <Text style={styles.dayOHPickerText}>
+                                {weekDays[index]}
+                              </Text>
                             </View>
                           </View>
                           {!!storeOpeningHours[day]?.active ? (
@@ -1504,7 +1524,11 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   cancelButton: {
-    marginTop: 20,
+    marginTop: 10,
+    backgroundColor: "#e5e5e5",
+    paddingHorizontal: 15,
+    paddingVertical: 7,
+    borderRadius: 6,
   },
   centeredView: {
     flex: 1,
@@ -1536,7 +1560,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dayOHPickerText: {
-    textTransform: "capitalize",
+    // textTransform: "capitalize",
   },
   dayOHPickerTextWrap: {
     justifyContent: "center",
@@ -1552,7 +1576,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   libraryText: {
-    fontSize: 16,
+    fontSize: 14.5,
     color: COLORS.text_gray,
     marginVertical: 10,
   },
@@ -1598,17 +1622,9 @@ const styles = StyleSheet.create({
   modalView: {
     backgroundColor: "white",
     borderRadius: 5,
-    paddingVertical: 30,
-    paddingHorizontal: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 25,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
 
   radioButtonText: {
@@ -1636,13 +1652,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "rgba(0,0,0,0.2)",
+    backgroundColor: "rgba(0,0,0,0.7)",
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: COLORS.text_gray,
-    marginBottom: 25,
+    color: COLORS.text_dark,
+    marginBottom: 15,
   },
   noStore: {
     flex: 1,

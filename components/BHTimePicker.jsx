@@ -49,7 +49,10 @@ const BHTimePicker = ({ day, type, onSelectTime, value, is12Hour, serial }) => {
         { alignItems: rtl_support ? "flex-end" : "flex-start" },
       ]}
     >
-      <Text style={[styles.text, rtlTextA]} onPress={showTimepicker}>
+      <Text
+        style={[{ color: COLORS.text_gray }, rtlTextA]}
+        onPress={showTimepicker}
+      >
         {value}
       </Text>
 

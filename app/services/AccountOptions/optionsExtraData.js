@@ -1,66 +1,74 @@
+import { routes } from "../../../navigation/routes";
 const optionsExtraData = {
   my_listings: {
-    routeName: "My Listings",
+    routeName: routes.myListingsScreen,
     icon: "hdd-o",
-    assetUri: require("../../../assets/my_listings.png"),
     id: "my_listings",
   },
   favourite: {
-    routeName: "Favourite",
+    routeName: routes.favouriteScreen,
     icon: "star",
-    assetUri: require("../../../assets/favorites.png"),
     id: "favourite",
   },
   my_membership: {
-    routeName: "My Membership",
+    routeName: routes.myMembershipScreen,
     icon: "diamond",
-    assetUri: require("../../../assets/my_membership.png"),
     id: "my_membership",
   },
   my_store: {
-    routeName: "My Store Settings",
+    routeName: routes.myStoreScreen,
     icon: "store_icon",
     assetUri: require("../../../assets/store_icon.png"),
     id: "my_store",
   },
   all_stores: {
-    routeName: "Stores",
-    icon: "store_icon",
-    assetUri: require("../../../assets/all_store_icon.png"),
+    routeName: routes.allStoresScreen,
     id: "all_stores",
   },
 
   my_profile: {
-    routeName: "My Profile",
+    routeName: routes.myProfileScreen,
     icon: "user",
-    assetUri: require("../../../assets/my_profile.png"),
     id: "my_profile",
   },
 
   payments: {
-    routeName: "Payments",
+    routeName: routes.paymentsScreen,
     icon: "money",
-    assetUri: require("../../../assets/payments.png"),
     id: "payments",
+  },
+  my_documents: {
+    routeName: routes.documentsScreen,
+    id: "my_documents",
   },
 
   faq: {
-    routeName: "FAQ",
-    icon: "question-circle",
-    assetUri: require("../../../assets/faq.png"),
+    routeName: routes.fAQScreen,
     id: "faq",
   },
   how_to_sell_fast: {
-    routeName: "How To Sell Fast",
-    icon: "key",
-    assetUri: require("../../../assets/how_to_sell_fast.png"),
+    routeName: routes.howToSellFastScreen,
     id: "how_to_sell_fast",
   },
-  more: {
-    routeName: "More",
-    icon: "ellipsis-h",
-    assetUri: require("../../../assets/more.png"),
-    id: "more",
+  about: {
+    routeName: routes.aboutAppScreen,
+    id: "about",
+  },
+  pp: {
+    routeName: routes.privacyPolicyScreen,
+    id: "pp",
+  },
+  tnc: {
+    routeName: routes.tnCScreen,
+    id: "tnc",
+  },
+  contact: {
+    routeName: routes.contactUsScreen,
+    id: "contact",
+  },
+  settings: {
+    routeName: routes.settingsScreen,
+    id: "settings",
   },
 };
 

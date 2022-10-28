@@ -20,7 +20,14 @@ const App = () => {
     }),
   });
   // TODO: This is a temporary fix for the "Componentwillreceiveprops has been renamed" development warning
-  LogBox.ignoreLogs(["componentWillReceiveProps"]);
+  LogBox.ignoreLogs([
+    "componentWillReceiveProps",
+    "componentWillReceiveProps has been renamed, and is not recommended for use.",
+    "AsyncStorage has been extracted from react-native core and will be removed in a future release",
+    "ViewPropTypes will be removed from React Native. Migrate to ViewPropTypes exported from 'deprecated-react-native-prop-types'",
+    "`new NativeEventEmitter()` was called with a non-null argument without the required",
+    "EventEmitter.removeListener('url', ...): Method has been deprecated. Please instead use `remove()` on the subscription returned by `EventEmitter.addListener`",
+  ]);
   return (
     <StateProvider initialState={initialState} reducer={reducer}>
       <Screen>

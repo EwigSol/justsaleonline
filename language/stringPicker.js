@@ -1,5 +1,4 @@
 const en = require("./en.json");
-const bn = require("./bn.json");
 const ar = require("./ar.json");
 const defaultLng = "en";
 
@@ -20,13 +19,20 @@ const __ = (keyString, selectedLanguage) => {
 };
 
 // Account Options
-const getAccountOptionsData = (selectedLanguage, userStatus) => {
-  let resData = userStatus
-    ? eval(selectedLanguage)["options_user"]
-    : eval(selectedLanguage)["options_no_user"];
+const getAccountOptionsData = (selectedLanguage) => {
+  let resData = eval(selectedLanguage)["options_user"];
   resData.map((_dat) => {
     _dat["assetUri"] = optionsExtraData[_dat.id].assetUri;
     _dat["icon"] = optionsExtraData[_dat.id].icon;
+    _dat["routeName"] = optionsExtraData[_dat.id].routeName;
+  });
+
+  return resData;
+};
+// Drawer Options
+const getDrawerOptionsData = (selectedLanguage) => {
+  let resData = eval(selectedLanguage)["options_drawer"];
+  resData.map((_dat) => {
     _dat["routeName"] = optionsExtraData[_dat.id].routeName;
   });
 
@@ -75,9 +81,14 @@ const getTnC = (selectedLanguage) => {
   let data = `${selectedLanguage}.${"termsAndConditions"}`;
   return eval(data);
 };
+// week
+const getWeek = (selectedLanguage) => {
+  let data = `${selectedLanguage}.${"weekDayNames"}`;
+  return eval(data);
+};
 
 const getRelativeTimeConfig = (selectedLanguage) => {
-  let data = `${defaultLng}.${"relativeTime"}`;
+  let data = `${selectedLanguage}.${"relativeTime"}`;
   return eval(data);
 };
 
@@ -90,6 +101,7 @@ export {
   getMoreOptionsData,
   getPrivacyPolicy,
   getTnC,
-  // defaultLng,
+  getWeek,
   getRelativeTimeConfig,
+  getDrawerOptionsData,
 };

@@ -1,8 +1,6 @@
 // External Libraries
-import { Html5Entities } from "html-entities";
+import { Html5Entities, decode } from "html-entities";
 import { __ } from "../language/stringPicker";
-
-const helperTexts = { callForPrice: "Call for price" };
 
 const getPrice = (config, priceData, lng) => {
   const price = priceData?.price || 0;
@@ -44,13 +42,15 @@ const getPrice = (config, priceData, lng) => {
 };
 
 const getCurrencySymbol = (config) => {
-  const entities = new Html5Entities();
-  return entities.decode(config.symbol);
+  // const entities = new Html5Entities();
+  // return entities.decode(config.symbol);
+  return decode(config.symbol);
 };
 
 const decodeString = (string) => {
-  const entities = new Html5Entities();
-  return entities.decode(string);
+  // const entities = new Html5Entities();
+  // return entities.decode(string);
+  return decode(string);
 };
 
 export { decodeString, getCurrencySymbol, getPrice };

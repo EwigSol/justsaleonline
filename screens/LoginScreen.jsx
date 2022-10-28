@@ -12,13 +12,15 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Dimensions,
+  Image,
 } from "react-native";
 
 import * as Facebook from "expo-facebook";
 import * as AppleAuthentication from "expo-apple-authentication";
 import * as GoogleSignIn from "expo-google-sign-in";
 
-import { Entypo, FontAwesome5 } from "@expo/vector-icons";
+import { Entypo, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 
 // External Libraries
@@ -28,7 +30,6 @@ import * as Yup from "yup";
 // Custom Components & Functions
 import AppButton from "../components/AppButton";
 import AppTextButton from "../components/AppTextButton";
-import AppSeparator from "../components/AppSeparator";
 import { useStateValue } from "../StateProvider";
 import api, { setAuthToken } from "../api/client";
 import { COLORS } from "../variables/color";
@@ -37,7 +38,15 @@ import FlashNotification from "../components/FlashNotification";
 import { __ } from "../language/stringPicker";
 import { socialConfig } from "../app/services/socialLoginConfig";
 import { routes } from "../navigation/routes";
+import ScatteredBg from "../components/svgComponents/ScatteredBg";
+import BuildingBg from "../components/svgComponents/BuildingBg";
+import UserIcon from "../components/svgComponents/UserIcon";
+import LockIcon from "../components/svgComponents/LockIcon";
+import EyeSlashIcon from "../components/svgComponents/EyeSlashIcon";
+import { firebaseConfig } from "../app/services/firebaseConfig";
+import { initializeApp } from "firebase/app";
 
+const { width: screenWidth } = Dimensions.get("window");
 const LoginScreen = ({ navigation }) => {
   const [{ ios, appSettings, rtl_support, push_token, config }, dispatch] =
     useStateValue();
@@ -75,31 +84,9 @@ const LoginScreen = ({ navigation }) => {
         ),
     })
   );
-  const [validationSchema_reset, setValidationSchema_reset] = useState(
-    Yup.object().shape({
-      user_login: Yup.string()
-        .required(
-          __("loginScreenTexts.formFieldsLabel.reset", appSettings.lng) +
-            " " +
-            __("loginScreenTexts.formValidation.requiredField", appSettings.lng)
-        )
-        .min(
-          3,
-          __("loginScreenTexts.formFieldsLabel.reset", appSettings.lng) +
-            " " +
-            __(
-              "loginScreenTexts.formValidation.minimumLength3",
-              appSettings.lng
-            )
-        ),
-    })
-  );
   const [responseErrorMessage, setResponseErrorMessage] = useState();
-  const [passResetErrorMessage, setPassResetResponseErrorMessage] = useState();
-  const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [passVisible, setPassVisible] = useState(false);
-  const [reset_Loading, setReset_Loading] = useState(false);
   const [flashNotification, setFlashNotification] = useState(false);
   const [flashNotificationMessage, setFlashNotificationMessage] = useState();
   const [socialOverlayActive, setSocialOverlayActive] = useState(false);
@@ -107,12 +94,15 @@ const LoginScreen = ({ navigation }) => {
   const [activeSocialType, setActiveSocialType] = useState();
 
   useEffect(() => {
-    initAsync();
+    if (
+      socialConfig?.enabled &&
+      socialConfig?.socialPlatforms?.includes("google")
+    ) {
+      initAsync();
+    }
   }, []);
   const initAsync = async () => {
     await GoogleSignIn.initAsync({
-      // You may ommit the clientId when the firebase `googleServicesFile` is configured
-      // clientId: "<YOUR_IOS_CLIENT_ID>",
       scopes: ["PROFILE", "EMAIL"],
       isOfflineEnabled: true,
       webClientId: socialConfig.google.webClientId,
@@ -195,7 +185,7 @@ const LoginScreen = ({ navigation }) => {
       });
     }
     api
-      .post("push-notification/register", {
+      .post("push-notification/add-device", {
         push_token: push_token,
         events: nCon,
       })
@@ -239,46 +229,6 @@ const LoginScreen = ({ navigation }) => {
         setSocialOverlayActive(false);
       }
     }, 1000);
-  };
-
-  const handleResetSuccess = (message) => {
-    setFlashNotificationMessage(message);
-    setTimeout(() => {
-      setFlashNotification(true);
-    }, 10);
-    setTimeout(() => {
-      setFlashNotification(false);
-    }, 2000);
-  };
-
-  const handlePassReset = (values) => {
-    setPassResetResponseErrorMessage();
-    setReset_Loading(true);
-    Keyboard.dismiss();
-    api
-      .post("reset-password", {
-        user_login: values.user_login,
-      })
-      .then((res) => {
-        if (res.ok) {
-          setReset_Loading(false);
-          setModalVisible(false);
-          handleResetSuccess(
-            __("loginScreenTexts.resetSuccessMessage", appSettings.lng)
-          );
-        } else {
-          setPassResetResponseErrorMessage(
-            res?.data?.error_message ||
-              res?.data?.error ||
-              res?.problem ||
-              __("loginScreenTexts.customResponseError", appSettings.lng)
-          );
-          setReset_Loading(false);
-        }
-      })
-      .catch((error) => {
-        alert("Error :", error);
-      });
   };
 
   const handleAppleLoginPress = async () => {
@@ -361,7 +311,7 @@ const LoginScreen = ({ navigation }) => {
     try {
       await Facebook.initializeAsync({
         appId: socialConfig.facebook.appID,
-        appName: socialConfig.facebook.appName,
+        // appName: socialConfig.facebook.appName,
       });
 
       const result = await Facebook.logInWithReadPermissionsAsync({
@@ -434,52 +384,107 @@ const LoginScreen = ({ navigation }) => {
     writingDirection: "rtl",
     textAlign: "right",
   };
+
+  const rtlView = rtl_support && {
+    flexDirection: "row-reverse",
+  };
   return (
     <KeyboardAvoidingView
       behavior={ios ? "padding" : "height"}
-      style={{ flex: 1 }}
-      keyboardVerticalOffset={80}
+      style={{ flex: 1, backgroundColor: "#f8f8f8" }}
+      // keyboardVerticalOffset={ios ? 80 : 0}
     >
-      <ScrollView
-        contentContainerStyle={[styles.container, { paddingBottom: 80 }]}
+      <TouchableOpacity
+        style={{ position: "absolute", padding: screenWidth * 0.03, zIndex: 5 }}
+        onPress={() => navigation.goBack()}
       >
-        <Text style={styles.loginNotice}>
-          {__("loginScreenTexts.loginTitle", appSettings.lng)}
-        </Text>
-        <View
-          style={[
-            styles.loginForm,
-            { marginBottom: socialConfig?.enabled ? 20 : 40 },
-          ]}
-        >
-          <Formik
-            initialValues={{ username: "", password: "" }}
-            onSubmit={handleLogin}
-            validationSchema={validationSchema}
+        <AntDesign name="arrowleft" size={20} color={COLORS.primary} />
+      </TouchableOpacity>
+      <View
+        style={{
+          alignItems: "center",
+          zIndex: 1,
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+        }}
+      >
+        <ScatteredBg fillColor="red" />
+      </View>
+      <ScrollView style={{ zIndex: 2 }}>
+        <View style={[styles.container]}>
+          <View
+            style={{
+              width: screenWidth,
+              height: screenWidth * 0.25,
+              alignItems: "center",
+              justifyContent: "center",
+              marginVertical: screenWidth * 0.05,
+            }}
           >
-            {({
-              handleChange,
-              handleSubmit,
-              values,
-              errors,
-              setFieldTouched,
-              touched,
-            }) => (
-              <View style={{ width: "100%" }}>
-                <View style={styles.inputWrap}>
-                  <TextInput
-                    style={[styles.input, rtlText]}
-                    onChangeText={handleChange("username")}
-                    onBlur={() => setFieldTouched("username")}
-                    value={values.username}
-                    placeholder={__(
-                      "loginScreenTexts.formFieldsPlaceholder.username",
-                      appSettings.lng
-                    )}
-                    autoCorrect={false}
-                    onFocus={() => setFieldTouched("username")}
-                    autoCapitalize="none"
-                  />
+            <Image
+              source={require("../assets/auth_logo.png")}
+              style={{
+                width: screenWidth * 0.5,
+                height: screenWidth * 0.25,
+                resizeMode: "contain",
+              }}
+            />
+          </View>
+          <View
+            style={{
+              marginBottom: 30,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "bold",
+                color: COLORS.text_dark,
+              }}
+            >
+              {__("loginScreenTexts.loginTitle", appSettings.lng)}
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.loginForm,
+              { marginBottom: socialConfig?.enabled ? 20 : 40 },
+            ]}
+          >
+            <Formik
+              initialValues={{ username: "", password: "" }}
+              onSubmit={handleLogin}
+              validationSchema={validationSchema}
+            >
+              {({
+                handleChange,
+                handleSubmit,
+                values,
+                errors,
+                setFieldTouched,
+                touched,
+              }) => (
+                <View style={{ width: "100%" }}>
+                  <View style={[styles.inputWrap, rtlView]}>
+                    <View style={styles.iconWrap}>
+                      <UserIcon fillColor={COLORS.primary} />
+                    </View>
+                    <TextInput
+                      style={[styles.input, rtlText]}
+                      onChangeText={handleChange("username")}
+                      onBlur={() => setFieldTouched("username")}
+                      value={values.username}
+                      placeholder={__(
+                        "loginScreenTexts.formFieldsPlaceholder.username",
+                        appSettings.lng
+                      )}
+                      autoCorrect={false}
+                      onFocus={() => setFieldTouched("username")}
+                      autoCapitalize="none"
+                    />
+                  </View>
                   <View style={styles.errorFieldWrap}>
                     {touched.username && errors.username && (
                       <Text style={[styles.errorMessage, rtlText]}>
@@ -487,27 +492,12 @@ const LoginScreen = ({ navigation }) => {
                       </Text>
                     )}
                   </View>
-                </View>
-                <View style={styles.inputWrap}>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      borderRadius: 3,
-                      height: 38,
-                      marginVertical: 10,
-                    }}
-                  >
+                  <View style={[styles.inputWrap, rtlView]}>
+                    <View style={styles.iconWrap}>
+                      <LockIcon fillColor={COLORS.primary} />
+                    </View>
                     <TextInput
-                      style={[
-                        styles.input,
-                        {
-                          flex: 1,
-                          borderTopRightRadius: 0,
-                          borderBottomRightRadius: 0,
-                        },
-                        rtlText,
-                      ]}
+                      style={[styles.input, rtlText]}
                       onChangeText={handleChange("password")}
                       onBlur={() => setFieldTouched("password")}
                       value={values.password}
@@ -529,22 +519,16 @@ const LoginScreen = ({ navigation }) => {
                       <View
                         style={{
                           width: 35,
-                          // paddingRight: 5,
-                          // backgroundColor: "red",
-                          height: "100%",
                           justifyContent: "center",
                           alignItems: "center",
-                          borderWidth: 1,
-                          borderColor: COLORS.border_light,
-                          borderTopRightRadius: 3,
-                          borderBottomRightRadius: 3,
-                          borderLeftWidth: 0,
                         }}
                       >
-                        <FontAwesome5
-                          name={passVisible ? "eye-slash" : "eye"}
-                          size={16}
-                          color={COLORS.text_gray}
+                        <EyeSlashIcon
+                          fillColor={
+                            passVisible
+                              ? COLORS.primary_soft
+                              : COLORS.text_light
+                          }
                         />
                       </View>
                     </TouchableWithoutFeedback>
@@ -556,241 +540,274 @@ const LoginScreen = ({ navigation }) => {
                       </Text>
                     )}
                   </View>
-                </View>
-                <View style={styles.loginBtnWrap}>
-                  <AppButton
-                    onPress={handleSubmit}
+                  <AppTextButton
                     title={__(
-                      "loginScreenTexts.loginButtonTitle",
+                      "loginScreenTexts.forgotPassword",
                       appSettings.lng
                     )}
-                    style={styles.loginBtn}
-                    textStyle={styles.loginBtnTxt}
-                    disabled={
-                      errors.username ||
-                      errors.password ||
-                      !touched.username ||
-                      socialOverlayActive
-                    }
-                    loading={loading}
+                    style={{
+                      alignItems: "flex-end",
+                      paddingHorizontal: "3%",
+                      paddingBottom: 10,
+                    }}
+                    textStyle={{ color: COLORS.text_gray, fontSize: 13 }}
+                    onPress={() => navigation.navigate(routes.forgotPassScreen)}
                   />
-                </View>
-                {responseErrorMessage && (
-                  <View style={styles.responseErrorWrap}>
-                    <Text style={styles.responseErrorMessage}>
-                      {responseErrorMessage}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            )}
-          </Formik>
-          <AppTextButton
-            title={__("loginScreenTexts.forgotPassword", appSettings.lng)}
-            style
-            textStyle
-            onPress={() => {
-              setModalVisible(true);
-            }}
-          />
-        </View>
-        {socialConfig?.enabled && (
-          <View style={styles.socialLoginWrap}>
-            {ios && (
-              <AppleAuthentication.AppleAuthenticationButton
-                buttonType={
-                  AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN
-                }
-                buttonStyle={
-                  AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
-                }
-                cornerRadius={3}
-                style={{ width: "100%", height: 40, marginBottom: 10 }}
-                onPress={handleAppleLoginPress}
-              />
-            )}
-            {socialConfig?.socialPlatforms.includes("facebook") && (
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "#3b5998",
-                  marginBottom: 10,
-                  padding: 10,
-                  alignItems: "center",
-                  borderRadius: 3,
-                  flexDirection: "row",
-                  justifyContent: "center",
-                }}
-                onPress={handleFacebookLoginPress}
-                disabled={socialOverlayActive || loading}
-              >
-                <View style={{ marginRight: 10 }}>
-                  <Entypo name="facebook" size={18} color={COLORS.white} />
-                </View>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    color: COLORS.white,
-                    fontWeight: "bold",
-                  }}
-                >
-                  {__(
-                    "loginScreenTexts.socialButtonTitle.facebook",
-                    appSettings.lng
-                  )}
-                </Text>
-              </TouchableOpacity>
-            )}
-
-            {socialConfig?.socialPlatforms?.includes("google") && (
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "#4285F4",
-                  marginBottom: 10,
-                  padding: 10,
-                  alignItems: "center",
-                  borderRadius: 3,
-                  flexDirection: "row",
-                  justifyContent: "center",
-                }}
-                onPress={signInAsyncGFB}
-                disabled={socialOverlayActive || loading}
-              >
-                <View style={{ marginRight: 10 }}>
-                  <AntDesign name="google" size={18} color={COLORS.white} />
-                </View>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    color: COLORS.white,
-                    fontWeight: "bold",
-                  }}
-                >
-                  {__(
-                    "loginScreenTexts.socialButtonTitle.google",
-                    appSettings.lng
-                  )}
-                </Text>
-              </TouchableOpacity>
-            )}
-            {!!socialErrorMessage && (
-              <View style={styles.responseErrorWrap}>
-                <Text style={styles.responseErrorMessage}>
-                  {socialErrorMessage}
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
-        <AppSeparator />
-        <View
-          style={[
-            styles.signUpPrompt,
-            { marginTop: socialConfig?.enabled ? 20 : 40 },
-          ]}
-        >
-          <Text style={styles.signUpPromptText}>
-            {__("loginScreenTexts.signUpPrompt", appSettings.lng)}
-          </Text>
-          <AppTextButton
-            title={__("loginScreenTexts.signUpButtonTitle", appSettings.lng)}
-            onPress={() => navigation.navigate(routes.signUpScreen)}
-          />
-        </View>
-        <View style={styles.centeredView}>
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-          >
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <Text style={styles.modalText}>
-                  {__("loginScreenTexts.forgotPassword", appSettings.lng)}
-                </Text>
-                <Text style={styles.modalText}>
-                  {__("loginScreenTexts.passwordReset", appSettings.lng)}
-                </Text>
-
-                <Formik
-                  initialValues={{ user_login: "" }}
-                  validationSchema={validationSchema_reset}
-                  onSubmit={handlePassReset}
-                >
-                  {({
-                    handleChange,
-
-                    handleSubmit,
-                    values,
-                    errors,
-                    setFieldTouched,
-                    touched,
-                  }) => (
-                    <View
-                      style={{
-                        width: "100%",
-                        alignItems: "center",
-                      }}
-                    >
-                      <TextInput
-                        style={[styles.modalEmail, rtlText]}
-                        onChangeText={handleChange("user_login")}
-                        onBlur={() => setFieldTouched("user_login")}
-                        value={values.user_login}
-                        placeholder={__(
-                          "loginScreenTexts.formFieldsPlaceholder.username",
-                          appSettings.lng
-                        )}
-                        autoCorrect={false}
-                        autoCapitalize="none"
-                      />
-                      <View style={styles.errorFieldWrap}>
-                        {touched.user_login && errors.user_login && (
-                          <Text style={[styles.errorMessage, rtlText]}>
-                            {errors.user_login}
-                          </Text>
-                        )}
-                      </View>
-                      <AppButton
-                        title={__(
-                          "loginScreenTexts.passwordResetButton",
-                          appSettings.lng
-                        )}
-                        style={styles.resetLink}
-                        onPress={handleSubmit}
-                        loading={reset_Loading}
-                        disabled={
-                          errors.user_login || values.user_login.length < 1
-                        }
-                      />
-                      {passResetErrorMessage && (
-                        <View style={styles.responseErrorWrap}>
-                          <Text style={styles.responseErrorMessage}>
-                            {passResetErrorMessage}
-                          </Text>
-                        </View>
+                  <View style={styles.loginBtnWrap}>
+                    <AppButton
+                      onPress={handleSubmit}
+                      title={__(
+                        "loginScreenTexts.loginButtonTitle",
+                        appSettings.lng
                       )}
-                      <AppTextButton
-                        title={__(
-                          "loginScreenTexts.cancelButtonTitle",
-                          appSettings.lng
-                        )}
-                        onPress={() => {
-                          setModalVisible(!modalVisible);
-                        }}
-                        textStyle={styles.cancelResetBtn}
-                      />
+                      style={styles.loginBtn}
+                      textStyle={styles.loginBtnTxt}
+                      disabled={
+                        errors.username ||
+                        errors.password ||
+                        !touched.username ||
+                        socialOverlayActive
+                      }
+                      loading={loading}
+                    />
+                  </View>
+                  {responseErrorMessage && (
+                    <View style={styles.responseErrorWrap}>
+                      <Text style={styles.responseErrorMessage}>
+                        {responseErrorMessage}
+                      </Text>
                     </View>
                   )}
-                </Formik>
+                </View>
+              )}
+            </Formik>
+          </View>
+          {socialConfig?.enabled && (
+            <View style={styles.socialLoginWrap}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: 20,
+                }}
+              >
+                <View
+                  style={{
+                    height: 1,
+                    width: screenWidth * 0.2,
+                    backgroundColor: COLORS.border_light,
+                  }}
+                />
+                <View style={{ paddingHorizontal: 10 }}>
+                  <Text
+                    style={[
+                      { fontWeight: "bold", color: COLORS.text_dark },
+                      rtlText,
+                    ]}
+                  >
+                    {__("loginScreenTexts.socialLoginText", appSettings.lng)}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    height: 1,
+                    width: screenWidth * 0.2,
+                    backgroundColor: COLORS.border_light,
+                  }}
+                />
               </View>
+              <View
+                style={{
+                  width: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                }}
+              >
+                {socialConfig?.socialPlatforms.includes("facebook") && (
+                  <TouchableOpacity
+                    style={[
+                      {
+                        backgroundColor: "#1877F2",
+                        marginBottom: 10,
+                        padding: 10,
+                        alignItems: "center",
+                        borderRadius: 3,
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        width: "48%",
+                        marginRight: rtl_support ? 0 : "2%",
+                        marginLeft: rtl_support ? "2%" : 0,
+                      },
+                      rtlView,
+                    ]}
+                    onPress={handleFacebookLoginPress}
+                    disabled={socialOverlayActive || loading}
+                  >
+                    <View
+                      style={
+                        rtl_support ? { marginLeft: 10 } : { marginRight: 10 }
+                      }
+                    >
+                      <FontAwesome
+                        name="facebook"
+                        size={18}
+                        color={COLORS.white}
+                      />
+                    </View>
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        color: COLORS.white,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {__(
+                        "loginScreenTexts.socialButtonTitle.facebook",
+                        appSettings.lng
+                      )}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+
+                {socialConfig?.socialPlatforms?.includes("google") && (
+                  <TouchableOpacity
+                    style={[
+                      {
+                        backgroundColor: COLORS.white,
+                        marginBottom: 10,
+                        padding: 10,
+                        alignItems: "center",
+                        borderRadius: 3,
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        width: "48%",
+                        marginLeft: rtl_support ? 0 : "2%",
+                        marginRight: rtl_support ? "2%" : 0,
+                        elevation: 1,
+                        shadowColor: COLORS.gray,
+                        shadowOpacity: 0.2,
+                        shadowRadius: 1,
+                        shadowOffset: {
+                          height: 1,
+                          width: 1,
+                        },
+                      },
+                      rtlView,
+                    ]}
+                    onPress={signInAsyncGFB}
+                    disabled={socialOverlayActive || loading}
+                  >
+                    <View
+                      style={[
+                        {
+                          height: 18,
+                          width: 18,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        },
+                        rtl_support ? { marginLeft: 10 } : { marginRight: 10 },
+                      ]}
+                    >
+                      <Image
+                        source={require("../assets/google_logo.png")}
+                        style={{
+                          height: 18,
+                          width: 18,
+                          resizeMode: "contain",
+                        }}
+                      />
+                    </View>
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        color: COLORS.text_gray,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {__(
+                        "loginScreenTexts.socialButtonTitle.google",
+                        appSettings.lng
+                      )}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                {ios && (
+                  <AppleAuthentication.AppleAuthenticationButton
+                    buttonType={
+                      AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN
+                    }
+                    buttonStyle={
+                      AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
+                    }
+                    cornerRadius={3}
+                    style={{ width: "100%", height: 40, marginBottom: 10 }}
+                    onPress={handleAppleLoginPress}
+                  />
+                )}
+              </View>
+              {!!socialErrorMessage && (
+                <View style={styles.responseErrorWrap}>
+                  <Text style={styles.responseErrorMessage}>
+                    {socialErrorMessage}
+                  </Text>
+                </View>
+              )}
             </View>
-          </Modal>
+          )}
         </View>
-        <FlashNotification
-          falshShow={flashNotification}
-          flashMessage={flashNotificationMessage}
-        />
       </ScrollView>
+      <View
+        style={[
+          {
+            // position: "absolute",
+            // bottom: 0,
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "row",
+            paddingBottom: 10,
+
+            zIndex: 2,
+          },
+          rtlView,
+        ]}
+      >
+        <Text style={{ fontSize: 13, color: COLORS.text_light }}>
+          {__("loginScreenTexts.signUpPrompt", appSettings.lng)}
+        </Text>
+        <AppTextButton
+          title={__("loginScreenTexts.signUpButtonTitle", appSettings.lng)}
+          onPress={() => {
+            if (
+              config?.verification?.gateway === "firebase" &&
+              firebaseConfig?.enabled
+            ) {
+              try {
+                initializeApp(firebaseConfig.config);
+              } catch (err) {
+                // ignore app already initialized error in snack
+              }
+            }
+            config?.verification
+              ? navigation.navigate(routes.oTPScreen, { source: "signup" })
+              : navigation.navigate(routes.signUpScreen);
+          }}
+          textStyle={{ fontSize: 13, fontWeight: "bold" }}
+          style={{ paddingHorizontal: 5 }}
+        />
+      </View>
+      <View
+        style={{ zIndex: 1, position: "absolute", width: "100%", bottom: 0 }}
+      >
+        <BuildingBg />
+      </View>
+      <FlashNotification
+        falshShow={flashNotification}
+        flashMessage={flashNotificationMessage}
+      />
       {socialOverlayActive && (
         <View style={styles.socialOverlayWrap}>
           <View
@@ -802,6 +819,7 @@ const LoginScreen = ({ navigation }) => {
               left: 0,
               right: 0,
               bottom: 0,
+              zIndex: 5,
             }}
           />
           <View
@@ -811,6 +829,7 @@ const LoginScreen = ({ navigation }) => {
               width: "60%",
               alignItems: "center",
               borderRadius: 10,
+              zIndex: 6,
             }}
           >
             <Text style={{ marginBottom: 20 }}>
@@ -841,31 +860,41 @@ const styles = StyleSheet.create({
   },
   container: {
     alignItems: "center",
-    paddingTop: 10,
   },
   errorFieldWrap: {
     height: 15,
     justifyContent: "center",
+    paddingHorizontal: "3%",
   },
   errorMessage: {
     fontSize: 12,
     color: COLORS.red,
   },
+  iconWrap: {
+    width: 35,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   input: {
-    // backgroundColor: COLORS.border_light,
-    borderRadius: 3,
-    marginVertical: 10,
     height: 38,
     justifyContent: "center",
     paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: COLORS.border_light,
+    flex: 1,
   },
   inputWrap: {
-    paddingHorizontal: "3%",
+    marginHorizontal: "3%",
+
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.white,
+    borderRadius: 3,
+    elevation: 1,
+    shadowColor: COLORS.gray,
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    shadowOffset: { height: 0, width: 0 },
   },
   loginBtn: {
-    backgroundColor: "#ffa110",
     height: 40,
     borderRadius: 3,
     marginVertical: 10,
@@ -944,6 +973,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: "center",
     justifyContent: "center",
+    zIndex: 5,
   },
 });
 

@@ -1,15 +1,16 @@
 import React from "react";
-import { View, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import { View, StyleSheet, TouchableWithoutFeedback, Text } from "react-native";
 
 // Vector Icons
-import { FontAwesome5 } from "@expo/vector-icons";
+import { Entypo, FontAwesome5 } from "@expo/vector-icons";
 
 // Custom Components & Functions
 import { COLORS } from "../variables/color";
 import { useStateValue } from "../StateProvider";
+import { __ } from "../language/stringPicker";
 
 const NewListingButton = ({ onPress }) => {
-  const [{ newListingScreen, user }] = useStateValue();
+  const [{ newListingScreen, user, appSettings }] = useStateValue();
   return (
     <View
       style={newListingScreen && user ? styles.buttonHidden : styles.button}
@@ -19,26 +20,32 @@ const NewListingButton = ({ onPress }) => {
           <View
             style={{
               alignItems: "center",
-              backgroundColor: "#ffbc8f",
-              borderRadius: 19,
-              height: 38,
+              backgroundColor: COLORS.primary,
+              borderRadius: 30,
               justifyContent: "center",
-              width: 38,
+              height: 45,
+              width: 45,
+              elevation: 15,
+              shadowColor: COLORS.primary,
+              shadowOpacity: 0.2,
+              shadowOffset: {
+                width: 15,
+                height: 15,
+              },
+              shadowRadius: 10,
             }}
           >
-            <View
-              style={{
-                alignItems: "center",
-                backgroundColor: "#ff6600",
-                borderRadius: 13,
-                height: 26,
-                justifyContent: "center",
-                width: 26,
-              }}
-            >
-              <FontAwesome5 name="plus" size={15} color="#fff" />
-            </View>
+            <Entypo name="plus" size={30} color="#fff" />
           </View>
+
+          <Text
+            style={{
+              fontSize: 11,
+              color: newListingScreen ? COLORS.primary : COLORS.text_gray,
+            }}
+          >
+            {__("tabTitles.newListing", appSettings.lng)}
+          </Text>
         </View>
       </TouchableWithoutFeedback>
     </View>
@@ -47,29 +54,15 @@ const NewListingButton = ({ onPress }) => {
 
 const styles = StyleSheet.create({
   button: {
-    bottom: 10,
+    bottom: 12,
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: COLORS.white,
-    height: 60,
-    width: 60,
-    borderRadius: 30,
   },
   buttonHidden: {
     alignItems: "center",
   },
-  buttonTitle: {
-    textTransform: "uppercase",
-    fontSize: 9,
-  },
 
   content: {
     alignItems: "center",
-    backgroundColor: "#ffe0cc",
-    borderRadius: 25,
-    height: 50,
-    justifyContent: "center",
-    width: 50,
   },
 });
 

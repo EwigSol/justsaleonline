@@ -21,7 +21,7 @@ import { routes } from "../navigation/routes";
 const { width: windowWidth } = Dimensions.get("window");
 
 const allStoresFallBackImages = {
-  storeCardLogo: require("../assets/200X150.png"),
+  storeCardLogo: require("../assets/100x100.png"),
 };
 
 const AllStores = ({ navigation }) => {
@@ -190,7 +190,7 @@ const AllStores = ({ navigation }) => {
         scrollEventThrottle={1}
         ListEmptyComponent={EmptyListComponent}
         contentContainerStyle={{
-          marginHorizontal: windowWidth * 0.02,
+          marginHorizontal: windowWidth * 0.015,
           paddingVertical: 20,
         }}
       />
@@ -201,7 +201,7 @@ const AllStores = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bg_light,
+    backgroundColor: "#F8F8F8",
   },
   loading: {
     left: 0,
@@ -235,31 +235,25 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   storeContent: {
-    height: windowWidth * 0.32,
-    width: windowWidth * 0.3,
-    backgroundColor: COLORS.white,
-    overflow: "hidden",
     alignItems: "center",
     padding: 5,
-    borderBottomLeftRadius: 5,
-    borderBottomRightRadius: 5,
   },
   storeWrap: {
-    height: windowWidth * 0.33,
-    width: windowWidth * 0.3,
-    marginHorizontal: windowWidth * 0.01,
-    backgroundColor: COLORS.primary,
-    marginBottom: windowWidth * 0.02,
+    // height: (windowWidth * 0.88) / 3,
+    width: (windowWidth * 0.88) / 3,
+    marginHorizontal: windowWidth * 0.015,
+    backgroundColor: COLORS.white,
+    marginBottom: windowWidth * 0.03,
     borderRadius: 5,
-    overflow: "hidden",
+    // overflow: "hidden",
     alignItems: "center",
     elevation: 3,
-    shadowColor: COLORS.black,
-    shadowOpacity: 0.3,
+    shadowColor: COLORS.gray,
+    shadowOpacity: 0.1,
     shadowRadius: 3,
     shadowOffset: {
-      height: 0,
-      width: 0,
+      height: 2,
+      width: 2,
     },
   },
 });

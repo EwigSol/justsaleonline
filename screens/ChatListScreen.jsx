@@ -14,6 +14,7 @@ import {
 
 // External Libraries
 import moment from "moment";
+import "moment/locale/en-gb";
 
 // Vector Icons
 import { FontAwesome } from "@expo/vector-icons";
@@ -28,15 +29,12 @@ import { useStateValue } from "../StateProvider";
 import api, { setAuthToken, removeAuthToken } from "../api/client";
 import LoadingIndicator from "../components/LoadingIndicator";
 import FlashNotification from "../components/FlashNotification";
-import { __ } from "../language/stringPicker";
+import { getRelativeTimeConfig, __ } from "../language/stringPicker";
 import { decodeString } from "../helper/helper";
 import { routes } from "../navigation/routes";
-import Constants from "expo-constants";
-
-const { height: screenHeight } = Dimensions.get("screen");
-
 const chatListItemFallbackImageUrl = require("../assets/200X150.png");
 
+const { width: screenWidth } = Dimensions.get("screen");
 const ChatListScreen = ({ navigation }) => {
   const [
     {
@@ -59,6 +57,10 @@ const ChatListScreen = ({ navigation }) => {
 
   // initial for externel event
   useEffect(() => {
+    const timeConfig = getRelativeTimeConfig(appSettings.lng);
+    moment.updateLocale("en-gb", {
+      relativeTime: timeConfig,
+    });
     if (newListingScreen) {
       dispatch({
         type: "SET_NEW_LISTING_SCREEN",
@@ -88,8 +90,7 @@ const ChatListScreen = ({ navigation }) => {
     setAuthToken(auth_token);
     api.get("my/chat").then((res) => {
       if (res.ok) {
-        setChatListData((chatListData) => res.data);
-        console.log(res.data);
+        setChatListData(res.data);
         removeAuthToken();
         setLoading(false);
         setAutoload(false);
@@ -154,9 +155,21 @@ const ChatListScreen = ({ navigation }) => {
     onLongPress,
     is_read,
     source_id,
+    item,
   }) => (
     <TouchableWithoutFeedback onPress={onPress} onLongPress={onLongPress}>
-      <View style={[styles.message, rtlView]}>
+      <View
+        style={[
+          styles.message,
+          rtlView,
+          {
+            backgroundColor:
+              is_read == 0 && user.id != source_id
+                ? COLORS.bg_primary
+                : COLORS.white,
+          },
+        ]}
+      >
         <View style={styles.chatImageContainer}>
           <Image
             style={styles.chatImage}
@@ -182,33 +195,42 @@ const ChatListScreen = ({ navigation }) => {
             <Text style={styles.chatTitle} numberOfLines={1}>
               {decodeString(chatTitle)}
             </Text>
-            <Text>{time}</Text>
+            <Text style={{ color: COLORS.text_light }}>{time}</Text>
+          </View>
+          <View
+            style={[
+              { marginBottom: 2, flexDirection: "row", alignItems: "center" },
+              rtlView,
+            ]}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.addTitle, rtlText]} numberOfLines={1}>
+                {decodeString(addTitle)}
+              </Text>
+            </View>
+            {is_read == 0 && user.id != source_id && (
+              <View
+                style={{
+                  backgroundColor: COLORS.green,
+                  height: 20,
+                  width: 20,
+                  borderRadius: 10,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginVertical: 5,
+                  marginRight: rtl_support ? 5 : 0,
+                  marginLeft: rtl_support ? 0 : 5,
+                }}
+              >
+                <Text style={{ fontSize: 12, color: COLORS.white }}>
+                  {item.unread_count}
+                </Text>
+              </View>
+            )}
           </View>
           <Text
-            style={[
-              styles.addTitle,
-              rtlText,
-              {
-                marginRight: rtl_support ? 0 : "30%",
-                marginLeft: rtl_support ? "30%" : 0,
-              },
-            ]}
             numberOfLines={1}
-          >
-            {decodeString(addTitle)}
-          </Text>
-          <Text
-            numberOfLines={1}
-            style={[
-              is_read == 0 && user.id != source_id
-                ? { fontWeight: "bold" }
-                : {},
-              rtlText,
-              {
-                marginRight: rtl_support ? 0 : "30%",
-                marginLeft: rtl_support ? "30%" : 0,
-              },
-            ]}
+            style={[{ color: COLORS.text_gray }, rtlText]}
           >
             {decodeString(lastmessage)}
           </Text>
@@ -234,6 +256,7 @@ const ChatListScreen = ({ navigation }) => {
       onLongPress={() => handleDeleteAlert(item)}
       is_read={item.is_read}
       source_id={item.source_id}
+      item={item}
     />
   );
 
@@ -243,7 +266,6 @@ const ChatListScreen = ({ navigation }) => {
 
   const keyExtractor = useCallback((item, index) => `${index}`, []);
 
-  const itemSeparator = () => <View style={styles.itemSeparator} />;
   const handleSuccess = (message) => {
     setFlashNotificationMessage(message);
     setTimeout(() => {
@@ -298,53 +320,21 @@ const ChatListScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.bg_dark }}>
       {/* Screen Header Component */}
-      <TabScreenHeader />
+      <TabScreenHeader sideBar />
       {is_connected ? (
         <>
-          {user && loading && (
-            // {* Loading Component *}
-            <View style={styles.loading}>
-              <ActivityIndicator size="large" color={COLORS.primary} />
-              <Text style={[styles.loadingMessage, rtlTextOnly]}>
-                {__("chatListScreenTexts.loadingMessage", appSettings.lng)}
-              </Text>
-            </View>
-          )}
-          {(!loading || user === null) && (
-            <View
-              style={[
-                user && !chatListData.length ? styles.bgWhite : styles.bgDark,
-                { flex: 1 },
-              ]}
-            >
-              {/* user not logged in; */}
-              {!user && (
-                <View style={styles.noUserWrap}>
-                  <FontAwesome
-                    name="user-times"
-                    size={100}
-                    color={COLORS.bg_dark}
-                  />
-                  <Text style={[styles.noUserMessage, rtlTextOnly]}>
-                    {__("chatListScreenTexts.noUserMessage", appSettings.lng)}
+          {user ? (
+            <>
+              {loading ? (
+                <View style={styles.loading}>
+                  <ActivityIndicator size="large" color={COLORS.primary} />
+                  <Text style={[styles.loadingMessage, rtlTextOnly]}>
+                    {__("chatListScreenTexts.loadingMessage", appSettings.lng)}
                   </Text>
-
-                  <AppButton
-                    title={__(
-                      "chatListScreenTexts.loginButtonTitle",
-                      appSettings.lng
-                    )}
-                    style={styles.chatLogIn}
-                    onPress={() => navigation.navigate(routes.loginScreen)}
-                    textStyle={rtlTextOnly}
-                  />
                 </View>
-              )}
-
-              {/*user logged in and has chat data */}
-              {!!user && !loading && (
+              ) : (
                 <View style={styles.chatListWrap}>
                   {!!deleteLoading && (
                     <View style={styles.deleteLoading}>
@@ -360,7 +350,6 @@ const ChatListScreen = ({ navigation }) => {
                     </View>
                   )}
                   <FlatList
-                    ItemSeparatorComponent={itemSeparator}
                     data={chatListData}
                     renderItem={renderChats}
                     keyExtractor={keyExtractor}
@@ -371,12 +360,33 @@ const ChatListScreen = ({ navigation }) => {
                       />
                     }
                     ListEmptyComponent={EmptyChatList}
+                    contentContainerStyle={{ paddingVertical: 3 }}
                   />
                 </View>
               )}
+            </>
+          ) : (
+            <View style={styles.noUserWrap}>
+              <FontAwesome
+                name="user-times"
+                size={100}
+                color={COLORS.bg_dark}
+              />
+              <Text style={[styles.noUserMessage, rtlTextOnly]}>
+                {__("chatListScreenTexts.noUserMessage", appSettings.lng)}
+              </Text>
+
+              <AppButton
+                title={__(
+                  "chatListScreenTexts.loginButtonTitle",
+                  appSettings.lng
+                )}
+                style={styles.chatLogIn}
+                onPress={() => navigation.navigate(routes.loginScreen)}
+                textStyle={rtlTextOnly}
+              />
             </View>
           )}
-          {/* Flash Notification Component */}
           <FlashNotification
             falshShow={flashNotification}
             flashMessage={flashNotificationMessage}
@@ -401,8 +411,7 @@ const ChatListScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   addTitle: {
-    color: COLORS.text_gray,
-    fontWeight: "bold",
+    color: COLORS.primary,
   },
   bgWhite: {
     backgroundColor: COLORS.white,
@@ -464,11 +473,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  itemSeparator: {
-    height: 1,
-    width: "100%",
-    backgroundColor: COLORS.bg_dark,
-  },
+
   loading: {
     left: 0,
     right: 0,
@@ -484,8 +489,16 @@ const styles = StyleSheet.create({
   message: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.white,
-    padding: 5,
+    padding: screenWidth * 0.03,
+    marginVertical: 3,
+    elevation: 3,
+    shadowColor: COLORS.black,
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    shadowOffset: {
+      height: 2,
+      width: 0,
+    },
   },
   noChatIcon: {
     marginVertical: 30,

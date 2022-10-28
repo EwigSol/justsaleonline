@@ -12,8 +12,6 @@ import {
   ScrollView,
   ActivityIndicator,
   Modal,
-  Image,
-  TouchableWithoutFeedback,
 } from "react-native";
 
 // External Libraries
@@ -40,7 +38,7 @@ import { useStateValue } from "../StateProvider";
 import { getCurrencySymbol, decodeString } from "../helper/helper";
 import AppSeparator from "../components/AppSeparator";
 import DynamicFilterListPicker from "../components/DynamicFilterListPicker";
-import DynamicCheckbox from "../components/DynamicCheckbox";
+import DynamicCheckbox from "../components/DynamicFilterCheckbox";
 import ListingCard from "../components/ListingCard";
 import ListingCardList from "../components/ListingCardList";
 import { paginationData } from "../app/pagination/paginationData";
@@ -50,6 +48,7 @@ import { __ } from "../language/stringPicker";
 import { admobConfig } from "../app/services/adMobConfig";
 import { routes } from "../navigation/routes";
 import osmApi, { reverseParams } from "../api/osmClient";
+import TargetIcon from "../components/svgComponents/TargetIcon";
 
 const initialSearchData = {
   ...paginationData.search,
@@ -458,7 +457,6 @@ const SearchScreen = ({ navigation }) => {
     api.get("locations").then((res) => {
       if (res.ok) {
         setLocationsData(res.data);
-
         setInitial(false);
         setLoading(false);
       } else {
@@ -532,65 +530,52 @@ const SearchScreen = ({ navigation }) => {
   const Category = ({ index, onPress, item }) => (
     <TouchableOpacity
       onPress={onPress}
-      style={[
-        {
-          justifyContent: "flex-start",
-          alignItems: "center",
-          width: windowWidth / 4,
-          minHeight: windowHeight / 7,
-          paddingVertical: 10,
-          paddingHorizontal: 5,
-          borderColor: COLORS.bg_dark,
-          backgroundColor: COLORS.white,
+      style={{
+        alignItems: "center",
+        width: (windowWidth * 0.88) / 3,
+        paddingTop: "5%",
+        backgroundColor: COLORS.white,
+        marginHorizontal: windowWidth * 0.015,
+        height: (windowWidth * 0.88 * 1.04) / 3,
+        marginBottom: windowWidth * 0.03,
+        borderRadius: 5,
+        overflow: "hidden",
+        shadowColor: COLORS.black,
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        shadowOffset: {
+          height: 2,
+          width: 2,
         },
-        index % 4 !== 0 && {
-          borderLeftWidth: 1,
-        },
-        allCategoriesData.length - 1 === index && {
-          borderRightWidth: 1,
-        },
-      ]}
+        elevation: 5,
+      }}
     >
+      {item?.icon?.url ? (
+        <CategoryImage size={(windowWidth * 0.88) / 9} uri={item.icon.url} />
+      ) : (
+        <CategoryIcon
+          iconName={item.icon.class}
+          iconSize={(windowWidth * 0.88) / 9}
+          iconColor={
+            currentCategory.includes(item.term_id)
+              ? COLORS.white
+              : COLORS.primary
+          }
+        />
+      )}
       <View
-        style={[
-          {
-            height: windowWidth / 8,
-            width: windowWidth / 8,
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: currentCategory.includes(item.term_id)
-              ? COLORS.primary
-              : COLORS.white,
-            borderRadius: windowWidth / 16,
-          },
-          ios
-            ? {
-                shadowColor: "#000",
-                shadowOffset: { width: -2, height: 2 },
-                shadowOpacity: 0.2,
-                shadowRadius: 3,
-              }
-            : { elevation: 2 },
-        ]}
+        style={{
+          paddingTop: "12%",
+          alignItems: "center",
+          paddingHorizontal: 5,
+          flex: 1,
+          justifyContent: "center",
+        }}
       >
-        {item?.icon?.url ? (
-          <CategoryImage size={windowWidth / 20} uri={item.icon.url} />
-        ) : (
-          <CategoryIcon
-            iconName={item.icon.class}
-            iconSize={windowWidth / 20}
-            iconColor={
-              currentCategory.includes(item.term_id)
-                ? COLORS.white
-                : COLORS.primary
-            }
-          />
-        )}
+        <Text style={{ textAlign: "center", marginTop: 5 }} numberOfLines={2}>
+          {decodeString(item.name)}
+        </Text>
       </View>
-
-      <Text style={[{ textAlign: "center", marginTop: 5 }, rtlText]}>
-        {decodeString(item.name)}
-      </Text>
     </TouchableOpacity>
   );
   const renderCategory = useCallback(
@@ -773,6 +758,30 @@ const SearchScreen = ({ navigation }) => {
     flexDirection: "row-reverse",
   };
 
+  const CategoryPickerHeader = () => (
+    <View
+      style={{
+        paddingHorizontal: "3%",
+        flexDirection: rtl_support ? "row-reverse" : "row",
+        alignItems: "center",
+        height: 37,
+      }}
+    >
+      <Text
+        style={[
+          {
+            fontSize: 12,
+            fontWeight: "bold",
+            paddingHorizontal: 5,
+          },
+          rtlText,
+        ]}
+      >
+        {__("searchScreenTexts.allCategories", appSettings.lng)}
+      </Text>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <TabScreenHeader
@@ -780,6 +789,7 @@ const SearchScreen = ({ navigation }) => {
         right={bottomLevel}
         rightIcon="refresh"
         onRightClick={handleResetAll}
+        sideBar
       />
       {/* Loading Indicator */}
       {loading ? (
@@ -894,71 +904,18 @@ const SearchScreen = ({ navigation }) => {
           )}
           {/* Main category flatlist */}
           {!currentCategory.length && (
-            <View>
-              <View
-                style={{
-                  backgroundColor: COLORS.white,
-                  paddingHorizontal: "3%",
-                  flexDirection: rtl_support ? "row-reverse" : "row",
-                  alignItems: "center",
-                  height: 37,
-                }}
-              >
-                <View
-                  style={{
-                    height: 10,
-                    width: 3,
-                    backgroundColor: COLORS.primary,
-                    borderRadius: 3,
-                  }}
-                ></View>
-                <Text
-                  style={[
-                    {
-                      fontSize: 12,
-                      fontWeight: "bold",
-                      paddingHorizontal: 5,
-                    },
-                    rtlText,
-                  ]}
-                >
-                  {__("searchScreenTexts.allCategories", appSettings.lng)}
-                </Text>
-              </View>
-
-              <View
-                style={{
-                  height:
-                    (!hideTopBar && config.location_type === "local") ||
-                    (!hideTopBar &&
-                      config.location_type === "geo" &&
-                      bottomLevel)
-                      ? windowHeight -
-                        Constants.statusBarHeight -
-                        50 -
-                        40 -
-                        37 -
-                        50
-                      : windowHeight - Constants.statusBarHeight - 50 - 37 - 50,
-                }}
-              >
-                <FlatList
-                  data={allCategoriesData[0]}
-                  renderItem={renderCategory}
-                  keyExtractor={keyExtractor}
-                  numColumns={4}
-                  ItemSeparatorComponent={({ highlighted }) => (
-                    <View style={styles.itemSeparator} />
-                  )}
-                  contentContainerStyle={{
-                    borderTopWidth: 1,
-                    borderBottomWidth: 1,
-                    borderColor: COLORS.bg_dark,
-                    backgroundColor: COLORS.bg_dark,
-                  }}
-                  showsVerticalScrollIndicator={false}
-                />
-              </View>
+            <View style={{ flex: 1 }}>
+              <FlatList
+                data={allCategoriesData[0]}
+                renderItem={renderCategory}
+                keyExtractor={keyExtractor}
+                numColumns={3}
+                ItemSeparatorComponent={({ highlighted }) => (
+                  <View style={styles.itemSeparator} />
+                )}
+                showsVerticalScrollIndicator={false}
+                ListHeaderComponent={CategoryPickerHeader}
+              />
             </View>
           )}
           {/* Listing flatlist */}
@@ -986,7 +943,7 @@ const SearchScreen = ({ navigation }) => {
                 windowSize={appSettings?.listView ? 41 : 61}
                 keyExtractor={keyExtractor}
                 horizontal={false}
-                numColumns={2}
+                // numColumns={2}
                 showsVerticalScrollIndicator={false}
                 onEndReached={handleNextPageLoading}
                 onEndReachedThreshold={1}
@@ -1012,51 +969,92 @@ const SearchScreen = ({ navigation }) => {
             </View>
           )}
           {/* Sub category picker */}
-          <View style={styles.catPickerWrap}>
-            <ScrollView>
-              {!loading &&
-                Object.keys(allCategoriesData).length > 1 &&
-                !bottomLevel && (
-                  <>
-                    {!!currentCategory.length &&
-                      currentCategory.map((cat, index) => (
-                        <TouchableOpacity
-                          key={cat}
-                          style={[styles.selected, rtlView]}
-                          onPress={() =>
-                            handleSelectedCatagoryTouch(cat, index)
-                          }
-                        >
-                          <Text style={[styles.selectedText, rtlText]}>
-                            {decodeString(
-                              allCategoriesData[index].find(
-                                (i) => i.term_id === cat
-                              ).name
-                            )}
-                          </Text>
-                          <Entypo
-                            name="cross"
-                            size={20}
-                            color={COLORS.primary}
-                          />
-                        </TouchableOpacity>
-                      ))}
-                    <Picker />
-                  </>
-                )}
-            </ScrollView>
-          </View>
+          {!!currentCategory?.length && (
+            <View style={styles.catPickerWrap}>
+              <ScrollView>
+                {!loading &&
+                  Object.keys(allCategoriesData).length > 1 &&
+                  !bottomLevel && (
+                    <>
+                      {!!currentCategory.length &&
+                        currentCategory.map((cat, index) => (
+                          <TouchableOpacity
+                            key={cat}
+                            style={[styles.selected, rtlView]}
+                            onPress={() =>
+                              handleSelectedCatagoryTouch(cat, index)
+                            }
+                          >
+                            <Text style={[styles.selectedText, rtlText]}>
+                              {decodeString(
+                                allCategoriesData[index].find(
+                                  (i) => i.term_id === cat
+                                ).name
+                              )}
+                            </Text>
+                            <Entypo
+                              name="cross"
+                              size={20}
+                              color={COLORS.primary}
+                            />
+                          </TouchableOpacity>
+                        ))}
+                      <Picker />
+                    </>
+                  )}
+              </ScrollView>
+            </View>
+          )}
         </View>
       )}
       {/* Filter Section */}
-      <Modal animationType="slide" transparent={false} visible={filterVisible}>
-        <View style={[styles.filterWrap, { paddingTop: ios ? 15 : 0 }]}>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={filterVisible}
+        statusBarTranslucent
+      >
+        <View
+          style={{
+            position: "absolute",
+            zIndex: 1,
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: COLORS.black,
+            opacity: 0.5,
+          }}
+        ></View>
+        <View
+          style={[
+            styles.filterWrap,
+            {
+              paddingTop: 10,
+              backgroundColor: COLORS.white,
+              marginTop: "40%",
+              elevation: 10,
+              borderTopRightRadius: 20,
+              borderTopLeftRadius: 20,
+              shadowColor: COLORS.black,
+              shadowOpacity: 0.5,
+              shadowRadius: 10,
+              shadowOffset: {
+                width: 5,
+                height: 10,
+              },
+              zIndex: 2,
+            },
+          ]}
+        >
           <View style={[styles.filterTopWrap, rtlView]}>
-            <Text style={[styles.filterTitle, rtlText]}>
-              {__("searchScreenTexts.filterTitle", appSettings.lng)}
-            </Text>
-            <TouchableOpacity onPress={handleClose}>
-              <FontAwesome5 name="times" size={22} color={COLORS.text_dark} />
+            <View style={{ alignItems: "center", flex: 1 }}>
+              <Text style={styles.filterTitle}>
+                {__("searchScreenTexts.filterTitle", appSettings.lng)}
+              </Text>
+            </View>
+            <TouchableOpacity style={{ padding: 5 }} onPress={handleClose}>
+              <FontAwesome5 name="times" size={20} color={COLORS.text_dark} />
             </TouchableOpacity>
           </View>
           {/* Filter Loading Component */}
@@ -1071,7 +1069,7 @@ const SearchScreen = ({ navigation }) => {
             <View style={styles.filterMainContentWrap}>
               <ScrollView contentContainerStyle={styles.filterContentWrap}>
                 {(!!filterData?.order_by || !!filterData?.listing_type) && (
-                  <>
+                  <View style={{ paddingBottom: 15 }}>
                     <View
                       style={[styles.commonFiltersWrap, styles.filtersWrap]}
                     >
@@ -1101,6 +1099,11 @@ const SearchScreen = ({ navigation }) => {
                                 : null
                             }
                             data={filterData.order_by}
+                            fieldWrapStyle={{
+                              borderWidth: 0,
+                              backgroundColor: "#f3f3f3",
+                            }}
+                            fieldTextStyle={{ color: COLORS.text_gray }}
                           />
                         </View>
                       )}
@@ -1135,186 +1138,197 @@ const SearchScreen = ({ navigation }) => {
                                 : null
                             }
                             data={filterData.listing_type}
+                            fieldWrapStyle={{
+                              borderWidth: 0,
+                              backgroundColor: "#f3f3f3",
+                            }}
+                            fieldTextStyle={{ color: COLORS.text_gray }}
                           />
                         </View>
                       )}
                     </View>
-                    <AppSeparator style={styles.screenSeparetor} />
-                  </>
+                  </View>
                 )}
                 {config?.map && (
-                  <>
-                    <View style={styles.filtersWrap}>
-                      <View style={styles.filterField}>
-                        <Text style={[styles.filterLabel, rtlTextA]}>
-                          {__(
-                            "searchScreenTexts.radiusSearchTitle",
-                            appSettings.lng
-                          )}
-                        </Text>
-                        <View style={styles.radiusSearchContent}>
-                          <View style={styles.radiusSearchLocationPickerWrap}>
-                            <GooglePlacesAutocomplete
-                              type={config.map?.type || "osm"}
-                              placeholder={
-                                radiusSearchAddress
-                                  ? radiusSearchAddress
-                                  : __(
-                                      "searchScreenTexts.radiusSearchCenterPlaceholder",
-                                      appSettings.lng
-                                    )
+                  <View style={[styles.filtersWrap, { paddingBottom: 15 }]}>
+                    <View style={styles.filterField}>
+                      <Text style={[styles.filterLabel, rtlTextA]}>
+                        {__(
+                          "searchScreenTexts.radiusSearchTitle",
+                          appSettings.lng
+                        )}
+                      </Text>
+                      <View style={styles.radiusSearchContent}>
+                        <View
+                          style={[
+                            styles.radiusSearchLocationPickerWrap,
+                            rtlView,
+                          ]}
+                        >
+                          <GooglePlacesAutocomplete
+                            type={config.map?.type || "osm"}
+                            placeholder={
+                              radiusSearchAddress
+                                ? radiusSearchAddress
+                                : __(
+                                    "searchScreenTexts.radiusSearchCenterPlaceholder",
+                                    appSettings.lng
+                                  )
+                            }
+                            textInputProps={{
+                              placeholderTextColor: COLORS.text_gray,
+                            }}
+                            styles={{
+                              textInput: {
+                                backgroundColor: "#f3f3f3",
+                                borderWidth: 0,
+                                fontSize: 14,
+                              },
+                            }}
+                            onPress={(data, details = null, inputRef) => {
+                              if (data.description) {
+                                setRadiusSearchAddress(data.description);
                               }
-                              textInputProps={{
-                                placeholderTextColor: radiusSearchAddress
-                                  ? COLORS.text_dark
-                                  : "#b6b6b6",
-                              }}
-                              onPress={(data, details = null, inputRef) => {
-                                if (data.description) {
-                                  setRadiusSearchAddress(data.description);
-                                }
-                                let latLng = null;
-                                if (
-                                  "google" === config.map?.type &&
-                                  details?.geometry?.location
-                                ) {
-                                  latLng = {
-                                    lat: details.geometry.location.lat,
-                                    lng: details.geometry.location.lng,
+                              let latLng = null;
+                              if (
+                                "google" === config.map?.type &&
+                                details?.geometry?.location
+                              ) {
+                                latLng = {
+                                  lat: details.geometry.location.lat,
+                                  lng: details.geometry.location.lng,
+                                };
+                              } else if (data?.details?.geometry?.location) {
+                                latLng = {
+                                  lat: data.details.geometry.location.lat,
+                                  lng: data.details.geometry.location.lng,
+                                };
+                              }
+                              if (latLng) {
+                                setRadiusSearchData((prevRadiusSearchData) => {
+                                  return {
+                                    ...prevRadiusSearchData,
+                                    latitude: latLng.lat,
+                                    longitude: latLng.lng,
                                   };
-                                } else if (data?.details?.geometry?.location) {
-                                  latLng = {
-                                    lat: data.details.geometry.location.lat,
-                                    lng: data.details.geometry.location.lng,
-                                  };
-                                }
-                                if (latLng) {
-                                  setRadiusSearchData(
-                                    (prevRadiusSearchData) => {
-                                      return {
-                                        ...prevRadiusSearchData,
-                                        latitude: latLng.lat,
-                                        longitude: latLng.lng,
-                                      };
-                                    }
-                                  );
-                                }
+                                });
+                              }
 
-                                if (inputRef) {
-                                  inputRef.clear();
-                                }
-                              }}
-                              fetchDetails={"google" === config.map?.type}
-                              query={
-                                "google" === config.map?.type
-                                  ? {
-                                      key: config.map.api_key,
-                                      language: "en",
-                                    }
-                                  : { language: "en" }
+                              if (inputRef) {
+                                inputRef.clear();
                               }
-                              debounce={500}
-                              timeout={15000} //15 seconds
-                            />
-                            <TouchableOpacity
-                              style={styles.deviceLocationButton}
-                              onPress={getLocationPermissionAsync}
-                              disabled={locationLoading}
-                            >
-                              {locationLoading ? (
-                                <ActivityIndicator
-                                  size="small"
-                                  color={COLORS.primary}
-                                />
-                              ) : (
-                                <MaterialIcons
-                                  name="my-location"
-                                  size={28}
-                                  color={COLORS.primary}
-                                />
-                              )}
-                            </TouchableOpacity>
-                          </View>
-                          {/* Radius Search Slider */}
-                          <View style={styles.radiusSearchDistanceSlider}>
-                            <View>
-                              <Slider
-                                style={{
-                                  width: windowWidth * 0.75,
-                                }}
-                                minimumValue={0}
-                                maximumValue={
-                                  config?.radius_search?.max_distance ?? 300
-                                }
-                                minimumTrackTintColor={COLORS.primary}
-                                maximumTrackTintColor={COLORS.gray}
-                                step={1}
-                                onValueChange={(value) => {
-                                  setRadiusSearchData(
-                                    (prevRadiusSearchData) => {
-                                      return {
-                                        ...prevRadiusSearchData,
-                                        distance: value,
-                                      };
-                                    }
-                                  );
-                                }}
-                                thumbTintColor={COLORS.dodgerblue}
-                                tapToSeek={true}
-                                value={
-                                  config?.radius_search?.default_distance ?? 10
-                                }
+                            }}
+                            fetchDetails={"google" === config.map?.type}
+                            query={
+                              "google" === config.map?.type
+                                ? {
+                                    key: config.map.api_key,
+                                    language: "en",
+                                  }
+                                : { language: "en" }
+                            }
+                            debounce={500}
+                            timeout={15000} //15 seconds
+                          />
+                          <TouchableOpacity
+                            style={styles.deviceLocationButton}
+                            onPress={getLocationPermissionAsync}
+                            disabled={locationLoading}
+                          >
+                            {locationLoading ? (
+                              <ActivityIndicator
+                                size="small"
+                                color={COLORS.primary}
                               />
-                              <View style={styles.sliderRange}>
-                                <Text style={styles.text}>
-                                  {config?.radius_search?.min_distance ?? 0}
-                                </Text>
-                                <Text style={styles.text}>
-                                  {config?.radius_search?.max_distance ?? 500}
-                                </Text>
-                              </View>
-                            </View>
-
-                            <View
-                              style={[
-                                styles.sliderRight,
-                                { marginLeft: ios ? 10 : 0 },
-                              ]}
-                            >
-                              <View
-                                style={
-                                  styles.radiusSearchDistanceSliderValueWrap
-                                }
-                              >
-                                <Text
-                                  style={styles.radiusSearchDistanceSliderValue}
-                                  numberOfLines={1}
-                                >
-                                  {radiusSearchData.distance}
-                                </Text>
-                              </View>
-                              <Text style={styles.sliderRightUnit}>
-                                {config.radius_search.units
-                                  .charAt(0)
-                                  .toUpperCase() +
-                                  config.radius_search.units.slice(1)}
+                            ) : (
+                              <TargetIcon fillColor={COLORS.primary} />
+                            )}
+                          </TouchableOpacity>
+                        </View>
+                        {/* Radius Search Slider */}
+                        <View style={styles.radiusSearchDistanceSlider}>
+                          <View>
+                            <Slider
+                              style={{
+                                width: windowWidth * 0.75,
+                                // maximumTrackWidth: 5,
+                              }}
+                              minimumValue={0}
+                              maximumValue={
+                                config?.radius_search?.max_distance ?? 300
+                              }
+                              minimumTrackTintColor={COLORS.primary}
+                              maximumTrackTintColor={COLORS.gray}
+                              step={1}
+                              onValueChange={(value) => {
+                                setRadiusSearchData((prevRadiusSearchData) => {
+                                  return {
+                                    ...prevRadiusSearchData,
+                                    distance: value,
+                                  };
+                                });
+                              }}
+                              thumbTintColor={COLORS.dodgerblue}
+                              thumbImage={require("../assets/slider_thumb.png")}
+                              tapToSeek={true}
+                              value={
+                                config?.radius_search?.default_distance ?? 10
+                              }
+                            />
+                            <View style={styles.sliderRange}>
+                              <Text style={styles.text}>
+                                {config?.radius_search?.min_distance ?? 0}
+                              </Text>
+                              <Text style={styles.text}>
+                                {config?.radius_search?.max_distance ?? 500}
                               </Text>
                             </View>
+                          </View>
+
+                          <View
+                            style={[
+                              styles.sliderRight,
+                              { marginLeft: ios ? 10 : 0 },
+                            ]}
+                          >
+                            <View
+                              style={styles.radiusSearchDistanceSliderValueWrap}
+                            >
+                              <Text
+                                style={styles.radiusSearchDistanceSliderValue}
+                                numberOfLines={1}
+                              >
+                                {radiusSearchData.distance}
+                              </Text>
+                            </View>
+                            <Text style={styles.sliderRightUnit}>
+                              {config.radius_search.units
+                                .charAt(0)
+                                .toUpperCase() +
+                                config.radius_search.units.slice(1)}
+                            </Text>
                           </View>
                         </View>
                       </View>
                     </View>
-                    <AppSeparator style={styles.screenSeparetor} />
-                  </>
+                  </View>
                 )}
-                <View style={styles.filtersWrap}>
+                <View style={[styles.filtersWrap, { marginBottom: 20 }]}>
                   <View style={styles.filterField}>
                     <Text style={[styles.filterLabel, rtlTextA]}>
                       {__(
                         "searchScreenTexts.filterLabels.priceRangeLabel",
                         appSettings.lng
                       )}{" "}
-                      {` (${getCurrencySymbol(config.currency)})`}
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: COLORS.text_light,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {` (${getCurrencySymbol(config.currency)})`}
+                      </Text>
                     </Text>
                     <View style={[styles.rangeWrap, rtlView]}>
                       <View
@@ -1326,9 +1340,6 @@ const SearchScreen = ({ navigation }) => {
                           },
                         ]}
                       >
-                        <Text style={[styles.text, rtlTextA]}>
-                          {__("searchScreenTexts.rangeStart", appSettings.lng)}
-                        </Text>
                         <TextInput
                           style={[styles.numRangeInput, rtlTextA]}
                           value={filterPriceRange[0] ? filterPriceRange[0] : ""}
@@ -1340,6 +1351,11 @@ const SearchScreen = ({ navigation }) => {
                             setFilterPriceRange(newRange);
                           }}
                           keyboardType="decimal-pad"
+                          placeholder={__(
+                            "searchScreenTexts.rangeStart",
+                            appSettings.lng
+                          )}
+                          placeholderTextColor={COLORS.text_gray}
                         />
                       </View>
                       <View
@@ -1351,9 +1367,6 @@ const SearchScreen = ({ navigation }) => {
                           },
                         ]}
                       >
-                        <Text style={[styles.text, rtlTextA]}>
-                          {__("searchScreenTexts.rangeEnd", appSettings.lng)}
-                        </Text>
                         <TextInput
                           style={[styles.numRangeInput, rtlTextA]}
                           value={filterPriceRange[1] ? filterPriceRange[1] : ""}
@@ -1365,123 +1378,81 @@ const SearchScreen = ({ navigation }) => {
                             setFilterPriceRange(newRange);
                           }}
                           keyboardType="decimal-pad"
+                          placeholder={__(
+                            "searchScreenTexts.rangeEnd",
+                            appSettings.lng
+                          )}
+                          placeholderTextColor={COLORS.text_gray}
                         />
                       </View>
                     </View>
                   </View>
                 </View>
                 {!!filterData?.custom_fields?.length && (
-                  <>
-                    <AppSeparator style={styles.screenSeparetor} />
-                    <View
-                      style={[styles.customFiltersWrap, styles.filtersWrap]}
-                    >
-                      {filterData.custom_fields.map((field) => (
-                        <View style={styles.view} key={field.id}>
-                          {validateCfDependency.includes(field.id) && (
-                            <>
-                              {["radio", "select", "checkbox"].includes(
-                                field.type
-                              ) &&
-                                field?.options?.choices && (
-                                  <View style={styles.view}>
-                                    <Text
-                                      style={[styles.filterLabel, rtlTextA]}
-                                    >
-                                      {decodeString(field.label)}
-                                    </Text>
-                                    <DynamicCheckbox
-                                      field={field}
-                                      handleClick={(value) => {
-                                        setFilterCustomData(
-                                          (prevFilterCustomData) => {
-                                            return {
-                                              ...prevFilterCustomData,
-                                              [field.meta_key]: value,
-                                            };
-                                          }
-                                        );
-                                      }}
-                                      selected={
-                                        filterCustomData[field.meta_key]
-                                          ? filterCustomData[field.meta_key]
-                                          : []
-                                      }
-                                    />
-                                  </View>
-                                )}
-                              {field.type === "number" && (
-                                <>
+                  <View style={[styles.customFiltersWrap, styles.filtersWrap]}>
+                    {filterData.custom_fields.map((field) => (
+                      <View style={{ marginTop: 15 }} key={field.id}>
+                        {validateCfDependency.includes(field.id) && (
+                          <>
+                            {["radio", "select", "checkbox"].includes(
+                              field.type
+                            ) &&
+                              field?.options?.choices && (
+                                <View style={styles.view}>
                                   <Text style={[styles.filterLabel, rtlTextA]}>
                                     {decodeString(field.label)}
                                   </Text>
-                                  <View style={styles.rangeWrap}>
-                                    <View
-                                      style={[
-                                        styles.filterInputField,
-                                        { marginRight: 5 },
-                                      ]}
-                                    >
-                                      <Text style={styles.text}>
-                                        {__(
-                                          "searchScreenTexts.rangeStart",
-                                          appSettings.lng
-                                        )}
-                                      </Text>
-                                      <TextInput
-                                        style={styles.numRangeInput}
-                                        keyboardType="decimal-pad"
-                                        value={
-                                          filterCustomData[field.meta_key]
+                                  <DynamicCheckbox
+                                    field={field}
+                                    handleClick={(value) => {
+                                      setFilterCustomData(
+                                        (prevFilterCustomData) => {
+                                          return {
+                                            ...prevFilterCustomData,
+                                            [field.meta_key]: value,
+                                          };
+                                        }
+                                      );
+                                    }}
+                                    selected={
+                                      filterCustomData[field.meta_key]
+                                        ? filterCustomData[field.meta_key]
+                                        : []
+                                    }
+                                  />
+                                </View>
+                              )}
+                            {field.type === "number" && (
+                              <>
+                                <Text style={[styles.filterLabel, rtlTextA]}>
+                                  {decodeString(field.label)}
+                                </Text>
+                                <View style={styles.rangeWrap}>
+                                  <View
+                                    style={[
+                                      styles.filterInputField,
+                                      { marginRight: 5 },
+                                    ]}
+                                  >
+                                    <TextInput
+                                      placeholder={__(
+                                        "searchScreenTexts.rangeStart",
+                                        appSettings.lng
+                                      )}
+                                      style={styles.numRangeInput}
+                                      keyboardType="decimal-pad"
+                                      value={
+                                        filterCustomData[field.meta_key]
+                                          ? filterCustomData[field.meta_key][0]
                                             ? filterCustomData[
                                                 field.meta_key
                                               ][0]
-                                              ? filterCustomData[
-                                                  field.meta_key
-                                                ][0]
-                                              : ""
                                             : ""
-                                        }
-                                        onChangeText={(value) => {
-                                          const newRange = [
-                                            value,
-                                            filterCustomData[field.meta_key]
-                                              ? filterCustomData[
-                                                  field.meta_key
-                                                ][1]
-                                                ? filterCustomData[
-                                                    field.meta_key
-                                                  ][1]
-                                                : ""
-                                              : "",
-                                          ];
-                                          setFilterCustomData(
-                                            (prevFilterCustomData) => {
-                                              return {
-                                                ...prevFilterCustomData,
-                                                [field.meta_key]: newRange,
-                                              };
-                                            }
-                                          );
-                                        }}
-                                      />
-                                    </View>
-                                    <View
-                                      style={[
-                                        styles.filterInputField,
-                                        { marginLeft: 5 },
-                                      ]}
-                                    >
-                                      <Text style={styles.text}>
-                                        {__(
-                                          "searchScreenTexts.rangeEnd",
-                                          appSettings.lng
-                                        )}
-                                      </Text>
-                                      <TextInput
-                                        style={styles.numRangeInput}
-                                        keyboardType="decimal-pad"
-                                        value={
+                                          : ""
+                                      }
+                                      onChangeText={(value) => {
+                                        const newRange = [
+                                          value,
                                           filterCustomData[field.meta_key]
                                             ? filterCustomData[
                                                 field.meta_key
@@ -1490,41 +1461,73 @@ const SearchScreen = ({ navigation }) => {
                                                   field.meta_key
                                                 ][1]
                                               : ""
+                                            : "",
+                                        ];
+                                        setFilterCustomData(
+                                          (prevFilterCustomData) => {
+                                            return {
+                                              ...prevFilterCustomData,
+                                              [field.meta_key]: newRange,
+                                            };
+                                          }
+                                        );
+                                      }}
+                                    />
+                                  </View>
+                                  <View
+                                    style={[
+                                      styles.filterInputField,
+                                      { marginLeft: 5 },
+                                    ]}
+                                  >
+                                    <TextInput
+                                      placeholder={__(
+                                        "searchScreenTexts.rangeEnd",
+                                        appSettings.lng
+                                      )}
+                                      style={styles.numRangeInput}
+                                      keyboardType="decimal-pad"
+                                      value={
+                                        filterCustomData[field.meta_key]
+                                          ? filterCustomData[field.meta_key][1]
+                                            ? filterCustomData[
+                                                field.meta_key
+                                              ][1]
                                             : ""
-                                        }
-                                        onChangeText={(value) => {
-                                          const newRange = [
-                                            filterCustomData[field.meta_key][0]
+                                          : ""
+                                      }
+                                      onChangeText={(value) => {
+                                        const newRange = [
+                                          filterCustomData[field.meta_key][0]
+                                            ? filterCustomData[
+                                                field.meta_key
+                                              ][0]
                                               ? filterCustomData[
                                                   field.meta_key
                                                 ][0]
-                                                ? filterCustomData[
-                                                    field.meta_key
-                                                  ][0]
-                                                : ""
-                                              : "",
-                                            value,
-                                          ];
-                                          setFilterCustomData(
-                                            (prevFilterCustomData) => {
-                                              return {
-                                                ...prevFilterCustomData,
-                                                [field.meta_key]: newRange,
-                                              };
-                                            }
-                                          );
-                                        }}
-                                      />
-                                    </View>
+                                              : ""
+                                            : "",
+                                          value,
+                                        ];
+                                        setFilterCustomData(
+                                          (prevFilterCustomData) => {
+                                            return {
+                                              ...prevFilterCustomData,
+                                              [field.meta_key]: newRange,
+                                            };
+                                          }
+                                        );
+                                      }}
+                                    />
                                   </View>
-                                </>
-                              )}
-                            </>
-                          )}
-                        </View>
-                      ))}
-                    </View>
-                  </>
+                                </View>
+                              </>
+                            )}
+                          </>
+                        )}
+                      </View>
+                    ))}
+                  </View>
                 )}
               </ScrollView>
             </View>
@@ -1532,7 +1535,10 @@ const SearchScreen = ({ navigation }) => {
 
           <View style={styles.filterBottomWrap}>
             <TouchableOpacity
-              style={styles.filterButton_clear}
+              style={[
+                styles.filterButton,
+                // { paddingVertical: ios ? 15 : 12 },
+              ]}
               onPress={handleClear}
               disabled={filterLoading}
             >
@@ -1541,7 +1547,10 @@ const SearchScreen = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.filterButton_apply}
+              style={[
+                styles.filterButton,
+                // { paddingVertical: ios ? 15 : 12 },
+              ]}
               onPress={handleApplyFilter}
               disabled={filterLoading}
             >
@@ -1585,7 +1594,7 @@ const styles = StyleSheet.create({
     height: 32,
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: 5,
+    marginHorizontal: 5,
   },
   featuredItemLocation: {
     color: COLORS.text_gray,
@@ -1644,13 +1653,17 @@ const styles = StyleSheet.create({
     position: "absolute",
     alignItems: "center",
     backgroundColor: COLORS.white,
+    marginBottom: 10,
+    paddingHorizontal: "1.5%",
   },
-  filterButton_apply: {
+  filterButton: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    height: windowHeight * 0.06,
+    height: 40,
     backgroundColor: COLORS.primary,
+    marginHorizontal: windowWidth * 0.015,
+    borderRadius: 3,
   },
   filterButton_applyText: {
     color: COLORS.white,
@@ -1660,13 +1673,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    height: windowHeight * 0.06,
+    height: 40,
     borderColor: COLORS.bg_dark,
     borderTopWidth: 1,
     backgroundColor: COLORS.white,
   },
   filterButton_clearText: {
-    color: COLORS.primary,
+    color: COLORS.white,
     fontWeight: "bold",
   },
   filterContentWrap: {
@@ -1680,8 +1693,9 @@ const styles = StyleSheet.create({
   },
   filterLabel: {
     fontSize: 16,
-    color: COLORS.text_gray,
-    marginBottom: 5,
+    color: COLORS.text_dark,
+    marginBottom: 8,
+    fontWeight: "bold",
   },
   filterMainContentWrap: {
     flex: 1,
@@ -1703,7 +1717,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginHorizontal: "3%",
     marginTop: windowHeight * 0.01,
-    height: windowHeight * 0.04,
+    minHeight: windowHeight * 0.04,
   },
   filtersWrap: {
     marginHorizontal: "3%",
@@ -1782,8 +1796,12 @@ const styles = StyleSheet.create({
   },
   numRangeInput: {
     alignItems: "center",
-    borderBottomWidth: 1,
-    borderColor: COLORS.gray,
+    backgroundColor: "#F3F3F3",
+    paddingHorizontal: 10,
+    height: 35,
+    justifyContent: "center",
+    borderRadius: 3,
+    fontSize: 15,
   },
   pickerWrap: {
     marginHorizontal: "3%",
@@ -1799,7 +1817,7 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 3,
     borderWidth: 1,
-    borderColor: COLORS.gray,
+    borderColor: COLORS.border_light,
     alignItems: "center",
     justifyContent: "center",
   },

@@ -17,6 +17,7 @@ import { COLORS } from "../variables/color";
 import { useStateValue } from "../StateProvider";
 import { decodeString } from "../helper/helper";
 import { __ } from "../language/stringPicker";
+import ChevronRightIcon from "../components/svgComponents/ChevronRightIcon";
 
 const maximumPickerLevelArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const SelectLocationScreen = ({ route, navigation }) => {
@@ -141,7 +142,7 @@ const SelectLocationScreen = ({ route, navigation }) => {
       <View key={index}>
         {location[index] && (
           <TouchableOpacity
-            style={[styles.selectedOptionsWrap, rtlView]}
+            style={[styles.selectedOptionsWrap]}
             disabled={loading}
             onPress={() => handleSelectedLocationPress(index)}
           >
@@ -153,7 +154,7 @@ const SelectLocationScreen = ({ route, navigation }) => {
                     appSettings.lng
                   )}
             </Text>
-            <FontAwesome5 name="times" size={16} color={COLORS.gray} />
+            <FontAwesome5 name="times" size={16} color={COLORS.white} />
           </TouchableOpacity>
         )}
         {location.length === 0 &&
@@ -174,19 +175,28 @@ const SelectLocationScreen = ({ route, navigation }) => {
           !location[index] &&
           !loading &&
           route.params.type === "search" && (
-            <TouchableOpacity
-              style={[styles.pickerOptions, rtlView]}
-              onPress={handleAllOptionSelection}
-              disabled={loading}
+            <View
+              style={{
+                alignItems: "center",
+                borderBottomColor: COLORS.border_light,
+                borderBottomWidth: 1,
+                marginHorizontal: "3%",
+              }}
             >
-              <Text style={[styles.pickerOptionsText, rtlText]}>
-                {__(
-                  "selectLocationScreenTexts.showAllofLocation",
-                  appSettings.lng
-                )}{" "}
-                {decodeString(location[index - 1].name)}
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[{ paddingVertical: 15 }, rtlView]}
+                onPress={handleAllOptionSelection}
+                disabled={loading}
+              >
+                <Text style={[styles.pickerOptionsText, rtlText]}>
+                  {__(
+                    "selectLocationScreenTexts.showAllofLocation",
+                    appSettings.lng
+                  )}{" "}
+                  {decodeString(location[index - 1].name)}
+                </Text>
+              </TouchableOpacity>
+            </View>
           )}
         {!location[index] && !loading && (
           <View style={styles.view}>
@@ -194,12 +204,13 @@ const SelectLocationScreen = ({ route, navigation }) => {
               <TouchableOpacity
                 key={item.term_id}
                 onPress={() => handlePickerSelection(item)}
-                style={[styles.pickerOptions, rtlView]}
+                style={[styles.pickerOptions]}
                 disabled={loading}
               >
                 <Text style={[styles.pickerOptionsText, rtlText]}>
                   {decodeString(item.name)}
                 </Text>
+                <ChevronRightIcon fillColor={COLORS.gray} />
               </TouchableOpacity>
             ))}
           </View>
@@ -219,7 +230,7 @@ const SelectLocationScreen = ({ route, navigation }) => {
   };
 
   return (
-    <View style={{ backgroundColor: COLORS.white, flex: 1 }}>
+    <View style={{ backgroundColor: "#F8F8F8", flex: 1 }}>
       <ScrollView>
         {maximumPickerLevelArr.map((picker, index) => locationPicker(index))}
       </ScrollView>
@@ -257,28 +268,36 @@ const styles = StyleSheet.create({
   },
 
   pickerOptions: {
+    borderBottomColor: COLORS.border_light,
+    borderBottomWidth: 1,
     paddingVertical: 15,
-    borderBottomColor: COLORS.bg_dark,
-    borderBottomWidth: 1.5,
     marginHorizontal: "3%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   pickerOptionsText: {
-    color: COLORS.text_gray,
-    fontWeight: "bold",
+    color: COLORS.text_dark,
+    fontSize: 16,
+    textAlign: "left",
   },
   scrollContainer: {},
   selectedOptionsText: {
-    color: COLORS.primary,
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: "bold",
+    textAlign: "left",
   },
   selectedOptionsWrap: {
-    paddingVertical: 20,
+    paddingVertical: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: "3%",
-    backgroundColor: COLORS.bg_dark,
+    backgroundColor: COLORS.primary,
+    marginHorizontal: "3%",
+    marginTop: "3%",
+    borderRadius: 5,
   },
 });
 

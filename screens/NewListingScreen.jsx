@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   BackHandler,
   ActivityIndicator,
-  Linking,
   KeyboardAvoidingView,
 } from "react-native";
 
@@ -29,6 +28,7 @@ import TabScreenHeader from "../components/TabScreenHeader";
 import { decodeString } from "../helper/helper";
 import { __ } from "../language/stringPicker";
 import { routes } from "../navigation/routes";
+import EditIcon from "../components/svgComponents/EditIcon";
 
 const NewListingScreen = ({ navigation }) => {
   const [
@@ -168,8 +168,6 @@ const NewListingScreen = ({ navigation }) => {
                 styles.selectedCategoryText,
                 {
                   color: arg == 0 ? COLORS.white : COLORS.primary,
-                  paddingLeft: rtl_support ? 0 : 18,
-                  paddingRight: rtl_support ? 18 : 0,
                 },
                 rtlText,
               ]}
@@ -190,6 +188,7 @@ const NewListingScreen = ({ navigation }) => {
             style={{
               flexDirection: rtl_support ? "row-reverse" : "row",
               flexWrap: "wrap",
+              paddingBottom: 10,
             }}
           >
             {categories[arg].map((_category) => (
@@ -303,7 +302,12 @@ const NewListingScreen = ({ navigation }) => {
     handleBackButtonClick();
   };
   const handleGoBackonSuccess = () => {
-    handleBackButtonClick();
+    // handleBackButtonClick();
+    dispatch({
+      type: "SET_NEW_LISTING_SCREEN",
+      listing_locations: null,
+    });
+    navigation.replace(routes.drawerNavigator);
   };
 
   const rtlTextA = rtl_support && {
@@ -324,7 +328,7 @@ const NewListingScreen = ({ navigation }) => {
   return user ? (
     <KeyboardAvoidingView
       behavior={ios ? "padding" : "height"}
-      style={{ flex: 1, backgroundColor: COLORS.white }}
+      style={{ flex: 1, backgroundColor: "#f8f8f8" }}
       keyboardVerticalOffset={ios ? 20 : -20}
     >
       <TabScreenHeader
@@ -332,108 +336,136 @@ const NewListingScreen = ({ navigation }) => {
         onLeftClick={handleGoBack}
         style={{ elevation: 0 }}
       />
-      <ScrollView scrollEnabled={osmOverlay}>
-        <View style={styles.container}>
-          <View style={styles.mainWrap}>
-            {/* Title */}
-            <View style={styles.titleWrap}>
-              <Text style={[styles.title, rtlText]}>
-                {__("newListingScreenTexts.title", appSettings.lng)}
-              </Text>
-            </View>
-            {/* Initial check */}
-            {!newListingConfig.eligible && loading && (
-              <View style={styles.typeWrap}>
-                <View style={styles.checkWrap}>
-                  <Text style={[styles.typeTitle, rtlText]}>
-                    {__(
-                      "newListingScreenTexts.eligibilityChecking",
-                      appSettings.lng
-                    )}
-                  </Text>
-                  <View style={styles.loading}>
-                    <ActivityIndicator size="large" color={COLORS.primary} />
-                  </View>
-                </View>
-              </View>
-            )}
-
-            {/* For not eligible users */}
-            {!newListingConfig.eligible && !loading && (
-              <View style={styles.notEligible}>
-                <Octicons name="stop" size={50} color={COLORS.red} />
-                <Text style={[styles.remainingAdsText, rtlText]}>
-                  {__("newListingScreenTexts.noRemainingAds", appSettings.lng)}
-                </Text>
-                <Text style={[styles.remainingAdsText, rtlText]}>
-                  {__(
-                    "newListingScreenTexts.purchaseMembership",
-                    appSettings.lng
-                  )}
-                </Text>
-                <View style={styles.buttonWrap}>
-                  <AppButton
-                    title={__(
-                      "newListingScreenTexts.goBackButtonTitle",
-                      appSettings.lng
-                    )}
-                    onPress={handleGoBack}
-                    style={styles.button}
-                  />
-                  <AppButton
-                    title={__(
-                      "newListingScreenTexts.membershipButtonTitle",
-                      appSettings.lng
-                    )}
-                    onPress={handleMembership}
-                    style={styles.button}
-                  />
-                </View>
-              </View>
-            )}
-            {/* For eligible users */}
-            {/* Ad Type Selector */}
-            {newListingConfig.eligible && (
-              // Add Type selector
-              <View
-                style={
-                  !!currentCategories.length &&
-                  noSubCat &&
-                  ((!!listing_locations && !!listing_locations.length) ||
-                    config.location_type === "geo")
-                    ? styles.displayNone
-                    : styles.typeWrap
-                }
-              >
-                <View style={[styles.typeTitleWrap, rtlView]}>
-                  <View
-                    style={{
-                      transform: [{ scaleX: -1 }],
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <MaterialCommunityIcons
-                      name="tag"
-                      size={18}
-                      color={COLORS.primary}
-                    />
-                  </View>
-
-                  <Text style={[styles.typeTitle, rtlText]}>
-                    {__("newListingScreenTexts.selectType", appSettings.lng)}
-                  </Text>
-                </View>
-                <AppSeparator style={styles.formSeparator} />
-                <View style={styles.adType}>
-                  {!newListingConfig["listing_types"].length && loading ? (
+      {!user?.phone_verified && config?.verification?.post_restriction ? (
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
+          <View style={{ alignItems: "center" }}>
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "bold",
+                color: COLORS.text_dark,
+                paddingBottom: 20,
+              }}
+            >
+              {__("newListingScreenTexts.unverifiedTitle", appSettings.lng)}
+            </Text>
+            <Text
+              style={{
+                fontSize: 18,
+                color: COLORS.text_gray,
+                textAlign: "center",
+              }}
+            >
+              {__(
+                user?.phone
+                  ? "newListingScreenTexts.unverifiedAccountWithPhoneNumber"
+                  : "newListingScreenTexts.unverifiedAccountWithoutPhoneNumber",
+                appSettings.lng
+              )}
+            </Text>
+          </View>
+          <View style={{ paddingVertical: 20 }}>
+            <AppButton
+              title={__(
+                "newListingScreenTexts.verifyBtnTitle",
+                appSettings.lng
+              )}
+              style={{ paddingHorizontal: "15%" }}
+              onPress={() =>
+                navigation.navigate(routes.myProfileScreen, { source: "new" })
+              }
+            />
+          </View>
+        </View>
+      ) : (
+        <ScrollView scrollEnabled={osmOverlay}>
+          <View style={styles.container}>
+            <View style={{ paddingVertical: 15 }}>
+              {/* Initial check */}
+              {!newListingConfig?.eligible && loading && (
+                <View style={styles.typeWrap}>
+                  <View style={styles.checkWrap}>
+                    <Text style={[styles.typeTitle, rtlText]}>
+                      {__(
+                        "newListingScreenTexts.eligibilityChecking",
+                        appSettings.lng
+                      )}
+                    </Text>
                     <View style={styles.loading}>
                       <ActivityIndicator size="large" color={COLORS.primary} />
                     </View>
-                  ) : (
-                    <>
-                      {adType ? (
-                        <>
+                  </View>
+                </View>
+              )}
+
+              {/* For not eligible users */}
+              {!newListingConfig?.eligible && !loading && (
+                <View style={styles.notEligible}>
+                  <Octicons name="stop" size={50} color={COLORS.red} />
+                  <Text style={[styles.remainingAdsText, rtlText]}>
+                    {__(
+                      "newListingScreenTexts.noRemainingAds",
+                      appSettings.lng
+                    )}
+                  </Text>
+                  <Text style={[styles.remainingAdsText, rtlText]}>
+                    {__(
+                      "newListingScreenTexts.purchaseMembership",
+                      appSettings.lng
+                    )}
+                  </Text>
+                  <View style={styles.buttonWrap}>
+                    <AppButton
+                      title={__(
+                        "newListingScreenTexts.goBackButtonTitle",
+                        appSettings.lng
+                      )}
+                      onPress={handleGoBack}
+                      style={styles.button}
+                    />
+                    <AppButton
+                      title={__(
+                        "newListingScreenTexts.membershipButtonTitle",
+                        appSettings.lng
+                      )}
+                      onPress={handleMembership}
+                      style={styles.button}
+                    />
+                  </View>
+                </View>
+              )}
+              {/* For eligible users */}
+              {/* Ad Type Selector */}
+              {newListingConfig.eligible && (
+                <View
+                  style={
+                    !!currentCategories.length &&
+                    noSubCat &&
+                    ((!!listing_locations && !!listing_locations.length) ||
+                      config.location_type === "geo")
+                      ? styles.displayNone
+                      : styles.typeWrap
+                  }
+                >
+                  <View style={[styles.typeTitleWrap]}>
+                    <Text style={[styles.typeTitle, rtlTextA]}>
+                      {__("newListingScreenTexts.selectType", appSettings.lng)}
+                    </Text>
+                  </View>
+                  <AppSeparator style={styles.formSeparator} />
+                  <View style={styles.adType}>
+                    {!newListingConfig["listing_types"].length && loading ? (
+                      <View style={styles.loading}>
+                        <ActivityIndicator
+                          size="large"
+                          color={COLORS.primary}
+                        />
+                      </View>
+                    ) : (
+                      <>
+                        {adType ? (
                           <TouchableOpacity
                             style={[styles.typePickerFieldWrap, rtlView]}
                             onPress={() => {
@@ -457,184 +489,129 @@ const NewListingScreen = ({ navigation }) => {
                               color={COLORS.primary}
                             />
                           </TouchableOpacity>
-                          <AppSeparator style={styles.formSeparator} />
-                        </>
-                      ) : (
-                        <View style={styles.typePickerWrap}>
-                          {newListingConfig.listing_types.map((typ) => (
-                            <TouchableOpacity
-                              style={styles.typePickerOptions}
-                              key={typ.id}
-                              onPress={() => {
-                                setAdType(typ);
-                                setCurrentCategories([]);
-                                setNoSubCat(false);
-                              }}
-                            >
-                              <Text
-                                style={[
-                                  styles.types,
-                                  rtlTextA,
-                                  {
-                                    paddingLeft: rtl_support ? 0 : 18,
-                                    paddingRight: rtl_support ? 18 : 0,
-                                  },
-                                ]}
+                        ) : (
+                          <View style={styles.typePickerWrap}>
+                            {newListingConfig.listing_types.map((typ) => (
+                              <TouchableOpacity
+                                style={styles.typePickerOptions}
+                                key={typ.id}
+                                onPress={() => {
+                                  setAdType(typ);
+                                  setCurrentCategories([]);
+                                  setNoSubCat(false);
+                                }}
                               >
-                                {typ.name}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </View>
+                                <Text style={[styles.types, rtlTextA]}>
+                                  {typ.name}
+                                </Text>
+                              </TouchableOpacity>
+                            ))}
+                          </View>
+                        )}
+                      </>
+                    )}
+                  </View>
+                </View>
+              )}
+              {/* Ad Category & Location Selector */}
+              {/* Category Selector Wrap */}
+              {adType && (
+                <View
+                  style={
+                    !!currentCategories.length &&
+                    noSubCat &&
+                    ((!!listing_locations && !!listing_locations.length) ||
+                      config.location_type === "geo")
+                      ? styles.displayNone
+                      : styles.categoryWrap
+                  }
+                >
+                  <View style={styles.categoryTitleWrap}>
+                    <Text style={[styles.categoryTitle, rtlText]}>
+                      {__(
+                        "newListingScreenTexts.selectCategory",
+                        appSettings.lng
                       )}
-                    </>
+                    </Text>
+                    <AppSeparator style={styles.separator} />
+                  </View>
+                  {loading && !Object.keys(categories).length ? (
+                    <View style={styles.loading}>
+                      <ActivityIndicator size="large" color={COLORS.primary} />
+                    </View>
+                  ) : (
+                    <View style={styles.adCategory}>
+                      {Object.keys(categories).map((_cat, index) =>
+                        catPicker(index)
+                      )}
+                    </View>
                   )}
                 </View>
-              </View>
-            )}
-            {/* Ad Category & Location Selector */}
-            {/* Category Selector Wrap */}
-            {adType && (
+              )}
+              {/* Location Selector Wrap */}
+              {adType && !!currentCategories?.length && noSubCat && (
+                <View
+                  style={
+                    !!currentCategories.length &&
+                    noSubCat &&
+                    ((!!listing_locations && !!listing_locations?.length) ||
+                      config.location_type === "geo")
+                      ? styles.displayNone
+                      : styles.locationWrap
+                  }
+                >
+                  <View style={styles.categoryTitleWrap}>
+                    <Text style={[styles.categoryTitle, rtlText]}>
+                      {__(
+                        "newListingScreenTexts.selectLocation",
+                        appSettings.lng
+                      )}
+                    </Text>
+                  </View>
+                  <AppSeparator
+                    style={[styles.formSeparator, { marginBottom: 15 }]}
+                  />
+                  {/* Location Selection Button */}
+                  <TouchableOpacity
+                    style={[styles.locationSelector, rtlView]}
+                    onPress={handleLocationButtonPress}
+                  >
+                    <View
+                      style={{
+                        alignItems: "center",
+                        justifyContent: "center",
+                        paddingHorizontal: 5,
+                        paddingVertical: 1,
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="map-marker"
+                        size={18}
+                        color={COLORS.white}
+                      />
+                    </View>
+                    <Text style={[styles.locationSelectorText, rtlText]}>
+                      {__(
+                        "newListingScreenTexts.selectLocation",
+                        appSettings.lng
+                      )}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              {/* Category & Location Change Button Wrap */}
               <View
                 style={
                   !!currentCategories.length &&
                   noSubCat &&
                   ((!!listing_locations && !!listing_locations.length) ||
                     config.location_type === "geo")
-                    ? styles.displayNone
-                    : styles.categoryWrap
+                    ? styles.changeCategoryWrap
+                    : styles.displayNone
                 }
               >
-                <View style={[styles.categoryTitleWrap, rtlView]}>
-                  <View
-                    style={{
-                      transform: [{ scaleX: -1 }],
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <MaterialCommunityIcons
-                      name="tag"
-                      size={18}
-                      color={COLORS.primary}
-                    />
-                  </View>
-                  <Text style={[styles.categoryTitle, rtlText]}>
-                    {__(
-                      "newListingScreenTexts.selectCategory",
-                      appSettings.lng
-                    )}
-                  </Text>
-                </View>
-                {loading && !Object.keys(categories).length ? (
-                  <View style={styles.loading}>
-                    <ActivityIndicator size="large" color={COLORS.primary} />
-                  </View>
-                ) : (
-                  <View style={styles.adCategory}>
-                    {Object.keys(categories).map((_cat, index) =>
-                      catPicker(index)
-                    )}
-                  </View>
-                )}
-                {/* Location Selector Wrap */}
-                {!!currentCategories.length && noSubCat && (
-                  <View
-                    style={
-                      !!currentCategories.length &&
-                      noSubCat &&
-                      ((!!listing_locations && !!listing_locations.length) ||
-                        config.location_type === "geo")
-                        ? styles.displayNone
-                        : styles.locationWrap
-                    }
-                  >
-                    <AppSeparator style={styles.formSeparator} />
-                    {/* Location Selection Button */}
-                    <View style={[styles.categoryTitleWrap, rtlView]}>
-                      <View
-                        style={{
-                          transform: [{ scaleX: -1 }],
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <MaterialCommunityIcons
-                          name="map-marker"
-                          size={18}
-                          color={COLORS.primary}
-                        />
-                      </View>
-                      <Text style={[styles.categoryTitle, rtlText]}>
-                        {__(
-                          "newListingScreenTexts.selectLocation",
-                          appSettings.lng
-                        )}
-                      </Text>
-                    </View>
-                    <TouchableOpacity
-                      style={styles.locationSelector}
-                      onPress={handleLocationButtonPress}
-                    >
-                      <Text style={[styles.locationSelectorText, rtlText]}>
-                        {__(
-                          "newListingScreenTexts.selectLocation",
-                          appSettings.lng
-                        )}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
-            )}
-            {/* Category & Location Change Button Wrap */}
-            <View
-              style={
-                !!currentCategories.length &&
-                noSubCat &&
-                ((!!listing_locations && !!listing_locations.length) ||
-                  config.location_type === "geo")
-                  ? styles.changeCategoryWrap
-                  : styles.displayNone
-              }
-            >
-              {/* Category Change Button Wrap */}
-              <View style={[styles.categoryChangeWrap, rtlView]}>
-                <View
-                  style={{
-                    flex: 1,
-                    marginLeft: rtl_support ? 5 : 0,
-                    alignItems: rtl_support ? "flex-end" : "flex-start",
-                  }}
-                >
-                  <Text
-                    style={[styles.categoryRoute, rtlText]}
-                    numberOfLines={1}
-                  >
-                    {getCategoryTaxonomy()}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.routeChangeIconWrap}
-                  onPress={handleChangeCategoryButtonPress}
-                >
-                  <MaterialIcons
-                    name="mode-edit"
-                    size={14}
-                    color={COLORS.white}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              {/* Location Change Button Wrap */}
-              {config.location_type === "local" && (
-                <View
-                  style={[
-                    styles.categoryChangeWrap,
-                    rtlView,
-                    { backgroundColor: COLORS.bg_primary },
-                  ]}
-                >
+                {/* Category Change Button Wrap */}
+                <View style={[styles.categoryChangeWrap, rtlView]}>
                   <View
                     style={{
                       flex: 1,
@@ -642,41 +619,63 @@ const NewListingScreen = ({ navigation }) => {
                       alignItems: rtl_support ? "flex-end" : "flex-start",
                     }}
                   >
-                    <Text style={[styles.categoryRoute, rtlText]}>
-                      {getLocationTaxonomy()}
+                    <Text
+                      style={[styles.categoryRoute, rtlText]}
+                      numberOfLines={1}
+                    >
+                      {getCategoryTaxonomy()}
                     </Text>
                   </View>
                   <TouchableOpacity
                     style={styles.routeChangeIconWrap}
-                    onPress={handleChangeLocationButtonPress}
+                    onPress={handleChangeCategoryButtonPress}
                   >
-                    <MaterialIcons
-                      name="mode-edit"
-                      size={14}
-                      color={COLORS.white}
-                    />
+                    <EditIcon fillColor={COLORS.primary} />
                   </TouchableOpacity>
                 </View>
-              )}
+
+                {/* Location Change Button Wrap */}
+                {config.location_type === "local" && (
+                  <View style={[styles.categoryChangeWrap, rtlView]}>
+                    <View
+                      style={{
+                        flex: 1,
+                        marginLeft: rtl_support ? 5 : 0,
+                        alignItems: rtl_support ? "flex-end" : "flex-start",
+                      }}
+                    >
+                      <Text style={[styles.categoryRoute, rtlText]}>
+                        {getLocationTaxonomy()}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.routeChangeIconWrap}
+                      onPress={handleChangeLocationButtonPress}
+                    >
+                      <EditIcon fillColor={COLORS.primary} />
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+              {adType &&
+                !!currentCategories.length &&
+                noSubCat &&
+                ((!!listing_locations && !!listing_locations.length) ||
+                  config.location_type === "geo") && (
+                  <ListingForm
+                    catId={
+                      currentCategories[currentCategories.length - 1].term_id
+                    }
+                    type={adType}
+                    goBack={handleGoBackonSuccess}
+                    osmOverlay={osmOverlay}
+                    changeOsmOverlay={changeOsmOverlay}
+                  />
+                )}
             </View>
-            {adType &&
-              !!currentCategories.length &&
-              noSubCat &&
-              ((!!listing_locations && !!listing_locations.length) ||
-                config.location_type === "geo") && (
-                <ListingForm
-                  catId={
-                    currentCategories[currentCategories.length - 1].term_id
-                  }
-                  type={adType}
-                  goBack={handleGoBackonSuccess}
-                  osmOverlay={osmOverlay}
-                  changeOsmOverlay={changeOsmOverlay}
-                />
-              )}
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      )}
     </KeyboardAvoidingView>
   ) : (
     <>
@@ -738,6 +737,18 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     flexDirection: "row",
     paddingHorizontal: "3%",
+    marginHorizontal: "3%",
+    elevation: 0.5,
+    borderRadius: 6,
+    shadowColor: COLORS.border_light,
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: {
+      height: 1,
+      width: 0,
+    },
+    backgroundColor: COLORS.white,
+    marginVertical: 5,
   },
   categoryPickerFieldText: {
     textTransform: "capitalize",
@@ -754,17 +765,15 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   categoryPickerOptions: {
-    backgroundColor: COLORS.white,
-    padding: 8,
-    marginVertical: 5,
-    marginHorizontal: 3,
+    backgroundColor: COLORS.bg_dark,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginVertical: 6,
+    marginHorizontal: 4,
     borderRadius: 3,
-    borderWidth: 1,
-    borderColor: COLORS.bg_dark,
   },
   categoryPickerOptionsText: {
-    fontSize: 13,
-    fontWeight: "bold",
+    fontSize: 13.5,
     color: COLORS.text_gray,
   },
   categoryPickerWrap: {},
@@ -772,20 +781,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     color: COLORS.text_dark,
-    paddingHorizontal: 10,
   },
   categoryRoute: {
     fontSize: 15,
     color: COLORS.text_gray,
-    fontWeight: "bold",
   },
   categoryTitleWrap: {
-    flexDirection: "row",
-    alignItems: "center",
     paddingVertical: 15,
   },
   categoryWrap: {
     paddingHorizontal: "3%",
+    backgroundColor: COLORS.white,
+    margin: "3%",
+    elevation: 0.5,
+    borderRadius: 6,
+    shadowColor: COLORS.border_light,
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: {
+      height: 1,
+      width: 0,
+    },
   },
   changeCategory: {
     flexDirection: "row",
@@ -801,7 +817,8 @@ const styles = StyleSheet.create({
     paddingRight: 5,
   },
   changeCategoryWrap: {
-    marginBottom: 10,
+    marginTop: 5,
+    marginBottom: 15,
   },
   checkWrap: {
     alignItems: "center",
@@ -809,7 +826,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: "#F8F8F8",
   },
   displayNone: {
     display: "none",
@@ -846,11 +863,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 8,
     borderRadius: 3,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.rating_star,
+    // backgroundColor: "#FBAC00",
+    flexDirection: "row",
   },
   locationSelectorText: {
     color: COLORS.white,
-    paddingRight: 5,
     fontWeight: "bold",
     fontSize: 13,
   },
@@ -860,6 +878,18 @@ const styles = StyleSheet.create({
   },
   locationWrap: {
     marginVertical: 10,
+    marginHorizontal: "3%",
+    padding: "3%",
+    backgroundColor: COLORS.white,
+    elevation: 0.5,
+    shadowColor: COLORS.border_light,
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: {
+      height: 1,
+      width: 0,
+    },
+    borderRadius: 6,
   },
   mainWrap: {},
   mandatory: {
@@ -875,41 +905,24 @@ const styles = StyleSheet.create({
   routeArrow: {
     color: COLORS.text_gray,
   },
-  routeChangeIconWrap: {
-    padding: 3,
-    backgroundColor: "#ff6600",
-    borderRadius: 3,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   separator: {
     width: "100%",
-    backgroundColor: COLORS.bg_dark,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: COLORS.text_gray,
-    paddingVertical: 10,
-  },
-  titleWrap: {
-    paddingHorizontal: "3%",
-    alignItems: "center",
+    backgroundColor: COLORS.border_light,
+    marginTop: 15,
   },
 
   typePickerFieldWrap: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: "3%",
     marginVertical: 15,
   },
   typePickerOptions: {
-    marginVertical: 5,
+    marginVertical: 8,
   },
   types: {
-    fontWeight: "bold",
     color: COLORS.text_gray,
+    fontSize: 15,
   },
   typePickerWrap: {
     paddingVertical: 10,
@@ -918,16 +931,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     color: COLORS.text_dark,
-    paddingHorizontal: 10,
   },
   typeTitleWrap: {
-    flexDirection: "row",
-    alignItems: "center",
     paddingTop: 10,
     paddingBottom: 15,
   },
   typeWrap: {
     paddingHorizontal: "3%",
+    marginHorizontal: "3%",
+    backgroundColor: COLORS.white,
+    borderRadius: 6,
+    elevation: 0.5,
+    shadowColor: COLORS.border_light,
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: {
+      height: 1,
+      width: 0,
+    },
   },
   loading: {
     left: 0,
@@ -964,7 +985,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
 
-    padding: 8,
+    padding: "3%",
     borderRadius: 3,
     marginVertical: 5,
   },

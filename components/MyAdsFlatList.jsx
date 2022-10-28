@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -17,15 +17,11 @@ import { Entypo } from "@expo/vector-icons";
 import { COLORS } from "../variables/color";
 import { getPrice, decodeString } from "../helper/helper";
 import { useStateValue } from "../StateProvider";
-import { getRelativeTimeConfig, __ } from "../language/stringPicker";
+import { __ } from "../language/stringPicker";
 const myAdsListItemFallbackImageUrl = require("../assets/200X150.png");
 const MyAdsFlatList = ({ onClick, item, onAction, onActionTouch }) => {
   const [{ config, ios, appSettings, rtl_support }] = useStateValue();
-  useEffect(() => {
-    moment.updateLocale("en", {
-      relativeTime: getRelativeTimeConfig(appSettings.lng),
-    });
-  }, []);
+  const [badgeDim, setBadgeDim] = useState(0);
 
   const rtlText = rtl_support && {
     writingDirection: "rtl",
@@ -46,132 +42,205 @@ const MyAdsFlatList = ({ onClick, item, onAction, onActionTouch }) => {
       return "";
     }
   };
-  return (
-    <View style={[styles.listAd, rtlView]}>
-      <TouchableWithoutFeedback onPress={onClick}>
-        <View style={styles.imageWrap}>
-          <Image
-            style={styles.image}
-            source={
-              item.images && !!item.images.length
-                ? {
-                    uri: getImageURL(),
-                  }
-                : myAdsListItemFallbackImageUrl
-            }
-          />
-        </View>
-      </TouchableWithoutFeedback>
-      <View style={[styles.details, rtlView]}>
-        <View
-          style={[
-            styles.detailsLeft,
-            {
-              alignItems: rtl_support ? "flex-end" : "flex-start",
-              paddingLeft: rtl_support ? 0 : "4%",
-              paddingRight: rtl_support ? "4%" : 0,
-            },
-          ]}
-        >
-          <TouchableWithoutFeedback onPress={onClick}>
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "flex-start",
-                alignItems: rtl_support ? "flex-end" : "flex-start",
-              }}
-            >
-              <Text
-                style={[styles.title, { marginBottom: ios ? 3 : 2 }, rtlText]}
-                numberOfLines={1}
-              >
-                {getTaxonomy(item.title)}
-              </Text>
 
-              <View style={[styles.detailsLeftRow, rtlView]}>
-                <View
-                  style={[
-                    styles.iconWrap,
-                    {
-                      paddingRight: rtl_support ? 0 : 5,
-                      paddingLeft: rtl_support ? 0 : 5,
-                    },
-                  ]}
-                >
-                  <MaterialCommunityIcons
-                    name="clock"
-                    size={12}
-                    color={COLORS.text_gray}
-                  />
-                </View>
-                <Text style={[styles.detailsLeftRowText, rtlText]}>
-                  {moment(item.created_at).fromNow()}
-                </Text>
-              </View>
-              <View style={[styles.detailsLeftRow, rtlView]}>
-                <View style={styles.iconWrap}>
-                  <FontAwesome5 name="eye" size={12} color={COLORS.text_gray} />
-                </View>
-                <Text style={[styles.detailsLeftRowText, rtlText]}>
-                  {__("myAdsListItemTexts.viewsText", appSettings.lng)}{" "}
-                  {item.view_count}
-                </Text>
-              </View>
-              <View style={styles.detailsLeftRow}>
-                <Text style={[styles.price, rtlText]} numberOfLines={1}>
-                  {getPrice(
-                    config.currency,
-                    {
-                      pricing_type: item.pricing_type,
-                      price_type: item.price_type,
-                      price: item.price,
-                      max_price: item.max_price,
-                    },
-                    appSettings.lng
-                  )}
-                </Text>
-              </View>
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-        <View style={styles.detailsRight}>
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "space-between",
-              alignItems: "flex-end",
-            }}
-          >
-            <View style={styles.buttonWrap}>
-              <TouchableOpacity
-                onPress={(e) => {
-                  onActionTouch(e);
-                  onAction();
-                }}
-              >
-                <Entypo name="dots-three-horizontal" size={20} color="black" />
-              </TouchableOpacity>
-            </View>
-            {item.badges.includes("is-sold") && (
+  const handleHeaderLayout = (e) => {
+    setBadgeDim(e.nativeEvent.layout);
+  };
+  return (
+    <View style={[styles.listAd]}>
+      <View
+        style={[
+          {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            padding: 10,
+            alignItems: "center",
+            overflow: "hidden",
+          },
+          rtlView,
+        ]}
+      >
+        {item?.badges?.includes("is-sold") && rtl_support && (
+          <>
+            {badgeDim ? (
               <View
                 style={{
+                  position: "absolute",
+                  zIndex: 1,
                   backgroundColor: COLORS.primary,
-                  paddingVertical: 3,
-                  paddingHorizontal: 6,
-                  borderRadius: 3,
+                  paddingHorizontal: 50,
+                  paddingVertical: ios ? 4 : 2,
+                  right: -50,
+                  top: (badgeDim.width - 100) / 2 - badgeDim.height / 2 || 0,
+                  transform: [{ rotate: "-45deg" }],
                 }}
               >
-                <Text
-                  style={{
-                    textTransform: "uppercase",
-                    fontSize: 10,
-                    color: COLORS.white,
-                  }}
-                >
-                  {__("myAdsListItemTexts.soldOut", appSettings.lng)}
+                <Text style={styles.soldOutText}>
+                  {__("listingCardTexts.soldOutBadgeMessage", appSettings.lng)}
+                </Text>
+              </View>
+            ) : (
+              <View
+                onLayout={(event) => handleHeaderLayout(event)}
+                style={{
+                  position: "absolute",
+                  zIndex: 1,
+                  backgroundColor: COLORS.primary,
+                  paddingVertical: ios ? 3 : 1.5,
+                  paddingHorizontal: 50,
+                  right: -48,
+                  top: 18,
+                  transform: [{ rotate: "-45deg" }],
+                }}
+              >
+                <Text style={styles.soldOutText}>
+                  {__("listingCardTexts.soldOutBadgeMessage", appSettings.lng)}
                 </Text>
               </View>
             )}
+          </>
+        )}
+        {item?.badges?.includes("is-sold") && !rtl_support && (
+          <>
+            {badgeDim ? (
+              <View
+                style={{
+                  position: "absolute",
+                  zIndex: 1,
+                  backgroundColor: COLORS.primary,
+                  paddingHorizontal: 50,
+                  paddingVertical: ios ? 4 : 2,
+                  right: -50,
+                  top: (badgeDim.width - 100) / 2 - badgeDim.height / 2 || 0,
+                  transform: [{ rotate: "45deg" }],
+                }}
+              >
+                <Text style={styles.soldOutText}>
+                  {__("listingCardTexts.soldOutBadgeMessage", appSettings.lng)}
+                </Text>
+              </View>
+            ) : (
+              <View
+                onLayout={(event) => handleHeaderLayout(event)}
+                style={{
+                  position: "absolute",
+                  zIndex: 1,
+                  backgroundColor: COLORS.primary,
+                  paddingVertical: ios ? 3 : 1.5,
+                  paddingHorizontal: 50,
+                  right: -48,
+                  top: 18,
+                  transform: [{ rotate: "45deg" }],
+                }}
+              >
+                <Text style={styles.soldOutText}>
+                  {__("listingCardTexts.soldOutBadgeMessage", appSettings.lng)}
+                </Text>
+              </View>
+            )}
+          </>
+        )}
+        <TouchableWithoutFeedback onPress={onClick}>
+          <View style={styles.imageWrap}>
+            <Image
+              style={styles.image}
+              source={
+                item.images && !!item.images.length
+                  ? {
+                      uri: getImageURL(),
+                    }
+                  : myAdsListItemFallbackImageUrl
+              }
+            />
+          </View>
+        </TouchableWithoutFeedback>
+        <View style={[styles.details, rtlView]}>
+          <View
+            style={[
+              styles.detailsLeft,
+              {
+                alignItems: rtl_support ? "flex-end" : "flex-start",
+                paddingLeft: rtl_support ? 0 : "4%",
+                paddingRight: rtl_support ? "4%" : 0,
+              },
+            ]}
+          >
+            <TouchableWithoutFeedback onPress={onClick}>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "flex-start",
+                  alignItems: rtl_support ? "flex-end" : "flex-start",
+                }}
+              >
+                <Text
+                  style={[styles.title, { marginBottom: ios ? 3 : 2 }, rtlText]}
+                  numberOfLines={2}
+                >
+                  {getTaxonomy(item.title)}
+                </Text>
+
+                <View style={[styles.detailsLeftRow, rtlView]}>
+                  <View style={[styles.iconWrap]}>
+                    <MaterialCommunityIcons
+                      name="clock"
+                      size={12}
+                      color={COLORS.text_gray}
+                    />
+                  </View>
+                  <Text style={[styles.detailsLeftRowText, rtlText]}>
+                    {moment(item.created_at).fromNow()}
+                  </Text>
+                </View>
+                <View style={[styles.detailsLeftRow, rtlView]}>
+                  <View style={styles.iconWrap}>
+                    <FontAwesome5
+                      name="eye"
+                      size={12}
+                      color={COLORS.text_gray}
+                    />
+                  </View>
+                  <Text style={[styles.detailsLeftRowText, rtlText]}>
+                    {__("myAdsListItemTexts.viewsText", appSettings.lng)}{" "}
+                    {item.view_count}
+                  </Text>
+                </View>
+                <View style={styles.detailsLeftRow}>
+                  <Text style={[styles.price, rtlText]} numberOfLines={1}>
+                    {getPrice(
+                      config.currency,
+                      {
+                        pricing_type: item.pricing_type,
+                        price_type: item.price_type,
+                        price: item.price,
+                        max_price: item.max_price,
+                      },
+                      appSettings.lng
+                    )}
+                  </Text>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+          <View style={styles.detailsRight}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "flex-end",
+              }}
+            >
+              <View style={styles.buttonWrap}>
+                <TouchableOpacity
+                  style={{ zIndex: 2 }}
+                  onPress={(e) => {
+                    onActionTouch(e);
+                    onAction();
+                  }}
+                >
+                  <Entypo name="dots-three-vertical" size={20} color="black" />
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
         </View>
       </View>
@@ -202,8 +271,8 @@ const styles = StyleSheet.create({
     color: COLORS.text_gray,
   },
   detailsRight: {
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
+    // justifyContent: "flex-end",
+    // alignItems: "flex-end",
   },
   iconWrap: {
     width: 20,
@@ -227,16 +296,25 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   listAd: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: COLORS.bg_light,
-    padding: 10,
-    alignItems: "center",
+    backgroundColor: COLORS.white,
     borderColor: COLORS.bg_dark,
     borderWidth: 1,
     borderRadius: 5,
     marginVertical: 5,
+    elevation: 3,
+    marginHorizontal: "3%",
+    shadowColor: COLORS.black,
+    shadowRadius: 3,
+    shadowOpacity: 0.2,
+    shadowOffset: {
+      height: 2,
+      width: 2,
+    },
+  },
+  soldOutText: {
+    fontSize: 11.5,
+    color: COLORS.white,
+    fontWeight: "bold",
   },
   title: {
     fontWeight: "bold",

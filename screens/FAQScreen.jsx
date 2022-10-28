@@ -31,14 +31,10 @@ const FAQScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.white,
+    backgroundColor: "#f8f8f8",
     flex: 1,
   },
   contentWrap: {
-    borderWidth: 1,
-    borderColor: COLORS.bg_dark,
-    borderRadius: 5,
-    backgroundColor: COLORS.bg_light,
     paddingVertical: 15,
   },
   mainWrap: {

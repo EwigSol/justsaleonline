@@ -17,11 +17,13 @@ import * as Yup from "yup";
 // Custom Components & Constants
 import { COLORS } from "../variables/color";
 import AppButton from "../components/AppButton";
-import AppSeparator from "../components/AppSeparator";
 import { useStateValue } from "../StateProvider";
 import api from "../api/client";
 import FlashNotification from "../components/FlashNotification";
 import { __ } from "../language/stringPicker";
+import UserIcon from "../components/svgComponents/UserIcon";
+import CallIcon from "../components/svgComponents/CallIcon";
+import MessageIcon from "../components/svgComponents/MessageIcon";
 
 const ContactUsScreen = ({ navigation }) => {
   const [{ user, ios, appSettings, rtl_support }] = useStateValue();
@@ -193,7 +195,7 @@ const ContactUsScreen = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       behavior={ios ? "padding" : "height"}
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: "#f8f8f8" }}
       keyboardVerticalOffset={70}
     >
       <ScrollView>
@@ -232,20 +234,30 @@ const ContactUsScreen = ({ navigation }) => {
                     {` `}
                     <Text style={styles.required}> *</Text>
                   </Text>
-                  <TextInput
-                    style={[styles.formInput, rtlText]}
-                    onChangeText={handleChange("name")}
-                    onBlur={() => setFieldTouched("name")}
-                    value={values.name}
-                    placeholder={__(
-                      "contactUsScreenTexts.formData.name.placeholder",
-                      appSettings.lng
-                    )}
-                    editable={
-                      user === null || (!user.first_name && !user.last_name)
-                    }
-                  />
-                  <AppSeparator style={styles.separator} />
+                  <View style={[styles.inputFieldWrap, rtlView]}>
+                    <View style={styles.iconWrap}>
+                      <UserIcon fillColor={COLORS.primary} />
+                    </View>
+                    <TextInput
+                      style={[
+                        styles.formInput,
+                        rtl_support ? { paddingStart: 10 } : { paddingEnd: 10 },
+                        rtlText,
+                      ]}
+                      placeholderTextColor={COLORS.text_light}
+                      onChangeText={handleChange("name")}
+                      onBlur={() => setFieldTouched("name")}
+                      value={values.name}
+                      placeholder={__(
+                        "contactUsScreenTexts.formData.name.placeholder",
+                        appSettings.lng
+                      )}
+                      editable={
+                        user === null || (!user.first_name && !user.last_name)
+                      }
+                    />
+                  </View>
+
                   <View style={styles.inputErrorWrap}>
                     {touched.name && errors.name && (
                       <Text style={[styles.inputErrorMessage, rtlText]}>
@@ -262,19 +274,29 @@ const ContactUsScreen = ({ navigation }) => {
                       appSettings.lng
                     )}
                   </Text>
-                  <TextInput
-                    style={[styles.formInput, rtlText]}
-                    onChangeText={handleChange("phone")}
-                    onBlur={() => setFieldTouched("phone")}
-                    value={values.phone}
-                    placeholder={__(
-                      "contactUsScreenTexts.formData.phone.placeholder",
-                      appSettings.lng
-                    )}
-                    editable={user === null || !user.phone}
-                    keyboardType="phone-pad"
-                  />
-                  <AppSeparator style={styles.separator} />
+                  <View style={[styles.inputFieldWrap, rtlView]}>
+                    <View style={styles.iconWrap}>
+                      <CallIcon fillColor={COLORS.primary} />
+                    </View>
+                    <TextInput
+                      style={[
+                        styles.formInput,
+                        rtl_support ? { paddingStart: 10 } : { paddingEnd: 10 },
+                        rtlText,
+                      ]}
+                      placeholderTextColor={COLORS.text_light}
+                      onChangeText={handleChange("phone")}
+                      onBlur={() => setFieldTouched("phone")}
+                      value={values.phone}
+                      placeholder={__(
+                        "contactUsScreenTexts.formData.phone.placeholder",
+                        appSettings.lng
+                      )}
+                      editable={user === null || !user.phone}
+                      keyboardType="phone-pad"
+                    />
+                  </View>
+
                   <View style={styles.inputErrorWrap}>
                     {touched.phone && errors.phone && (
                       <Text style={[styles.inputErrorMessage, rtlText]}>
@@ -293,19 +315,29 @@ const ContactUsScreen = ({ navigation }) => {
                     {` `}
                     <Text style={styles.required}> *</Text>
                   </Text>
-                  <TextInput
-                    style={[styles.formInput, rtlText]}
-                    onChangeText={handleChange("email")}
-                    onBlur={() => setFieldTouched("email")}
-                    value={values.email}
-                    placeholder={__(
-                      "contactUsScreenTexts.formData.email.placeholder",
-                      appSettings.lng
-                    )}
-                    editable={user === null || !user.email}
-                    keyboardType="email-address"
-                  />
-                  <AppSeparator style={styles.separator} />
+                  <View style={[styles.inputFieldWrap, rtlView]}>
+                    <View style={styles.iconWrap}>
+                      <MessageIcon fillColor={COLORS.primary} />
+                    </View>
+                    <TextInput
+                      style={[
+                        styles.formInput,
+                        rtl_support ? { paddingStart: 10 } : { paddingEnd: 10 },
+                        rtlText,
+                      ]}
+                      placeholderTextColor={COLORS.text_light}
+                      onChangeText={handleChange("email")}
+                      onBlur={() => setFieldTouched("email")}
+                      value={values.email}
+                      placeholder={__(
+                        "contactUsScreenTexts.formData.email.placeholder",
+                        appSettings.lng
+                      )}
+                      editable={user === null || !user.email}
+                      keyboardType="email-address"
+                    />
+                  </View>
+
                   <View style={styles.inputErrorWrap}>
                     {touched.email && errors.email && (
                       <Text style={[styles.inputErrorMessage, rtlText]}>
@@ -325,7 +357,27 @@ const ContactUsScreen = ({ navigation }) => {
                     <Text style={styles.required}> *</Text>
                   </Text>
                   <TextInput
-                    style={[styles.formInput, { minHeight: 100 }, rtlText]}
+                    style={[
+                      {
+                        minHeight: 100,
+                        backgroundColor: COLORS.white,
+                        borderRadius: 3,
+                        elevation: 1,
+                        shadowColor: COLORS.text_light,
+                        shadowOffset: {
+                          height: 1,
+                          window: 1,
+                        },
+                        shadowOpacity: 0.1,
+                        shadowRadius: 1,
+                        //
+                        color: COLORS.text_light,
+                        fontSize: 16,
+                        paddingVertical: 10,
+                        paddingHorizontal: 15,
+                      },
+                      rtlText,
+                    ]}
                     onChangeText={handleChange("message")}
                     onBlur={() => setFieldTouched("message")}
                     value={values.message}
@@ -335,9 +387,9 @@ const ContactUsScreen = ({ navigation }) => {
                     )}
                     multiline={true}
                     blurOnSubmit={false}
+                    textAlignVertical="top"
                   />
 
-                  <AppSeparator style={styles.separator} />
                   <View style={styles.inputErrorWrap}>
                     {touched.message && errors.message && (
                       <Text style={[styles.inputErrorMessage, rtlText]}>
@@ -399,7 +451,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   container: {
-    backgroundColor: COLORS.white,
     paddingHorizontal: "3%",
     paddingTop: 20,
     width: "100%",
@@ -421,9 +472,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   formInput: {
-    color: COLORS.text_dark,
+    color: COLORS.text_light,
     fontSize: 16,
-    minHeight: 32,
+    minHeight: 38,
+    justifyContent: "center",
+    flex: 1,
+  },
+  iconWrap: {
+    paddingHorizontal: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   inputErrorWrap: {
@@ -433,9 +491,23 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.red,
   },
+  inputFieldWrap: {
+    backgroundColor: COLORS.white,
+    elevation: 1,
+    borderRadius: 3,
+    shadowColor: COLORS.text_light,
+    shadowOffset: {
+      height: 1,
+      window: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    flexDirection: "row",
+  },
   inputLabel: {
-    fontSize: 14,
-    color: COLORS.text_gray,
+    fontSize: 15,
+    color: COLORS.text_dark,
+    marginBottom: 8,
   },
 
   pageTitle: {
