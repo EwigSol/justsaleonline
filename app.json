@@ -1,28 +1,21 @@
 {
   "expo": {
-    "name": "Your App Name",
-    "slug": "yourappname",
+    "name": "Just Sale online",
+    "slug": "justsaleonline",
     "version": "1.0.0",
     "plugins": [
       [
-        "expo-document-picker",
-        {
-          "appleTeamId": "NHHHUJTTT",
-          "iCloudContainerEnvironment": "Production"
-        }
-      ],
-      [
         "expo-notifications",
         {
-          "icon": "./assets/icon96x96.png",
+          "icon": "./assets/icon.png",
           "color": "#ffffff",
           "mode": "production"
         }
       ],
       [
-        "expo-tracking-transparency",
+        "expo-facebook",
         {
-          "userTrackingPermission": "Classima wants to track you to collect IDFA to deliver personalised ads."
+          "userTrackingPermission": false
         }
       ]
     ],
@@ -30,11 +23,11 @@
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
-      "backgroundColor": "#f85c70",
-      "resizeMode": "cover"
+      "backgroundColor": "#ffffff",
+      "resizeMode": "contain"
     },
     "notification": {
-      "icon": "./assets/icon96x96.png",
+      "icon": "./assets/icon.png",
       "color": "#ffffff",
       "iosDisplayInForeground": true,
       "androidMode": "default"
@@ -46,32 +39,32 @@
     "ios": {
       "usesAppleSignIn": true,
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourdomain",
+      "bundleIdentifier": "com.justsaleonline.com",
       "buildNumber": "1",
-      "usesIcloudStorage": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "Your App Name uses the camera to capture and upload user profile image and Listing Image to the server.",
-        "NSPhotoLibraryUsageDescription": "Your App Name needs access to the photo library to select and upload user profile image and Listing Image to the server.",
-        "NSPhotoLibraryAddUsageDescription": "Your App Name needs access to the photo library to select and upload user profile image and Listing Image to the server.",
-        "NSLocationWhenInUseUsageDescription": "Your App Name usages device location on listing information, Listing search Data and User information.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Your App Name usages device location on listing information, Listing search Data and User information.",
-        "NSLocationAlwaysUsageDescription": "Your App Name uses device location on listing information, Listing search Data and User information.",
-        "NSMicrophoneUsageDescription": "Your App Name uses your microphone while taking video of your product for uploading in listing information.",
+        "NSCameraUsageDescription": "This app uses the camera to capture and upload user profile image and Listing Image to the server.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to the photo library to select and upload user profile image and Listing Image to the server.",
+        "NSPhotoLibraryAddUsageDescription": "This app needs access to the photo library to select and upload user profile image and Listing Image to the server.",
+        "NSLocationWhenInUseUsageDescription": "This app usages device location on listing information, Listing search Data and User information.",
         "CFBundleAllowMixedLocalizations": true,
         "UIBackgroundModes": ["remote-notification"]
       },
       "config": {
-        "googleMapsApiKey": "mjo8H878ON7o7YN78NYH87HNYB87B87"
+        "googleSignIn":{
+          "reservedClientId": "com.googleusercontent.apps.845992057495-5ahf6cddnpep4s3tlf7ph9ctrhe6f3bm"
+        },
+        "googleMapsApiKey": "AIzaSyBxK7ZTcIb2F-9FgTyLVYNdIS0dxchBHvU"
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "android": {
-      "package": "com.YOURDOMAIN",
+      "package": "com.justsaleonline.com",
+      "googleServicesFile": "./google-services.json",
       "config": {
         "googleMaps": {
-          "apiKey": "mjo8H878ON7o7YN78NYH87HNYB87B87"
+          "apiKey": "AIzaSyBxK7ZTcIb2F-9FgTyLVYNdIS0dxchBHvU"
         }
       },
       "adaptiveIcon": {
@@ -92,11 +85,11 @@
         "ACCESS_FINE_LOCATION",
         "RECEIVE_BOOT_COMPLETED"
       ],
-      "versionCode": 17
+      "versionCode": 10
     },
-    "facebookScheme": "fb87867657656546545",
-    "facebookAppId": "87867657656546545",
-    "facebookDisplayName": "Your facebook app name",
-    "scheme": "yourscheme"
+    "facebookScheme": "fb351236990180813",
+    "facebookAppId": "351236990180813",
+    "facebookDisplayName": "Just Sale Online",
+    "scheme": "justsaleonline"
   }
 }
