@@ -1341,5 +1341,272 @@ const StoreDetailsScreen = ({ route, navigation }) => {
   );
 };
 
+const styles = StyleSheet.create({
+  banner: {
+    height: 200,
+    width: "100%",
+    resizeMode: "cover",
+  },
+  bannerWrap: {
+    width: "100%",
+    height: 200,
+  },
+  callText: {
+    fontSize: 20,
+    color: COLORS.text_dark,
+    textAlign: "center",
+  },
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    width: "100%",
+    height: "100%",
+  },
+  expiredText: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: COLORS.gray,
+    textAlign: "center",
+    marginVertical: 15,
+  },
+  expiredWrap: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "3%",
+  },
+  goBackButton: {
+    width: "40%",
+  },
+  header: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: 50,
+    width: "100%",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    zIndex: 2,
+  },
+  headerBackButton: {
+    position: "absolute",
+    left: "3%",
+    elevation: 2,
+    height: 30,
+    width: 30,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconWrap: {
+    width: 20,
+    alignItems: "center",
+  },
+  listingCardDetailContent: {
+    flex: 1,
+  },
+  listingCardDetailLeft: {
+    flex: 1,
+  },
+  listingCardDetailRight: {},
+  listingCardDetailWrap: {
+    flex: 1,
+
+    width: windowWidth * 0.74,
+  },
+  listingCardImage: {
+    height: 80,
+    width: 80,
+    resizeMode: "cover",
+  },
+  listingCardImageWrap: {
+    height: 80,
+    width: 80,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    borderRadius: 5,
+  },
+  listingCardPrice: {
+    fontWeight: "bold",
+    color: COLORS.primary,
+  },
+  listingCardText: {
+    fontSize: 12,
+    color: COLORS.text_gray,
+  },
+  listingCardTitle: {
+    fontWeight: "bold",
+    fontSize: 13,
+    color: COLORS.text_dark,
+  },
+
+  loading: {
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    opacity: 1,
+    backgroundColor: "transparent",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+  },
+  logo: {
+    height: 70,
+    width: 80,
+    resizeMode: "contain",
+  },
+  modalOverlay: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(0,0,0,0.2)",
+  },
+  phone: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+  },
+  phoneText: {
+    color: COLORS.primary,
+    fontWeight: "bold",
+    fontSize: 18,
+  },
+  rating: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: COLORS.white,
+
+    lineHeight: 18,
+  },
+  screenTitle: {
+    fontSize: 20,
+    color: COLORS.black,
+    fontWeight: "bold",
+    elevation: 2,
+  },
+  storeBottom: {
+    width: "100%",
+    flex: 1,
+    position: "relative",
+  },
+  storeContactButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 3,
+    width: "48%",
+    height: 32,
+  },
+  storeContactButtonText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginLeft: 5,
+  },
+  storeContactWrap: {
+    marginVertical: 5,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  storeDetailMidrow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    marginVertical: 5,
+  },
+  storeDetailMidrowIconWrap: {
+    height: 16,
+    width: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  storeDetailMidrowText: {
+    fontSize: 14,
+    color: COLORS.text_gray,
+  },
+  storeDetailTopRight: {
+    flex: 1,
+
+    width: windowWidth * 0.724,
+  },
+  storeDetatilTopWrap: {
+    width: windowWidth * 0.88,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  storeDetailWrap: {
+    backgroundColor: COLORS.white,
+    position: "absolute",
+    width: windowWidth * 0.94,
+    top: 200 - (70 + 15 + windowWidth * 0.03),
+    borderRadius: 5,
+    elevation: 5,
+    padding: windowWidth * 0.03,
+    shadowColor: "#000",
+    shadowRadius: 3,
+    shadowOffset: {
+      width: 3,
+      height: 3,
+    },
+    shadowOpacity: 0.2,
+    zIndex: 1,
+  },
+  storeListingCardContent: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    paddingHorizontal: "3%",
+  },
+  storeLogo: {
+    height: 70,
+    width: 80,
+    overflow: "hidden",
+  },
+  storeRatingWrap: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    backgroundColor: COLORS.orange,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+  storeSlogan: {
+    fontSize: 15,
+    color: COLORS.text_gray,
+    marginBottom: 5,
+    lineHeight: 18,
+  },
+  storeTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: COLORS.text_dark,
+    lineHeight: 25,
+  },
+  storeTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  storeTop: {
+    width: "100%",
+    alignItems: "center",
+  },
+  viewMoreDetailsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+
+    marginBottom: 5,
+  },
+  viewMoreDetailsButtonText: {
+    color: COLORS.primary,
+    fontSize: 16,
+    marginRight: 5,
+    lineHeight: 20,
+  },
+});
+
 
 export default StoreDetailsScreen;
