@@ -2,7 +2,7 @@
   "expo": {
     "name": "Just Sale online",
     "slug": "justsaleonline",
-    "version": "1.0.10",
+    "version": "1.0.20",
     "plugins": [
       [
         "expo-notifications",
@@ -85,7 +85,7 @@
         "ACCESS_FINE_LOCATION",
         "RECEIVE_BOOT_COMPLETED"
       ],
-      "versionCode": 10
+      "versionCode": 20
     },
     "facebookScheme": "fb351236990180813",
     "facebookAppId": "351236990180813",
