@@ -7,6 +7,18 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "plugins": [
+      "@react-native-google-signin/google-signin",
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "8789769768768",
+          "clientToken": "h875rhg875gbrfyrdv7b5rb78jht87",
+          "displayName": "Classima",
+          "advertiserIDCollectionEnabled": false,
+          "autoLogAppEventsEnabled": false,
+          "isAutoInitEnabled": true
+        }
+      ],
       [
         "expo-document-picker",
         {
@@ -25,7 +37,7 @@
     ],
     "splash": {
       "image": "./assets/splash.png",
-      "backgroundColor": "#f85c70",
+      "backgroundColor": "#ffa110",
       "resizeMode": "cover"
     },
     "notification": {
@@ -37,34 +49,46 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "bitcode": "Debug",
       "usesAppleSignIn": true,
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourapp",
+      "bundleIdentifier": "com.justsaleonline.com",
       "buildNumber": "1",
       "usesIcloudStorage": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "Classima uses the camera to capture and upload user profile image and Listing Image to the server.",
-        "NSPhotoLibraryUsageDescription": "Classima needs access to the photo library to select and upload user profile image and Listing Image to the server.",
-        "NSPhotoLibraryAddUsageDescription": "Classima needs access to the photo library to select and upload user profile image and Listing Image to the server.",
-        "NSLocationWhenInUseUsageDescription": "Classima usages device location on listing information, Listing search Data and User information.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Classima usages device location on listing information, Listing search Data and User information.",
-        "NSLocationAlwaysUsageDescription": "Classima uses device location on listing information, Listing search Data and User information.",
-        "NSMicrophoneUsageDescription": "Classima uses your microphone while taking video of your product for uploading in listing information.",
+        "NSCameraUsageDescription": "Just Sale Online uses the camera to capture and upload user profile image and Listing Image to the server.",
+        "NSPhotoLibraryUsageDescription": "Just Sale Online needs access to the photo library to select and upload user profile image and Listing Image to the server.",
+        "NSPhotoLibraryAddUsageDescription": "Just Sale Online needs access to the photo library to select and upload user profile image and Listing Image to the server.",
+        "NSLocationWhenInUseUsageDescription": "Just Sale Online usages device location on listing information, Listing search Data and User information.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Just Sale Online usages device location on listing information, Listing search Data and User information.",
+        "NSLocationAlwaysUsageDescription": "Just Sale Online uses device location on listing information, Listing search Data and User information.",
+        "NSMicrophoneUsageDescription": "Just Sale Online uses your microphone while taking video of your product for uploading in listing information.",
         "CFBundleAllowMixedLocalizations": true,
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
+        "SKAdNetworkItems": [
+          {
+            "SKAdNetworkIdentifier": "v9wttpbfk9.skadnetwork"
+          },
+          {
+            "SKAdNetworkIdentifier": "n38lu8286q.skadnetwork"
+          }
+        ]
       },
       "config": {
-        "googleMapsApiKey": "2bLSVyGX5GET2wARP0noZInG_AIzaSyCs0TJfgg"
+        "googleMapsApiKey": "AIzaSyCM9loQN_cO8mTuPEZf6hn6HOo0U_XH1Ik"
       }
     },
     "android": {
-      "package": "com.yourapp",
+      "package": "com.justsaleonline.com",
       "config": {
         "googleMaps": {
-          "apiKey": "2bLSVyGX5GET2wARP0noZInG_AIzaSyCs0TJfgg"
+          "apiKey": "AIzaSyCM9loQN_cO8mTuPEZf6hn6HOo0U_XH1Ik"
         }
       },
       "adaptiveIcon": {
@@ -92,6 +116,11 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "classima"
+    "scheme": "justsaleonline",
+    "extra": {
+      "eas": {
+        "projectId": "3ab5bec0-ab58-453e-94b9-94da1a08e358"
+      }
+    }
   }
 }

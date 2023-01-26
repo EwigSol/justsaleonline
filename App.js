@@ -14,7 +14,7 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 
 // import mobileAds from "react-native-google-mobile-ads";
-// import { Settings } from "react-native-fbsdk-next";
+import { Settings } from "react-native-fbsdk-next";
 
 const App = () => {
   const prefix = Linking.createURL("/");
@@ -26,9 +26,9 @@ const App = () => {
     }),
   });
 
-  // useEffect(() => {
-  //   Settings.initializeSDK();
-  // }, []);
+  useEffect(() => {
+    Settings.initializeSDK();
+  }, []);
 
   // useEffect(() => {
   //   mobileAds()

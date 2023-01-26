@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
-// import { AccessToken, LoginManager } from "react-native-fbsdk-next";
-// import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { AccessToken, LoginManager } from "react-native-fbsdk-next";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import React, { useState, useEffect } from "react";
 import {
   Keyboard,
