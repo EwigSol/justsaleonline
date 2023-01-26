@@ -38,6 +38,7 @@
     "expo-secure-store": "^11.3.0",
     "expo-splash-screen": "^0.16.2",
     "expo-status-bar": "^1.4.0",
+    "expo-updates": "~0.14.7",
     "firebase": "9.9.2",
     "formik": "^2.2.9",
     "html-entities": "^2.3.3",
