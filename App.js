@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
+import "expo-dev-client";
 import { NavigationContainer } from "@react-navigation/native";
 import { LogBox } from "react-native";
 import * as Linking from "expo-linking";
@@ -9,6 +10,11 @@ import Screen from "./components/Screen";
 import HomeNavigator from "./navigation/HomeNavigator";
 import { StateProvider } from "./StateProvider";
 import reducer, { initialState } from "./reducer";
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+
+// import mobileAds from "react-native-google-mobile-ads";
+// import { Settings } from "react-native-fbsdk-next";
 
 const App = () => {
   const prefix = Linking.createURL("/");
@@ -19,18 +25,54 @@ const App = () => {
       shouldSetBadge: false,
     }),
   });
-  // TODO: This is a temporary fix for the "Componentwillreceiveprops has been renamed" development warning
+
+  // useEffect(() => {
+  //   Settings.initializeSDK();
+  // }, []);
+
+  // useEffect(() => {
+  //   mobileAds()
+  //     .initialize()
+  //     .then((adapterStatuses) => {
+  //       console.log("ready");
+  //     });
+  // }, []);
+
   LogBox.ignoreLogs([
-    "componentWillReceiveProps",
-    "componentWillReceiveProps has been renamed, and is not recommended for use.",
-    "AsyncStorage has been extracted from react-native core and will be removed in a future release",
-    "ViewPropTypes will be removed from React Native. Migrate to ViewPropTypes exported from 'deprecated-react-native-prop-types'",
-    "`new NativeEventEmitter()` was called with a non-null argument without the required",
-    "EventEmitter.removeListener('url', ...): Method has been deprecated. Please instead use `remove()` on the subscription returned by `EventEmitter.addListener`",
+    "[expo-notifications] Error encountered while updating server registration with latest device push token. ",
+    "Possible Unhandled Promise Rejection (id: 0):",
+    "WARNING: You've enabled `dangerouslyGetFullCardDetails`,",
+    "`new NativeEventEmitter()` was called with a non-null argument without the required `addListener` method.",
+    "`new NativeEventEmitter()` was called with a non-null argument without the required `removeListeners` method.",
+    "EventEmitter.removeListener('keyboardDidShow', ...): Method has been deprecated. Please instead use `remove()` on the subscription returned by `EventEmitter.addListener`",
+    "EventEmitter.removeListener('url', ...): Method has been deprecated. Please instead use `remove()` on the subscription returned by `EventEmitter.addListener`.",
   ]);
+
+  const [fontsLoaded] = useFonts({
+    PlayfairDisplay: require("./assets/fonts/PlayfairDisplay.ttf"),
+  });
+
+  // useEffect(() => {
+  //   const prepare = async () => {
+  //     await SplashScreen.preventAutoHideAsync();
+  //   };
+  //   prepare();
+  // }, []);
+
+  // const onLayoutRootView = useCallback(async () => {
+  //   if (fontsLoaded) {
+  //     await SplashScreen.hideAsync();
+  //   }
+  // }, [fontsLoaded]);
+
+  // if (!fontsLoaded) {
+  //   return null;
+  // }
+
   return (
     <StateProvider initialState={initialState} reducer={reducer}>
       <Screen>
+        {/* <Screen onLayout={onLayoutRootView}> */}
         <NavigationContainer
           linking={{
             prefixes: [prefix],

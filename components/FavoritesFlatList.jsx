@@ -201,7 +201,10 @@ const FavoritesFlatList = ({ onDelete, item, onClick }) => {
                     />
                   </View>
                   <Text style={[styles.detailsLeftRowText, rtlTextA]}>
-                    {moment(item.created_at).fromNow()}
+                    {/* {moment(item.created_at).fromNow()} */}
+                    {moment
+                      .parseZone(item.created_at + config.timezone.timezone)
+                      .fromNow()}
                   </Text>
                 </View>
                 <View style={[styles.detailsLeftRow, rtlView]}>
@@ -228,7 +231,12 @@ const FavoritesFlatList = ({ onDelete, item, onClick }) => {
                 <View style={[styles.detailsLeftRow, rtlView]}>
                   <Text style={styles.price} numberOfLines={1}>
                     {getPrice(
-                      config.currency,
+                      item?.currency
+                        ? {
+                            ...config.currency,
+                            ...item.currency,
+                          }
+                        : config.currency,
                       {
                         pricing_type: item.pricing_type,
                         price_type: item.price_type,

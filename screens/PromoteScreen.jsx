@@ -333,7 +333,7 @@ const PromoteScreen = ({ navigation, route }) => {
                               style={[styles.tableRowContent, rtlText]}
                               numberOfLines={1}
                             >
-                              {decodeString(config?.promotions[item] || item)}
+                              {__(`promotions.${item}`, appSettings.lng)}
                             </Text>
                           </View>
                           <View

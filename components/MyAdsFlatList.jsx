@@ -189,7 +189,10 @@ const MyAdsFlatList = ({ onClick, item, onAction, onActionTouch }) => {
                     />
                   </View>
                   <Text style={[styles.detailsLeftRowText, rtlText]}>
-                    {moment(item.created_at).fromNow()}
+                    {/* {moment(item.created_at).fromNow()} */}
+                    {moment
+                      .parseZone(item.created_at + config.timezone.timezone)
+                      .fromNow()}
                   </Text>
                 </View>
                 <View style={[styles.detailsLeftRow, rtlView]}>
@@ -208,7 +211,12 @@ const MyAdsFlatList = ({ onClick, item, onAction, onActionTouch }) => {
                 <View style={styles.detailsLeftRow}>
                   <Text style={[styles.price, rtlText]} numberOfLines={1}>
                     {getPrice(
-                      config.currency,
+                      item?.currency
+                        ? {
+                            ...config.currency,
+                            ...item.currency,
+                          }
+                        : config.currency,
                       {
                         pricing_type: item.pricing_type,
                         price_type: item.price_type,

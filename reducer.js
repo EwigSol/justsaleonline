@@ -9,6 +9,7 @@ export const initialState = {
     lng: defaultLng || "en",
     notifications: ["listing_approved", "listing_expired", "chat"],
     listView: listViewConfig?.defaultListViewStyle || true,
+    dynamic_currency: null,
   },
   auth_token: null,
   user: null,
@@ -21,6 +22,7 @@ export const initialState = {
   chat_badge: null,
   is_connected: true,
   rtl_support: false,
+
   config: {
     currency: {
       id: "USD",

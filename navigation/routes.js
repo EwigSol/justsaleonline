@@ -27,7 +27,6 @@ export const routes = {
   aboutAppScreen: appName,
   selectcategoryScreen: "Select category",
   privacyPolicyScreen: "Privacy Policy",
-  thirdPartyLicensesScreen: "Licenses",
   Screen: "Licenses",
   tnCScreen: "TnC",
   editPersonalDetailScreen: "Edit Personal Detail",

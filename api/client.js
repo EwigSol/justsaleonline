@@ -2,10 +2,10 @@
 import { create } from "apisauce";
 //  Do not change anything above this line if you're not sure about what you're doing.
 
-const domain = "https://justsaleonline.com/";
-const apiKey = "614212ec-d986-4db2-84cd-70a4f6c71998";
+const domain = "https://radiustheme.net";
+const apiKey = "cefg4fy56-6cb7-42a0-aa73-465yv546vy5";
 
-const apiRequestTimeOut = 30000; // 30 secs
+const apiRequestTimeOut = 60000; // 30 secs
 
 //  Do not change anything below this line if you're not sure about what you're doing.
 
@@ -25,6 +25,7 @@ const setMultipartHeader = () =>
   api.setHeader("Content-Type", "multipart/form-data");
 const removeMultipartHeader = () => api.deleteHeader("Content-Type");
 const setLocale = (lng) => api.setHeader("X-LOCALE", lng);
+const setCurrencyLocale = (cur) => api.setHeader("X-LOCALE-CURRENCY", cur);
 
 export default api;
 export {
@@ -34,4 +35,5 @@ export {
   removeMultipartHeader,
   setLocale,
   apiKey,
+  setCurrencyLocale,
 };

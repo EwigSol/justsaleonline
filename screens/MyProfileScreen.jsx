@@ -55,38 +55,38 @@ const MyProfileScreen = ({ navigation }) => {
       setFlashNotificationMessage();
     }, 1200);
   };
-  useEffect(() => {
-    setAuthToken(auth_token);
-    api.get("my").then((res) => {
-      if (isFocused) {
-        if (res.ok) {
-          dispatch({
-            type: "SET_AUTH_DATA",
-            data: { user: res.data },
-          });
-          setLoading(false);
-          removeAuthToken();
-        } else {
-          // TODO handle error && add retry button on error
+  // useEffect(() => {
+  //   setAuthToken(auth_token);
+  //   api.get("my").then((res) => {
+  //     if (isFocused) {
+  //       if (res.ok) {
+  //         dispatch({
+  //           type: "SET_AUTH_DATA",
+  //           data: { user: res.data },
+  //         });
+  //         setLoading(false);
+  //         removeAuthToken();
+  //       } else {
+  //         // TODO handle error && add retry button on error
 
-          setErrorMessage(
-            res?.data?.error_message ||
-              res?.data?.error ||
-              res?.problem ||
-              __("myProfileScreenTexts.customResponseError", appSettings.lng)
-          );
-          handleError(
-            res?.data?.error_message ||
-              res?.data?.error ||
-              res?.problem ||
-              __("myProfileScreenTexts.customResponseError", appSettings.lng)
-          );
-          setLoading(false);
-          removeAuthToken();
-        }
-      }
-    });
-  }, []);
+  //         setErrorMessage(
+  //           res?.data?.error_message ||
+  //             res?.data?.error ||
+  //             res?.problem ||
+  //             __("myProfileScreenTexts.customResponseError", appSettings.lng)
+  //         );
+  //         handleError(
+  //           res?.data?.error_message ||
+  //             res?.data?.error ||
+  //             res?.problem ||
+  //             __("myProfileScreenTexts.customResponseError", appSettings.lng)
+  //         );
+  //         setLoading(false);
+  //         removeAuthToken();
+  //       }
+  //     }
+  //   });
+  // }, []);
   useFocusEffect(
     useCallback(() => {
       setAuthToken(auth_token);

@@ -43,6 +43,7 @@ import FlashNotification from "../components/FlashNotification";
 import { getWeek, __ } from "../language/stringPicker";
 import GalleryButtonIcon from "../components/svgComponents/GalleryButtonIcon";
 import CameraButtonIcon from "../components/svgComponents/CameraButtonIcon";
+import { useIsFocused } from "@react-navigation/native";
 
 const myStoreIcons = {
   bannerTitleIcon: require("../assets/gallery_icon.png"),
@@ -190,6 +191,7 @@ const MyStoreScreen = (props) => {
   const [flashNotificationMessage, setFlashNotificationMessage] = useState();
   const [userHasNoStore, setUserHasNoStore] = useState(false);
   const [weekDays, setWeekDays] = useState(getWeek(appSettings.lng) || {});
+  const isFocused = useIsFocused();
 
   // {* Initial Get Store Information Call *}
   useEffect(() => {
@@ -199,36 +201,38 @@ const MyStoreScreen = (props) => {
   const getStore = () => {
     setAuthToken(auth_token);
     api.get("my/store").then((res) => {
-      if (res.ok) {
-        if (res.data) {
-          setStoreData(res.data);
-          if (res.data.banner) {
-            setStoreBanner(res.data.banner);
+      if (isFocused) {
+        if (res.ok) {
+          if (res.data) {
+            setStoreData(res.data);
+            if (res.data.banner) {
+              setStoreBanner(res.data.banner);
+            }
+            if (res.data.logo) {
+              setStoreLogo(res.data.logo);
+            }
+            setStoreOpeningHoursType(res.data?.opening_hours?.type || "always");
+            setStoreOpeningHours(
+              res.data?.opening_hours?.hours || defaultOpeningHours
+            );
           }
-          if (res.data.logo) {
-            setStoreLogo(res.data.logo);
-          }
-          setStoreOpeningHoursType(res.data?.opening_hours?.type || "always");
-          setStoreOpeningHours(
-            res.data?.opening_hours?.hours || defaultOpeningHours
-          );
-        }
-        setLoading(false);
-        removeAuthToken();
-      } else {
-        if (res.status === 400) {
-          setUserHasNoStore(true);
+          setLoading(false);
+          removeAuthToken();
         } else {
-          handleError(
-            res?.data?.error_message ||
-              res?.problem + " Code: " + res?.status ||
-              __("myStoreTexts.errorNotification", appSettings.lng)
-          );
-        }
-        // TODO handle error
+          if (res.status === 400) {
+            setUserHasNoStore(true);
+          } else {
+            handleError(
+              res?.data?.error_message ||
+                res?.problem + " Code: " + res?.status ||
+                __("myStoreTexts.errorNotification", appSettings.lng)
+            );
+          }
+          // TODO handle error
 
-        setLoading(false);
-        removeAuthToken();
+          setLoading(false);
+          removeAuthToken();
+        }
       }
     });
   };

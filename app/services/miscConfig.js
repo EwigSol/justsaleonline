@@ -1,5 +1,11 @@
 export const miscConfig = {
   enableHomeButtonRefreshAction: true,
+  enableAppSharing: false,
+  appSharingLinks: {
+    android:
+      "https://play.google.com/store/apps/details?id=com.classima.radiustheme",
+    iOS: "https://apps.apple.com/us/app/classima-classified-ads/id1609365955",
+  },
   oldHomeScreenLayout: false,
   oldListingCard: false,
   oldBottomTabBar: false,

@@ -14,6 +14,7 @@ import { __ } from "../language/stringPicker";
 import { useStateValue } from "../StateProvider";
 import { COLORS } from "../variables/color";
 import moment from "moment";
+import { useIsFocused } from "@react-navigation/native";
 
 const PaymentDetailScreen = ({ route }) => {
   const [{ auth_token, appSettings, config, ios, rtl_support }] =
@@ -22,6 +23,7 @@ const PaymentDetailScreen = ({ route }) => {
   const [paymentData, setPaymentData] = useState();
   const [errorMessage, setErrorMessage] = useState();
   const [retry, setRetry] = useState(false);
+  const isFocused = useIsFocused();
 
   // Initial Call
   useEffect(() => {
@@ -41,16 +43,17 @@ const PaymentDetailScreen = ({ route }) => {
     api
       .get(`orders/${id}`)
       .then((res) => {
-        console.log(res.data);
-        if (res.ok) {
-          setPaymentData(res.data);
-        } else {
-          setErrorMessage(
-            res?.data?.error_message ||
-              res?.data?.error ||
-              res?.problem ||
-              __("paymentsScreenTexts.unknownError", appSettings.lng)
-          );
+        if (isFocused) {
+          if (res.ok) {
+            setPaymentData(res.data);
+          } else {
+            setErrorMessage(
+              res?.data?.error_message ||
+                res?.data?.error ||
+                res?.problem ||
+                __("paymentsScreenTexts.unknownError", appSettings.lng)
+            );
+          }
         }
       })
       .then(() => {
@@ -296,7 +299,7 @@ const PaymentDetailScreen = ({ route }) => {
                           >
                             <Text style={[styles.paymentTableLabel, rtlText]}>
                               {__(
-                                "paymentMethodScreen.payment.date",
+                                "paymentMethodScreen.payment.orderDate",
                                 appSettings.lng
                               )}
                             </Text>
@@ -334,7 +337,7 @@ const PaymentDetailScreen = ({ route }) => {
                         >
                           <Text style={[styles.paymentTableLabel, rtlText]}>
                             {__(
-                              "paymentMethodScreen.payment.date",
+                              "paymentMethodScreen.payment.paymentDate",
                               appSettings.lng
                             )}
                           </Text>
@@ -1068,7 +1071,7 @@ const PaymentDetailScreen = ({ route }) => {
                                   <Text
                                     style={[styles.featTabContent, rtlText]}
                                   >
-                                    {config?.promotions[_key] || _key}
+                                    {__(`promotions.${_key}`, appSettings.lng)}
                                   </Text>
                                 </View>
                                 <View style={styles.featTabContentWrap}>

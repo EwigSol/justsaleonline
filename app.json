@@ -1,33 +1,35 @@
 {
   "expo": {
-    "name": "Just Sale online",
-    "slug": "justsaleonline",
-    "version": "1.0.20",
+    "name": "Your app",
+    "slug": "yourapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
     "plugins": [
       [
-        "expo-notifications",
+        "expo-document-picker",
         {
-          "icon": "./assets/icon.png",
-          "color": "#ffffff",
-          "mode": "production"
+          "appleTeamId": "M34L8S85ZF",
+          "iCloudContainerEnvironment": "Production"
         }
       ],
       [
-        "expo-facebook",
+        "expo-notifications",
         {
-          "userTrackingPermission": false
+          "icon": "./assets/icon96x96.png",
+          "color": "#ffffff",
+          "mode": "production"
         }
       ]
     ],
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
-      "backgroundColor": "#ffffff",
-      "resizeMode": "contain"
+      "backgroundColor": "#f85c70",
+      "resizeMode": "cover"
     },
     "notification": {
-      "icon": "./assets/icon.png",
+      "icon": "./assets/icon96x96.png",
       "color": "#ffffff",
       "iosDisplayInForeground": true,
       "androidMode": "default"
@@ -37,34 +39,32 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
+      "bitcode": "Debug",
       "usesAppleSignIn": true,
       "supportsTablet": true,
-      "bundleIdentifier": "com.justsaleonline.com",
+      "bundleIdentifier": "com.yourapp",
       "buildNumber": "1",
+      "usesIcloudStorage": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "This app uses the camera to capture and upload user profile image and Listing Image to the server.",
-        "NSPhotoLibraryUsageDescription": "This app needs access to the photo library to select and upload user profile image and Listing Image to the server.",
-        "NSPhotoLibraryAddUsageDescription": "This app needs access to the photo library to select and upload user profile image and Listing Image to the server.",
-        "NSLocationWhenInUseUsageDescription": "This app usages device location on listing information, Listing search Data and User information.",
+        "NSCameraUsageDescription": "Classima uses the camera to capture and upload user profile image and Listing Image to the server.",
+        "NSPhotoLibraryUsageDescription": "Classima needs access to the photo library to select and upload user profile image and Listing Image to the server.",
+        "NSPhotoLibraryAddUsageDescription": "Classima needs access to the photo library to select and upload user profile image and Listing Image to the server.",
+        "NSLocationWhenInUseUsageDescription": "Classima usages device location on listing information, Listing search Data and User information.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Classima usages device location on listing information, Listing search Data and User information.",
+        "NSLocationAlwaysUsageDescription": "Classima uses device location on listing information, Listing search Data and User information.",
+        "NSMicrophoneUsageDescription": "Classima uses your microphone while taking video of your product for uploading in listing information.",
         "CFBundleAllowMixedLocalizations": true,
         "UIBackgroundModes": ["remote-notification"]
       },
       "config": {
-        "googleSignIn":{
-          "reservedClientId": "com.googleusercontent.apps.845992057495-5ahf6cddnpep4s3tlf7ph9ctrhe6f3bm"
-        },
-        "googleMapsApiKey": "AIzaSyCM9loQN_cO8mTuPEZf6hn6HOo0U_XH1Ik"
+        "googleMapsApiKey": "2bLSVyGX5GET2wARP0noZInG_AIzaSyCs0TJfgg"
       }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
     "android": {
-      "package": "com.justsaleonline.com",
-      "googleServicesFile": "./google-services.json",
+      "package": "com.yourapp",
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyCM9loQN_cO8mTuPEZf6hn6HOo0U_XH1Ik"
+          "apiKey": "2bLSVyGX5GET2wARP0noZInG_AIzaSyCs0TJfgg"
         }
       },
       "adaptiveIcon": {
@@ -83,13 +83,15 @@
         "LOCATION",
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
-        "RECEIVE_BOOT_COMPLETED"
+        "RECEIVE_BOOT_COMPLETED",
+        "android.permission.INTERNET",
+        "POST_NOTIFICATIONS"
       ],
-      "versionCode": 20
+      "versionCode": 1
     },
-    "facebookScheme": "fb351236990180813",
-    "facebookAppId": "351236990180813",
-    "facebookDisplayName": "Just Sale Online",
-    "scheme": "justsaleonline"
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "scheme": "classima"
   }
 }

@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-vars */
+// import { AccessToken, LoginManager } from "react-native-fbsdk-next";
+// import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import React, { useState, useEffect } from "react";
 import {
   Keyboard,
-  Modal,
   StyleSheet,
   Text,
   View,
@@ -16,11 +17,9 @@ import {
   Image,
 } from "react-native";
 
-import * as Facebook from "expo-facebook";
 import * as AppleAuthentication from "expo-apple-authentication";
-import * as GoogleSignIn from "expo-google-sign-in";
 
-import { Entypo, FontAwesome, FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 
 // External Libraries
@@ -98,19 +97,16 @@ const LoginScreen = ({ navigation }) => {
       socialConfig?.enabled &&
       socialConfig?.socialPlatforms?.includes("google")
     ) {
-      initAsync();
+      initGoogle();
     }
   }, []);
-  const initAsync = async () => {
-    await GoogleSignIn.initAsync({
-      scopes: ["PROFILE", "EMAIL"],
-      isOfflineEnabled: true,
-      webClientId: socialConfig.google.webClientId,
+  const initGoogle = () => {
+    GoogleSignin.configure({
+      scopes: ["PROFILE", "EMAIL"], // what API you want to access on behalf of the user, default is email and profile
+      webClientId: socialConfig.google.webClientId, // client ID of type WEB for your server (needed to verify user ID and offline access)
+      offlineAccess: true, // if you want to access Google API on behalf of the user FROM YOUR SERVER
+      hostedDomain: "", // specifies a hosted domain restriction
     });
-  };
-  const _syncUserWithStateAsync = async () => {
-    const user = await GoogleSignIn.signInSilentlyAsync();
-    handleSocialLoginRequest(user.auth.idToken, "google_firebase");
   };
 
   const signInAsyncGFB = async () => {
@@ -118,14 +114,19 @@ const LoginScreen = ({ navigation }) => {
     setActiveSocialType("google_firebase");
     setSocialOverlayActive(true);
     try {
-      await GoogleSignIn.askForPlayServicesAsync();
-      const res = await GoogleSignIn.signInAsync();
-
-      if (res.type === "success") {
-        _syncUserWithStateAsync();
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      handleSocialLoginRequest(userInfo?.idToken || "", "google_firebase");
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // user cancelled the login flow
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        // operation (e.g. sign in) is in progress already
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        // play services not available or outdated
+      } else {
+        // some other error happened
       }
-    } catch ({ message }) {
-      alert("login: Error:" + message);
     }
   };
   const handleLogin = (values) => {
@@ -309,20 +310,17 @@ const LoginScreen = ({ navigation }) => {
 
   const loginWithFBReadPermissionAsync = async () => {
     try {
-      await Facebook.initializeAsync({
-        appId: socialConfig.facebook.appID,
-        // appName: socialConfig.facebook.appName,
-      });
+      const result = await LoginManager.logInWithPermissions([
+        "public_profile",
+        "email",
+      ]);
 
-      const result = await Facebook.logInWithReadPermissionsAsync({
-        permissions: ["public_profile", "email"],
-      });
-
-      if (result?.type === "success" && result?.token) {
-        handleSocialLoginRequest(result.token, "facebook");
-      } else {
+      if (result?.isCancelled) {
         setActiveSocialType();
         setSocialOverlayActive(false);
+      } else {
+        const { accessToken } = await AccessToken.getCurrentAccessToken();
+        handleSocialLoginRequest(accessToken, "facebook");
       }
     } catch ({ message }) {
       alert(`Facebook Login Error: ${message}`);
@@ -334,7 +332,6 @@ const LoginScreen = ({ navigation }) => {
       setSocialOverlayActive(false);
       return true;
     }
-
     api
       .post("social-login", {
         access_token: access_token,

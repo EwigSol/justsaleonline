@@ -1,6 +1,9 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
-// import { requestPermissionsAsync, getPermissionsAsync } from "expo-ads-admob";
+// import {
+//   requestTrackingPermissionsAsync,
+//   getTrackingPermissionsAsync,
+// } from "expo-tracking-transparency";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
@@ -45,10 +48,6 @@ import { routes } from "../navigation/routes";
 import settingsStorage from "../app/settings/settingsStorage";
 import { useFocusEffect, useScrollToTop } from "@react-navigation/native";
 import { miscConfig } from "../app/services/miscConfig";
-import {
-  requestTrackingPermissionsAsync,
-  getTrackingPermissionsAsync,
-} from "expo-tracking-transparency";
 import { BackHandler } from "react-native";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("screen");
@@ -204,60 +203,26 @@ const HomeScreen = ({ navigation }) => {
     handleLoadListingsData();
   }, [refreshing]);
 
-  useEffect(() => {
-    getATT();
-  }, []);
+  // useEffect(() => {
+  //   getATT();
+  // }, []);
 
-  const getATT = async () => {
-    const { granted, status } = await getTrackingPermissionsAsync();
-    if (!granted || !status === "granted") {
-      const { status: statusReq } = await requestTrackingPermissionsAsync();
-      if (!statusReq === "granted") {
-        Alert.alert("", __("adMobTexts.appDisabledAlert", appSettings.lng), [
-          {
-            text: __("adMobTexts.okButton", appSettings.lng),
-            onPress: () => {
-              return;
-            },
-          },
-        ]);
-        if (ios && admobConfig?.admobEnabled) {
-          setTimeout(() => {
-            getper();
-          }, 1000);
-        }
-      } else {
-        if (ios && admobConfig?.admobEnabled) {
-          setTimeout(() => {
-            getper();
-          }, 1000);
-        }
-      }
-    } else {
-      if (ios && admobConfig?.admobEnabled) {
-        setTimeout(() => {
-          getper();
-        }, 1000);
-      }
-    }
-  };
-
-  const getper = async () => {
-    const { status } = await getPermissionsAsync();
-    if (status !== "granted") {
-      const { granted } = await requestPermissionsAsync();
-      if (!granted) {
-        Alert.alert("", __("adMobTexts.appDisabledAlert", appSettings.lng), [
-          {
-            text: __("adMobTexts.okButton", appSettings.lng),
-            onPress: () => {
-              return;
-            },
-          },
-        ]);
-      }
-    }
-  };
+  // const getATT = async () => {
+  //   const { granted, status } = await getTrackingPermissionsAsync();
+  //   if (!granted || !status === "granted") {
+  //     const { status: statusReq } = await requestTrackingPermissionsAsync();
+  //     if (!statusReq === "granted") {
+  //       Alert.alert("", __("adMobTexts.appDisabledAlert", appSettings.lng), [
+  //         {
+  //           text: __("adMobTexts.okButton", appSettings.lng),
+  //           onPress: () => {
+  //             return;
+  //           },
+  //         },
+  //       ]);
+  //     }
+  //   }
+  // };
 
   const rtlTextA = rtl_support && {
     writingDirection: "rtl",
@@ -836,37 +801,40 @@ const HomeScreen = ({ navigation }) => {
           {/* Search , Location , Reset button */}
           <View style={styles.listingTop}>
             {config.location_type === "local" && (
-              <TouchableOpacity
-                disabled={timedOut || networkError}
-                style={styles.locationWrap}
-                onPress={() =>
-                  navigation.navigate(routes.selectLocationScreen, {
-                    data: locationsData,
-                    type: "search",
-                  })
-                }
-              >
-                <View style={[styles.locationContent, rtlView]}>
-                  <FontAwesome5
-                    name="map-marker-alt"
-                    size={16}
-                    color={COLORS.primary}
-                  />
-                  <Text
-                    style={[styles.locationContentText, rtlTextA]}
-                    numberOfLines={1}
-                  >
-                    {search_locations === null || !search_locations.length
-                      ? __(
-                          "homeScreenTexts.selectLocationText",
-                          appSettings.lng
-                        )
-                      : search_locations.map((location) => location.name)[
-                          search_locations.length - 1
-                        ]}
-                  </Text>
-                </View>
-              </TouchableOpacity>
+              <>
+                <TouchableOpacity
+                  disabled={timedOut || networkError}
+                  style={styles.locationWrap}
+                  onPress={() =>
+                    navigation.navigate(routes.selectLocationScreen, {
+                      data: locationsData,
+                      type: "search",
+                    })
+                  }
+                >
+                  <View style={[styles.locationContent, rtlView]}>
+                    <FontAwesome5
+                      name="map-marker-alt"
+                      size={16}
+                      color={COLORS.primary}
+                    />
+                    <Text
+                      style={[styles.locationContentText, rtlTextA]}
+                      numberOfLines={1}
+                    >
+                      {search_locations === null || !search_locations.length
+                        ? __(
+                            "homeScreenTexts.selectLocationText",
+                            appSettings.lng
+                          )
+                        : search_locations.map((location) => location.name)[
+                            search_locations.length - 1
+                          ]}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <View style={{ width: screenWidth * 0.015 }} />
+              </>
             )}
             <Formik initialValues={{ search: "" }} onSubmit={handleSearch}>
               {({ handleChange, handleBlur, handleSubmit, values }) => (
@@ -910,9 +878,9 @@ const HomeScreen = ({ navigation }) => {
                 </View>
               )}
             </Formik>
-            <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
+            {/* <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
               <FontAwesome name="refresh" size={18} color={COLORS.primary} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
           {/* FlatList */}
           {!!listingsData?.length && (
@@ -1087,12 +1055,11 @@ const styles = StyleSheet.create({
     zIndex: 2,
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: screenWidth * 0.015,
+    paddingHorizontal: screenWidth * 0.03,
     paddingBottom: 15,
   },
   locationWrap: {
     maxWidth: screenWidth * 0.25,
-    marginHorizontal: screenWidth * 0.015,
     backgroundColor: COLORS.white,
     borderRadius: 5,
     padding: 7,

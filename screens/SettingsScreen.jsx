@@ -16,6 +16,7 @@ import {
   MaterialIcons,
   MaterialCommunityIcons,
   FontAwesome,
+  Fontisto,
 } from "@expo/vector-icons";
 
 import * as Localization from "expo-localization";
@@ -27,13 +28,19 @@ import authStorage from "../app/auth/authStorage";
 import { useStateValue } from "../StateProvider";
 import { getRelativeTimeConfig, __ } from "../language/stringPicker";
 import settingsStorage from "../app/settings/settingsStorage";
-import api, { removeAuthToken, setAuthToken, setLocale } from "../api/client";
+import api, {
+  removeAuthToken,
+  setAuthToken,
+  setCurrencyLocale,
+  setLocale,
+} from "../api/client";
 import rtlSupoortedLng from "../language/rtlSupoortedLng.json";
 import { listViewConfig } from "../app/services/listViewConfig";
 import ListPicker from "../components/ListPicker";
 import { routes } from "../navigation/routes";
 import moment from "moment";
 import "moment/locale/en-gb";
+import { decodeString } from "../helper/helper";
 const languages = require("../language/languages.json");
 
 const SettingsScreen = ({ navigation }) => {
@@ -46,6 +53,7 @@ const SettingsScreen = ({ navigation }) => {
   const [langArr, setLangArr] = useState([]);
   const [langloading, setLangLoading] = useState(true);
   const [langPicker, setLangPicker] = useState(false);
+  const [currencyPicker, setCurrencyPicker] = useState(false);
   const [deviceLocale, setDeviceLocale] = useState(
     Localization.locale.slice(0, 2)
   );
@@ -103,6 +111,28 @@ const SettingsScreen = ({ navigation }) => {
       relativeTime: timeConfig,
     });
     setLangPicker(false);
+    setTimeout(() => {
+      navigation.replace(routes.drawerNavigator);
+    }, 1000);
+  };
+  const handleCurrencyChange = (currency) => {
+    if (appSettings.dynamic_currency === currency.id) {
+      setCurrencyPicker(false);
+      return true;
+    }
+    setLoggingOut(true);
+    setCurrencyLocale(currency.id);
+    const tempSettings = {
+      ...appSettings,
+      dynamic_currency: currency.id,
+    };
+
+    dispatch({
+      type: "SET_SETTINGS",
+      appSettings: tempSettings,
+    });
+    settingsStorage.storeAppSettings(JSON.stringify(tempSettings));
+    setCurrencyPicker(false);
     setTimeout(() => {
       navigation.replace(routes.drawerNavigator);
     }, 1000);
@@ -230,6 +260,15 @@ const SettingsScreen = ({ navigation }) => {
     }, 1000);
   };
 
+  const getCurrencyName = () => {
+    const temparr = config.multiCurrency.currencyList.filter(
+      (cur) => cur.id === appSettings.dynamic_currency
+    );
+    return temparr.length
+      ? temparr[0].id + "(" + decodeString(temparr[0].symbol) + ")"
+      : "";
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={{ paddingBottom: 30 }}>
@@ -248,14 +287,16 @@ const SettingsScreen = ({ navigation }) => {
               <View
                 style={{
                   flex: 1,
-                  alignItems: rtl_support ? "flex-end" : "flex-start",
+                  alignItems: "center",
+                  flexDirection: "row",
                 }}
               >
+                <FontAwesome name="language" size={24} color={COLORS.primary} />
                 <Text
                   style={[
                     {
                       fontSize: 20,
-                      color: COLORS.text_dark,
+                      color: COLORS.primary,
                       paddingHorizontal: 5,
                     },
                     rtlText,
@@ -274,7 +315,7 @@ const SettingsScreen = ({ navigation }) => {
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    marginVertical: 15,
+                    marginVertical: 5,
                   }}
                 >
                   <TouchableOpacity
@@ -316,6 +357,96 @@ const SettingsScreen = ({ navigation }) => {
               )}
             </View>
           )}
+          {config?.multiCurrency?.type === "dynamic" &&
+            config?.multiCurrency?.enable_selection === true && (
+              <View
+                style={{
+                  flexDirection: rtl_support ? "row-reverse" : "row",
+                  alignItems: "center",
+                  paddingHorizontal: "3%",
+                  marginBottom: 5,
+                }}
+              >
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: "center",
+                    flexDirection: "row",
+                  }}
+                >
+                  <Fontisto
+                    name="money-symbol"
+                    size={24}
+                    color={COLORS.primary}
+                  />
+                  <Text
+                    style={[
+                      {
+                        fontSize: 20,
+                        color: COLORS.primary,
+                        paddingHorizontal: 5,
+                      },
+                      rtlText,
+                    ]}
+                  >
+                    {__("settingsScreenTexts.currencyTitle", appSettings.lng)}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginVertical: 5,
+                  }}
+                >
+                  <TouchableOpacity
+                    style={{
+                      borderRadius: 5,
+                      paddingHorizontal: 15,
+                      paddingVertical: 8,
+                      flexDirection: rtl_support ? "row-reverse" : "row",
+                      alignItems: "center",
+                      backgroundColor: COLORS.white,
+                    }}
+                    onPress={() => setCurrencyPicker(true)}
+                  >
+                    {appSettings?.dynamic_currency ? (
+                      <Text style={{ paddingHorizontal: 5 }}>
+                        {getCurrencyName()}
+                      </Text>
+                    ) : (
+                      <Text style={{ paddingHorizontal: 5 }}>
+                        {__("settingsScreenTexts.select", appSettings.lng)}
+                      </Text>
+                    )}
+                    <View style={{ paddingHorizontal: 5 }}>
+                      <FontAwesome
+                        name="caret-down"
+                        size={15}
+                        color={COLORS.gray}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                  <ListPicker
+                    pickerVisible={currencyPicker}
+                    data={config.multiCurrency.currencyList}
+                    onClick={handleCurrencyChange}
+                    overlayClick={() => setCurrencyPicker(false)}
+                    selected={
+                      appSettings?.dynamic_currency
+                        ? { id: appSettings.dynamic_currency }
+                        : null
+                    }
+                    pickerType="currency"
+                    pickerLabel={__(
+                      "settingsScreenTexts.currencyTitle",
+                      appSettings.lng
+                    )}
+                  />
+                </View>
+              </View>
+            )}
 
           {!!config?.pn_events?.length && (
             <View style={styles.notificationSection}>

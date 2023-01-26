@@ -215,7 +215,12 @@ const ListingCardList = ({ onPress, item }) => {
                 numberOfLines={1}
               >
                 {getPrice(
-                  config.currency,
+                  item?.currency
+                    ? {
+                        ...config.currency,
+                        ...item.currency,
+                      }
+                    : config.currency,
                   {
                     pricing_type: item.pricing_type,
                     price_type: item.price_type,

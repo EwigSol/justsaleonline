@@ -12,7 +12,6 @@ import NewListingButton from "./NewListingButton";
 import AccountScreen from "../screens/AccountScreen";
 import ChatListScreen from "../screens/ChatListScreen";
 import HomeScreen from "../screens/HomeScreen";
-import HomeScreenOld from "../screens/HomeScreenOld";
 import NewListingScreen from "../screens/NewListingScreen";
 import SearchScreen from "../screens/SearchScreen";
 import { __ } from "../language/stringPicker";
@@ -20,7 +19,6 @@ import { routes } from "./routes";
 import AccountIcon from "./svgIcons/AccountIcon";
 import ChatsIcon from "./svgIcons/ChatsIcon";
 import SearchIcon from "./svgIcons/SearchIcon";
-import { miscConfig } from "../app/services/miscConfig";
 
 const Tab = createBottomTabNavigator();
 
@@ -30,7 +28,6 @@ const TabNavigator = () => {
     <Tab.Navigator
       initialRouteName={__("tabTitles.home", appSettings.lng)}
       screenOptions={{
-        headerShown: false,
         tabBarShowLabel: true,
         tabBarActiveTintColor: COLORS.primary,
         tabBarHideOnKeyboard: true,
@@ -41,11 +38,12 @@ const TabNavigator = () => {
         tabBarStyle: {
           height: 50,
         },
+        header: () => null,
       }}
     >
       <Tab.Screen
         name={__("tabTitles.home", appSettings.lng)}
-        component={miscConfig?.oldHomeScreenLayout ? HomeScreenOld : HomeScreen}
+        component={HomeScreen}
         options={{
           tabBarIcon: ({ color }) => (
             <Entypo name="home" size={24} color={color} />

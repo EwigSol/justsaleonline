@@ -573,7 +573,14 @@ const ListingDetailScreen = ({ route, navigation }) => {
   };
 
   const getListingTime = () => {
-    return moment(listingData.created_at).format("Do MMM, h:mm a");
+    if (config?.timezone) {
+      return moment
+        .parseZone(listingData.created_at + config.timezone.timezone)
+        .fromNow();
+    } else {
+      // TODO:  This method will be depricated from app and plugin in future version (3.0)
+      return moment(listingData.created_at, "YYYY-MM-DD").fromNow();
+    }
   };
 
   const getTotalSlideCount = () => {
@@ -1362,7 +1369,12 @@ const marker = L.marker([${
                                   numberOfLines={1}
                                 >
                                   {getPrice(
-                                    config.currency,
+                                    listingData?.currency
+                                      ? {
+                                          ...config.currency,
+                                          ...listingData.currency,
+                                        }
+                                      : config.currency,
                                     {
                                       pricing_type: listingData.pricing_type,
                                       price_type: listingData.price_type,
@@ -1379,7 +1391,7 @@ const marker = L.marker([${
                               <Text
                                 style={[styles.listingPricenegotiable, rtlText]}
                               >
-                                {getPriceType(listingData.price_type)}
+                                {/* {getPriceType(listingData.price_type)} */}
                               </Text>
                             )}
                           </View>
@@ -1391,7 +1403,12 @@ const marker = L.marker([${
                                 numberOfLines={1}
                               >
                                 {getPrice(
-                                  config.currency,
+                                  listingData?.currency
+                                    ? {
+                                        ...config.currency,
+                                        ...listingData.currency,
+                                      }
+                                    : config.currency,
                                   {
                                     pricing_type: listingData.pricing_type,
                                     price_type: listingData.price_type,
@@ -1405,7 +1422,7 @@ const marker = L.marker([${
 
                             {listingData?.price_type !== "on_call" && (
                               <Text style={styles.listingPricenegotiable}>
-                                {getPriceType(listingData.price_type)}
+                                {/* {getPriceType(listingData.price_type)} */}
                               </Text>
                             )}
                           </View>

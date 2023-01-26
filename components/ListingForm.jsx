@@ -183,6 +183,7 @@ const ListingForm = ({ catId, type, goBack, osmOverlay, changeOsmOverlay }) => {
     6: { open: false },
   });
   const [defaultSBH, setDefaultSBH] = useState([]);
+  const [currencyPickerVisible, setCurrencyPickerVisible] = useState(false);
 
   const rtlText = rtl_support && {
     writingDirection: "rtl",
@@ -552,7 +553,7 @@ const ListingForm = ({ catId, type, goBack, osmOverlay, changeOsmOverlay }) => {
       ["category_id"]: catId,
       ["agree"]: 1,
       ["gallery"]: imageObjects,
-      ["listing_type"]: type.id,
+      ["listing_type"]: type?.id || "",
       ["hide_map"]: hideMap ? 1 : 0,
       ...markerPosition,
       ["social_profiles"]: { ...socialProfiles },
@@ -1992,6 +1993,130 @@ marker.setPopupContent("Address jhfashf asdjhfskjhdfk").openPopup();
                           </Text>
                         )}
                     </View>
+                  </View>
+                )}
+
+              {config?.multiCurrency &&
+                config.multiCurrency.type === "static" && (
+                  <View style={styles.inputWrap}>
+                    {rtl_support ? (
+                      <Text style={[styles.label, rtlTextA]}>
+                        {/* <Text style={styles.required}>* </Text> */}
+                        {__("listingFormTexts.currencyLabel", appSettings.lng)}
+                      </Text>
+                    ) : (
+                      <Text style={[styles.label, rtlTextA]}>
+                        {__("listingFormTexts.currencyLabel", appSettings.lng)}
+                        {/* <Text style={styles.required}> *</Text> */}
+                      </Text>
+                    )}
+                    <View style={styles.priceTypePickerWrap}>
+                      <TouchableOpacity
+                        style={[styles.priceTypePicker, rtlView]}
+                        onPress={() => {
+                          setCurrencyPickerVisible(
+                            (prevCurrencyPickerVisible) =>
+                              !prevCurrencyPickerVisible
+                          );
+                          if (!listingCommonData?.rtcl_price_currency) {
+                            setListingCommonData((listingCommonData) => {
+                              return {
+                                ...listingCommonData,
+                                ["rtcl_price_currency"]: null,
+                              };
+                            });
+                          }
+                        }}
+                      >
+                        <Text>
+                          {listingCommonData.rtcl_price_currency
+                            ? decodeString(
+                                config.multiCurrency.currencyList.filter(
+                                  (cu) =>
+                                    cu.id ===
+                                    listingCommonData.rtcl_price_currency
+                                )[0].name +
+                                  " (" +
+                                  config.multiCurrency.currencyList.filter(
+                                    (cu) =>
+                                      cu.id ===
+                                      listingCommonData.rtcl_price_currency
+                                  )[0].symbol +
+                                  ")"
+                              )
+                            : __(
+                                "listingFormTexts.currencyLabel",
+                                appSettings.lng
+                              )}
+                        </Text>
+                        <FontAwesome5
+                          name="chevron-down"
+                          size={14}
+                          color={COLORS.text_gray}
+                        />
+                      </TouchableOpacity>
+                      <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={currencyPickerVisible}
+                      >
+                        <TouchableWithoutFeedback
+                          onPress={() => setCurrencyPickerVisible(false)}
+                        >
+                          <View style={styles.modalOverlay} />
+                        </TouchableWithoutFeedback>
+                        <View style={styles.centeredView}>
+                          <View style={styles.modalView}>
+                            <Text style={styles.modalText}>{`== ${__(
+                              "listingFormTexts.currencyLabel",
+                              appSettings.lng
+                            )} ==`}</Text>
+                            <ScrollView
+                              contentContainerStyle={{
+                                display: "flex",
+                                width: "100%",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              {config.multiCurrency.currencyList.map((item) => (
+                                <TouchableOpacity
+                                  style={styles.pickerOptions}
+                                  key={`${item.id}`}
+                                  onPress={() => {
+                                    setCurrencyPickerVisible(false);
+                                    setListingCommonData(
+                                      (listingCommonData) => {
+                                        return {
+                                          ...listingCommonData,
+                                          ["rtcl_price_currency"]: item.id,
+                                        };
+                                      }
+                                    );
+                                  }}
+                                >
+                                  <Text
+                                    style={[styles.pickerOptionsText, rtlTextA]}
+                                  >
+                                    {item.name} ({decodeString(item.symbol)})
+                                  </Text>
+                                </TouchableOpacity>
+                              ))}
+                            </ScrollView>
+                          </View>
+                        </View>
+                      </Modal>
+                    </View>
+                    {/* <View style={styles.errorWrap}>
+                      {touchedFields.includes("price_unit") &&
+                        !listingCommonData.price_unit && (
+                          <Text style={[styles.errorMessage, rtlTextA]}>
+                            {__(
+                              "listingFormTexts.fieldRequiredErrorMessage",
+                              appSettings.lng
+                            )}
+                          </Text>
+                        )}
+                    </View> */}
                   </View>
                 )}
 

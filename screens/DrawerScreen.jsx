@@ -13,6 +13,7 @@ import { getDrawerOptionsData, __ } from "../language/stringPicker";
 import { useStateValue } from "../StateProvider";
 import DrawerOption from "../components/DrawerOption";
 import { DrawerContentScrollView } from "@react-navigation/drawer";
+import { miscConfig } from "../app/services/miscConfig";
 
 const { width: wWidth } = Dimensions.get("window");
 
@@ -76,14 +77,19 @@ const DrawerScreen = (props) => {
       </View>
       <DrawerContentScrollView {...props}>
         <View style={styles.drawerContentWrap}>
-          {drawerOptions.map((item, index) => (
-            <DrawerOption
-              item={item}
-              key={`${index}`}
-              isLast={drawerOptions.length - 1 == index}
-              navigation={props.navigation}
-            />
-          ))}
+          {drawerOptions.map((item, index) => {
+            if (!miscConfig?.enableAppSharing && item?.id === "share") {
+              return null;
+            }
+            return (
+              <DrawerOption
+                item={item}
+                key={`${index}`}
+                isLast={drawerOptions.length - 1 == index}
+                navigation={props.navigation}
+              />
+            );
+          })}
         </View>
       </DrawerContentScrollView>
       <View style={styles.footerSectionWrap}>

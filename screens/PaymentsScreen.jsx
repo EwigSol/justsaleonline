@@ -15,6 +15,7 @@ import PaymentHistoryCard from "../components/PaymentHistoryCard";
 import { __ } from "../language/stringPicker";
 import { paginationData } from "../app/pagination/paginationData";
 import { routes } from "../navigation/routes";
+import { useIsFocused } from "@react-navigation/native";
 
 const PaymentsScreen = ({ navigation }) => {
   const [{ auth_token, appSettings, rtl_support }] = useStateValue();
@@ -28,6 +29,7 @@ const PaymentsScreen = ({ navigation }) => {
   const [currentPage, setCurrentPage] = useState(
     pagination.page || paginationData.paymentHistory.page
   );
+  const isFocused = useIsFocused();
 
   //  Initial Call
   useEffect(() => {
@@ -65,29 +67,29 @@ const PaymentsScreen = ({ navigation }) => {
     api
       .get("orders", arg)
       .then((res) => {
-        console.log(res.data);
-        if (res?.ok) {
-          //
-          if (moreLoading) {
-            if (res?.data?.data?.length) {
-              setPaymentsData((prevPaymentsData) => [
-                ...prevPaymentsData,
-                ...res.data.data,
-              ]);
+        if (isFocused) {
+          if (res?.ok) {
+            if (moreLoading) {
+              if (res?.data?.data?.length) {
+                setPaymentsData((prevPaymentsData) => [
+                  ...prevPaymentsData,
+                  ...res.data.data,
+                ]);
+              }
+            } else {
+              if (res?.data?.data?.length) {
+                setPaymentsData(res.data.data);
+              }
             }
+            setPagination(res.data.pagination ? res.data.pagination : {});
           } else {
-            if (res?.data?.data?.length) {
-              setPaymentsData(res.data.data);
-            }
+            setErrorMessage(
+              res?.data?.error_message ||
+                res?.data?.error ||
+                res?.problem ||
+                __("paymentsScreenTexts.unknownError", appSettings.lng)
+            );
           }
-          setPagination(res.data.pagination ? res.data.pagination : {});
-        } else {
-          setErrorMessage(
-            res?.data?.error_message ||
-              res?.data?.error ||
-              res?.problem ||
-              __("paymentsScreenTexts.unknownError", appSettings.lng)
-          );
         }
       })
       .then(() => {

@@ -125,9 +125,9 @@ const StoreDetailsScreen = ({ route, navigation }) => {
     getStoreListings(storeId, tempPaginationData);
   }, [moreLoading]);
 
+  // console.log(JSON.stringify(config, null, 2));
   const getStoreDetail = (storeId) => {
     api.get(`stores/${storeId}`).then((res) => {
-      console.log(res.data);
       if (res.ok) {
         if (res.data) {
           setStoreData(res.data);
@@ -307,7 +307,10 @@ const StoreDetailsScreen = ({ route, navigation }) => {
                     />
                   </View>
                   <Text style={[styles.listingCardText, rtlText]}>
-                    {moment(item.created_at).fromNow()}
+                    {/* {moment(item.created_at).fromNow()} */}
+                    {moment
+                      .parseZone(item.created_at + config.timezone.timezone)
+                      .fromNow()}
                   </Text>
                 </View>
                 <View
@@ -346,7 +349,12 @@ const StoreDetailsScreen = ({ route, navigation }) => {
                 numberOfLines={1}
               >
                 {getPrice(
-                  config.currency,
+                  item?.currency
+                    ? {
+                        ...config.currency,
+                        ...item.currency,
+                      }
+                    : config.currency,
                   {
                     pricing_type: item.pricing_type,
                     price_type: item.price_type,
@@ -651,7 +659,7 @@ const StoreDetailsScreen = ({ route, navigation }) => {
                 : __("storeDetailsTexts.nullText", appSettings.lng)}
             </Text>
           </View>
-          {
+          {config?.seller_verification && storeData?.seller_verified && (
             <View
               style={{
                 flexDirection: rtl_support ? "row-reverse" : "row",
@@ -679,7 +687,7 @@ const StoreDetailsScreen = ({ route, navigation }) => {
                 </Text>
               </View>
             </View>
-          }
+          )}
           <View style={{ paddingVertical: 5 }}>
             <Text
               style={[
@@ -730,6 +738,30 @@ const StoreDetailsScreen = ({ route, navigation }) => {
                   >
                     {!!storeData?.phone
                       ? decodeString(storeData.phone)
+                      : __("storeDetailsTexts.nullText", appSettings.lng)}
+                  </Text>
+                </View>
+              </View>
+            )}
+            {!!storeData?.email && (
+              <View style={[styles.storeDetailMidrow, rtlView]}>
+                <View style={styles.storeDetailMidrowIconWrap}>
+                  <MessageIcon fillColor={COLORS.primary} />
+                </View>
+                <View style={[rtlView]}>
+                  <Text
+                    style={[
+                      styles.storeDetailMidrowText,
+                      {
+                        marginRight: rtl_support ? 5 : 0,
+                        marginLeft: rtl_support ? 0 : 5,
+                      },
+                      rtlText,
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {!!storeData?.email
+                      ? decodeString(storeData.email)
                       : __("storeDetailsTexts.nullText", appSettings.lng)}
                   </Text>
                 </View>
@@ -1343,24 +1375,44 @@ const StoreDetailsScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   banner: {
-    height: 200,
-    width: "100%",
+    height: windowWidth * 0.94 * 0.35,
+    width: windowWidth * 0.94,
     resizeMode: "cover",
   },
   bannerWrap: {
-    width: "100%",
-    height: 200,
+    width: windowWidth * 0.94,
+    height: windowWidth * 0.94 * 0.35,
+    borderTopRightRadius: 10,
+    borderTopLeftRadius: 10,
+    overflow: "hidden",
   },
   callText: {
     fontSize: 20,
     color: COLORS.text_dark,
     textAlign: "center",
   },
+  closedText: {
+    color: COLORS.red,
+  },
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
-    width: "100%",
-    height: "100%",
+    backgroundColor: "#F8F8F8",
+    flex: 1,
+  },
+  dayContentWrap: {
+    flex: 1,
+  },
+  dayTitle: {
+    fontSize: 14,
+
+    textTransform: "capitalize",
+  },
+  dayWrap: {
+    paddingVertical: 5,
+
+    marginVertical: 5,
+    flexDirection: "row",
+    alignItems: "center",
   },
   expiredText: {
     fontSize: 15,
@@ -1383,10 +1435,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 50,
     width: "100%",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    zIndex: 2,
+    backgroundColor: COLORS.primary,
   },
   headerBackButton: {
     position: "absolute",
@@ -1452,8 +1501,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logo: {
-    height: 70,
-    width: 80,
+    height: windowWidth * 0.94 * 0.21,
+    width: windowWidth * 0.94 * 0.21,
     resizeMode: "contain",
   },
   modalOverlay: {
@@ -1484,22 +1533,22 @@ const styles = StyleSheet.create({
   },
   screenTitle: {
     fontSize: 20,
-    color: COLORS.black,
+    color: COLORS.white,
     fontWeight: "bold",
     elevation: 2,
   },
   storeBottom: {
     width: "100%",
     flex: 1,
-    position: "relative",
   },
   storeContactButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 3,
-    width: "48%",
+    width: "45.5%",
     height: 32,
+    marginHorizontal: "1.5%",
   },
   storeContactButtonText: {
     fontSize: 14,
@@ -1514,8 +1563,8 @@ const styles = StyleSheet.create({
   storeDetailMidrow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-start",
-    marginVertical: 5,
+    justifyContent: "center",
+    marginVertical: 8,
   },
   storeDetailMidrowIconWrap: {
     height: 16,
@@ -1526,7 +1575,7 @@ const styles = StyleSheet.create({
   },
   storeDetailMidrowText: {
     fontSize: 14,
-    color: COLORS.text_gray,
+    color: COLORS.text_dark,
   },
   storeDetailTopRight: {
     flex: 1,
@@ -1534,36 +1583,34 @@ const styles = StyleSheet.create({
     width: windowWidth * 0.724,
   },
   storeDetatilTopWrap: {
-    width: windowWidth * 0.88,
-    flexDirection: "row",
     alignItems: "center",
   },
   storeDetailWrap: {
     backgroundColor: COLORS.white,
-    position: "absolute",
     width: windowWidth * 0.94,
-    top: 200 - (70 + 15 + windowWidth * 0.03),
-    borderRadius: 5,
-    elevation: 5,
-    padding: windowWidth * 0.03,
-    shadowColor: "#000",
+    borderRadius: 10,
+    elevation: 2,
+    shadowColor: COLORS.gray,
     shadowRadius: 3,
     shadowOffset: {
-      width: 3,
-      height: 3,
+      width: 0,
+      height: 0,
     },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     zIndex: 1,
+    marginTop: windowWidth * 0.03,
+    alignItems: "center",
   },
   storeListingCardContent: {
     flexDirection: "row",
     alignItems: "flex-start",
-    paddingHorizontal: "3%",
+    // paddingHorizontal: "3%",
   },
   storeLogo: {
-    height: 70,
-    width: 80,
+    height: windowWidth * 0.94 * 0.21,
+    width: windowWidth * 0.94 * 0.21,
     overflow: "hidden",
+    borderRadius: windowWidth * 0.94 * 0.11,
   },
   storeRatingWrap: {
     paddingHorizontal: 10,
@@ -1587,7 +1634,6 @@ const styles = StyleSheet.create({
     lineHeight: 25,
   },
   storeTitleRow: {
-    flexDirection: "row",
     alignItems: "center",
   },
   storeTop: {
@@ -1607,6 +1653,5 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 });
-
 
 export default StoreDetailsScreen;

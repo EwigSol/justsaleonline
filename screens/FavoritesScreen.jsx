@@ -29,8 +29,9 @@ import { getRelativeTimeConfig, __ } from "../language/stringPicker";
 import { routes } from "../navigation/routes";
 import moment from "moment";
 import "moment/locale/en-gb";
+import { useIsFocused } from "@react-navigation/native";
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get("screen");
+const { width: screenWidth } = Dimensions.get("screen");
 const FavoritesScreen = ({ navigation }) => {
   const [{ auth_token, is_connected, appSettings, rtl_support, ios }] =
     useStateValue();
@@ -50,6 +51,7 @@ const FavoritesScreen = ({ navigation }) => {
   );
   const [flashNotification, setFlashNotification] = useState(false);
   const [flashNotificationMessage, setFlashNotificationMessage] = useState();
+  const isFocused = useIsFocused();
 
   // Initial get listing call
   useEffect(() => {
@@ -84,42 +86,44 @@ const FavoritesScreen = ({ navigation }) => {
     setAuthToken(auth_token);
 
     api.get("my/favourites", data).then((res) => {
-      if (res.ok) {
-        if (refreshing) {
-          setRefreshing(false);
-        }
-        if (moreLoading) {
-          setMyFavs((prevMyFavs) => [...prevMyFavs, ...res.data.data]);
-          setMoreLoading(false);
-        } else {
-          setMyFavs(res.data.data);
-        }
-        setPagination(res?.data?.pagination || {});
+      if (isFocused) {
+        if (res.ok) {
+          if (refreshing) {
+            setRefreshing(false);
+          }
+          if (moreLoading) {
+            setMyFavs((prevMyFavs) => [...prevMyFavs, ...res.data.data]);
+            setMoreLoading(false);
+          } else {
+            setMyFavs(res.data.data);
+          }
+          setPagination(res?.data?.pagination || {});
 
-        removeAuthToken();
-        if (loading) {
-          setLoading(false);
+          removeAuthToken();
+          if (loading) {
+            setLoading(false);
+          }
+        } else {
+          if (refreshing) {
+            setRefreshing(false);
+          }
+          if (moreLoading) {
+            setMoreLoading(false);
+          }
+          handleError(
+            res?.data?.error_message ||
+              res?.data?.error ||
+              res?.problem ||
+              __(
+                "favoritesScreenTexts.customServerResponseError",
+                appSettings.lng
+              )
+          );
+          if (loading) {
+            setLoading(false);
+          }
+          removeAuthToken();
         }
-      } else {
-        if (refreshing) {
-          setRefreshing(false);
-        }
-        if (moreLoading) {
-          setMoreLoading(false);
-        }
-        handleError(
-          res?.data?.error_message ||
-            res?.data?.error ||
-            res?.problem ||
-            __(
-              "favoritesScreenTexts.customServerResponseError",
-              appSettings.lng
-            )
-        );
-        if (loading) {
-          setLoading(false);
-        }
-        removeAuthToken();
       }
     });
   };

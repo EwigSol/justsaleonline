@@ -23,6 +23,7 @@ const ListPicker = ({
   onClick,
   overlayClick,
   selected,
+  pickerType,
 }) => {
   return (
     <Modal animationType="slide" transparent={true} visible={pickerVisible}>
@@ -45,9 +46,18 @@ const ListPicker = ({
                 key={`${item.id}`}
                 onPress={() => onClick(item)}
               >
-                <Text style={styles.pickerOptionsText}>
-                  {decodeString(item.name)}
-                </Text>
+                {pickerType === "currency" ? (
+                  <Text style={styles.pickerOptionsText}>
+                    {decodeString(item.name) +
+                      " (" +
+                      decodeString(item.symbol) +
+                      ")"}
+                  </Text>
+                ) : (
+                  <Text style={styles.pickerOptionsText}>
+                    {decodeString(item.name)}
+                  </Text>
+                )}
                 {selected && selected.id === item.id && (
                   <FontAwesome5 name="check" size={14} color="black" />
                 )}

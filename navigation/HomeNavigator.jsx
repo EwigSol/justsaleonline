@@ -6,10 +6,16 @@ import { COLORS } from "../variables/color";
 import settingsStorage from "../app/settings/settingsStorage";
 import { __ } from "../language/stringPicker";
 import authStorage from "../app/auth/authStorage";
-import api, { removeAuthToken, setAuthToken, setLocale } from "../api/client";
+import api, {
+  removeAuthToken,
+  setAuthToken,
+  setCurrencyLocale,
+  setLocale,
+} from "../api/client";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import * as Localization from "expo-localization";
+import * as SplashScreen from "expo-splash-screen";
 
 import ListingDetailScreen from "../screens/ListingDetailScreen";
 import ChatScreen from "../screens/ChatScreen";
@@ -47,13 +53,12 @@ import PaymentDetailScreen from "../screens/PaymentDetailScreen";
 
 import { defaultLng } from "../language/stringPicker";
 
-const Stack = createStackNavigator();
-
 import rtlSupportedLng from "../language/rtlSupoortedLng.json";
 import ChatScreenSingle from "../screens/ChatScreenSingle";
 import ForgotPassScreen from "../screens/ForgotPassScreen";
 import OTPVerificationScreen from "../screens/OTPVerificationScreen";
 import MyDocumentsScreen from "../screens/MyDocumentsScreen";
+const Stack = createStackNavigator();
 
 const HomeNavigator = () => {
   const [{ user, auth_token, appSettings, config }, dispatch] = useStateValue();
@@ -111,7 +116,6 @@ const HomeNavigator = () => {
         });
       }
       setLocale(defaultLng);
-
       setSettingsUpdated(true);
       return;
     }
@@ -131,6 +135,9 @@ const HomeNavigator = () => {
         });
       }
       setLocale(parsedSettings?.lng || defaultLng);
+      if (parsedSettings?.dynamic_currency) {
+        setCurrencyLocale(parsedSettings.dynamic_currency);
+      }
       dispatch({
         type: "SET_SETTINGS",
         appSettings: { ...appSettings, ...parsedSettings },
@@ -145,15 +152,27 @@ const HomeNavigator = () => {
     updateConfigData();
   }, []);
 
+  useEffect(() => {
+    setLocale(appSettings?.lng || defaultLng);
+  }, [appSettings.lng]);
+  useEffect(() => {
+    setCurrencyLocale(appSettings.dynamic_currency);
+  }, [appSettings.dynamic_currency]);
+
   // Send push token to server
 
   useEffect(() => {
     if (settingsUpdated && configUpdated) {
       registerForPushNotificationsAsync().then((token) => sendPushToken(token));
+      hideSplash();
     } else {
       return;
     }
   }, [settingsUpdated, configUpdated]);
+
+  const hideSplash = async () => {
+    await SplashScreen.hideAsync();
+  };
 
   const sendPushToken = (pt) => {
     if (user && auth_token) {
@@ -265,13 +284,13 @@ const HomeNavigator = () => {
           name={routes.drawerNavigator}
           component={DrawerNavigator}
           options={{
-            headerShown: false,
+            header: () => null,
           }}
         />
         <Stack.Screen
           name={routes.listingDetailScreen}
           component={ListingDetailScreen}
-          options={{ headerShown: false }}
+          options={{ header: () => null }}
         />
         <Stack.Screen
           name={routes.sendEmailScreen}
@@ -321,7 +340,7 @@ const HomeNavigator = () => {
           component={LoginScreen}
           options={{
             title: __("screenTitles.loginScreen", appSettings.lng),
-            headerShown: false,
+            header: () => null,
           }}
         />
         <Stack.Screen
@@ -329,7 +348,7 @@ const HomeNavigator = () => {
           component={SignUpScreen}
           options={{
             title: __("screenTitles.signUpScreen", appSettings.lng),
-            headerShown: false,
+            header: () => null,
           }}
         />
         <Stack.Screen
@@ -337,7 +356,7 @@ const HomeNavigator = () => {
           component={ForgotPassScreen}
           options={{
             title: __("screenTitles.forgotPassScreen", appSettings.lng),
-            headerShown: false,
+            header: () => null,
           }}
         />
         <Stack.Screen
@@ -366,7 +385,7 @@ const HomeNavigator = () => {
           component={MyProfileScreen}
           options={{
             title: __("screenTitles.myProfileScreen", appSettings.lng),
-            headerShown: false,
+            header: () => null,
           }}
         />
         <Stack.Screen
@@ -417,7 +436,7 @@ const HomeNavigator = () => {
           component={EditPersonalDetailScreen}
           options={{
             title: __("screenTitles.editPersonalDetailScreen", appSettings.lng),
-            headerShown: false,
+            header: () => null,
           }}
         />
         <Stack.Screen
@@ -430,7 +449,7 @@ const HomeNavigator = () => {
         <Stack.Screen
           name={routes.storeDetailsScreen}
           options={{
-            headerShown: false,
+            header: () => null,
             title: __("screenTitles.storeDetailsScreen", appSettings.lng),
           }}
           component={StoreDetailsScreen}

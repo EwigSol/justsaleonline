@@ -10,7 +10,8 @@ import {
   Keyboard,
 } from "react-native";
 import { COLORS } from "../variables/color";
-import { LiteCreditCardInput } from "react-native-credit-card-input";
+// import { LiteCreditCardInput } from "react-native-credit-card-input";
+// import { LiteCreditCardInput } from "react-native-credit-card-input-view";
 import { StripeProvider, CardField } from "@stripe/stripe-react-native";
 import { decodeString } from "../helper/helper";
 import { useStateValue } from "../StateProvider";
@@ -174,9 +175,37 @@ const PaymentMethodCard = ({
                 ]}
               >
                 <View style={styles.cardContent}>
-                  <LiteCreditCardInput
+                  {/* <LiteCreditCardInput
                     onChange={(form) => onCardDataUpdate(form)}
                   />
+                  <LiteCreditCardInput onChange={this._onChange} /> */}
+                  <StripeProvider publishableKey="pk_test_51J2sdOGisFrTT10P188P3x8J5YiFn4eOEvMvo6SbVEgBDqZA9RYFUP5fNCQ0x9fjjoUt5KAhlQzvG7jYuN9mVeHO00SfVsayzv">
+                    <CardField
+                      ref={ref}
+                      postalCodeEnabled={false}
+                      placeholder={{
+                        number: "4242 4242 4242 4242",
+                      }}
+                      dangerouslyGetFullCardDetails={true}
+                      cardStyle={{
+                        backgroundColor: "#FFFFFF",
+                        textColor: "#000000",
+                        fontSize: 15,
+                      }}
+                      style={{
+                        // width: "100%",
+                        height: 35,
+                        marginVertical: 1,
+                        marginHorizontal: 1,
+                        borderWidth: 1,
+                        borderColor: COLORS.border_light,
+                        borderRadius: 3,
+                      }}
+                      onCardChange={(cardDetails) => {
+                        onCardDataUpdate(cardDetails);
+                      }}
+                    />
+                  </StripeProvider>
                 </View>
               </Animated.View>
             </>

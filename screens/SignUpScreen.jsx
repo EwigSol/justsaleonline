@@ -210,7 +210,6 @@ const SignUpScreen = ({ navigation, route }) => {
       behavior={ios ? "padding" : "height"}
       style={{ flex: 1, backgroundColor: "#f8f8f8" }}
       keyboardVerticalOffset={ios ? 70 : 0}
-      enabled={ios}
     >
       <View style={{ flex: 1 }}>
         <TouchableOpacity

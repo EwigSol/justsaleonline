@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
-// import { requestPermissionsAsync, getPermissionsAsync } from "expo-ads-admob";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
@@ -164,41 +163,41 @@ const HomeScreenOld = ({ navigation }) => {
     handleLoadListingsData();
   }, [refreshing]);
 
-  useEffect(() => {
-    if (ios && admobConfig?.admobEnabled) {
-      getper();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (ios && admobConfig?.admobEnabled) {
+  //     getper();
+  //   }
+  // }, []);
 
-  const getper = async () => {
-    const { status } = await getPermissionsAsync();
-    if (status !== "granted") {
-      const { granted } = await requestPermissionsAsync();
-      if (!granted) {
-        Alert.alert("", __("adMobTexts.appDisabledAlert", appSettings.lng), [
-          {
-            text: __("adMobTexts.okButton", appSettings.lng),
-            onPress: () => {
-              dispatch({
-                type: "SET_ADMOB_PERMISSION",
-                admobPermission: false,
-              });
-            },
-          },
-        ]);
-      } else {
-        dispatch({
-          type: "SET_ADMOB_PERMISSION",
-          admobPermission: true,
-        });
-      }
-    } else {
-      dispatch({
-        type: "SET_ADMOB_PERMISSION",
-        admobPermission: true,
-      });
-    }
-  };
+  // const getper = async () => {
+  //   const { status } = await getPermissionsAsync();
+  //   if (status !== "granted") {
+  //     const { granted } = await requestPermissionsAsync();
+  //     if (!granted) {
+  //       Alert.alert("", __("adMobTexts.appDisabledAlert", appSettings.lng), [
+  //         {
+  //           text: __("adMobTexts.okButton", appSettings.lng),
+  //           onPress: () => {
+  //             dispatch({
+  //               type: "SET_ADMOB_PERMISSION",
+  //               admobPermission: false,
+  //             });
+  //           },
+  //         },
+  //       ]);
+  //     } else {
+  //       dispatch({
+  //         type: "SET_ADMOB_PERMISSION",
+  //         admobPermission: true,
+  //       });
+  //     }
+  //   } else {
+  //     dispatch({
+  //       type: "SET_ADMOB_PERMISSION",
+  //       admobPermission: true,
+  //     });
+  //   }
+  // };
   const rtlTextA = rtl_support && {
     writingDirection: "rtl",
     textAlign: "right",

@@ -94,40 +94,47 @@ const SendEmailScreen = ({ navigation, route }) => {
       };
       slug = "store/email-owner";
     }
-
-    setAuthToken(auth_token);
-    api.post(slug, mailData).then((res) => {
-      if (res.ok) {
-        setDone((done) => !done);
-        setLoading(false);
-        removeAuthToken();
-        handleSuccess(
-          __("sendEmailScreenTexts.serverResponse.success", appSettings.lng)
-        );
-      } else {
-        setLoading(false);
-        removeAuthToken();
-        if (res.problem === "TIMEOUT_ERROR") {
-          handleError(
-            __("sendEmailScreenTexts.serverResponse.timeOut", appSettings.lng)
+    if (user) {
+      setAuthToken(auth_token);
+    }
+    api
+      .post(slug, mailData)
+      .then((res) => {
+        if (res.ok) {
+          setDone((done) => !done);
+          setLoading(false);
+          handleSuccess(
+            __("sendEmailScreenTexts.serverResponse.success", appSettings.lng)
           );
         } else {
-          handleError(
-            res?.data?.error_message ||
-              res?.data?.error ||
-              res?.problem ||
-              __("sendEmailScreenTexts.serverResponse.fail", appSettings.lng)
-          );
+          setLoading(false);
+
+          if (res.problem === "TIMEOUT_ERROR") {
+            handleError(
+              __("sendEmailScreenTexts.serverResponse.timeOut", appSettings.lng)
+            );
+          } else {
+            handleError(
+              res?.data?.error_message ||
+                res?.data?.error ||
+                res?.problem ||
+                __("sendEmailScreenTexts.serverResponse.fail", appSettings.lng)
+            );
+          }
         }
-      }
-    });
+      })
+      .finally(() => {
+        if (user) {
+          removeAuthToken();
+        }
+      });
   };
 
   const getUserName = () => {
-    if (!user.first_name && !user.last_name) {
+    if (!user?.first_name && !user?.last_name) {
       return user.username;
     } else {
-      return (user.first_name || "") + " " + (user.last_name || "");
+      return ((user?.first_name || "") + " " + (user.last_name || "")).trim();
     }
   };
   const handleSuccess = (message) => {
@@ -168,7 +175,6 @@ const SendEmailScreen = ({ navigation, route }) => {
     <KeyboardAvoidingView
       behavior={ios ? "padding" : "height"}
       style={styles.container}
-      style={{ flex: 1 }}
     >
       <ScrollView style={styles.container}>
         <View style={styles.titleWrap}>
@@ -188,8 +194,8 @@ const SendEmailScreen = ({ navigation, route }) => {
             initialValues={{
               message: "",
               name: getUserName() || "",
-              email: user.email || "",
-              phone: user.phone || "",
+              email: user?.email || "",
+              phone: user?.phone || "",
             }}
             onSubmit={(values) => sendEmail(values)}
             validationSchema={validationSchema}
@@ -233,7 +239,7 @@ const SendEmailScreen = ({ navigation, route }) => {
                     "sendEmailScreenTexts.formFieldPlaceholders.email",
                     appSettings.lng
                   )}
-                  editable={!user.email}
+                  editable={!user?.email}
                 />
                 <View style={styles.errorWrap}>
                   {touched.email && errors.email && (
@@ -333,7 +339,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 22,
   },
-
   container: {
     flex: 1,
     backgroundColor: COLORS.bg_dark,

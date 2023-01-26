@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Linking,
+  Platform,
+} from "react-native";
 import { useStateValue } from "../StateProvider";
 import { COLORS } from "../variables/color";
 import ChevronRightIcon from "./svgComponents/ChevronRightIcon";
@@ -11,6 +18,8 @@ import TnCIcon from "./svgComponents/TnCIcon";
 import PPIcon from "./svgComponents/PPIcon";
 import ContactUsIcon from "./svgComponents/ContactUsIcon";
 import ShopIcon from "./svgComponents/ShopIcon";
+import { EvilIcons, Feather } from "@expo/vector-icons";
+import { miscConfig } from "../app/services/miscConfig";
 
 const DrawerOption = ({ item, isLast, navigation }) => {
   const [{ rtl_support, config }] = useStateValue();
@@ -43,15 +52,29 @@ const DrawerOption = ({ item, isLast, navigation }) => {
       return <TnCIcon fillColor={COLORS.primary} />;
     } else if (item?.id === "all_stores") {
       return <ShopIcon fillColor={COLORS.primary} />;
+    } else if (item?.id === "share") {
+      return <Feather name="share-2" color={COLORS.primary} size={18} />;
     }
+  };
+
+  const onDrawerOptionClick = () => {
+    if (item?.id === "share") {
+      Linking.openURL(
+        `${
+          Platform.OS === "ios"
+            ? miscConfig.appSharingLinks.iOS
+            : miscConfig.appSharingLinks.android
+        }`
+      );
+      return;
+    }
+    navigation.navigate(item.routeName);
   };
   if (item?.id === "all_stores" && !config?.store_enabled) {
     return null;
   } else {
     return (
-      <TouchableWithoutFeedback
-        onPress={() => navigation.navigate(item.routeName)}
-      >
+      <TouchableWithoutFeedback onPress={onDrawerOptionClick}>
         <View
           style={[
             styles.container,

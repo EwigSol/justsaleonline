@@ -1,28 +1,21 @@
-// import { AdMobBanner, setTestDeviceIDAsync } from "expo-ads-admob";
-
-import React, { useEffect } from "react";
+// import { BannerAd, BannerAdSize } from "react-native-google-mobile-ads";
+import React from "react";
 import { admobConfig } from "../app/services/adMobConfig";
 import { useStateValue } from "../StateProvider";
 
 const AdmobBanner = (props) => {
   const [{ ios }] = useStateValue();
 
-  useEffect(() => {
-    if (admobConfig?.admobEnabled) {
-      configureAdmobTestDeviceID();
-    }
-  }, []);
-
-  const configureAdmobTestDeviceID = async () => {
-    await setTestDeviceIDAsync("EMULATOR");
-  };
   return (
-    <AdMobBanner
-      bannerSize={admobConfig.listAdType}
-      adUnitID={
+    <BannerAd
+      unitId={
         ios ? admobConfig.admobBannerId.iOS : admobConfig.admobBannerId.android
       }
-      onDidFailToReceiveAdWithError={(error) => console.error(error)}
+      size={BannerAdSize.LARGE_BANNER}
+      requestOptions={{
+        requestNonPersonalizedAdsOnly: true,
+      }}
+      onAdFailedToLoad={(err) => console.log(JSON.stringify(err))}
     />
   );
 };

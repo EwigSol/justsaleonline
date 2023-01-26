@@ -20,11 +20,7 @@ import * as Yup from "yup";
 import moment from "moment";
 
 // Vector Icons
-import {
-  FontAwesome5,
-  Ionicons,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 
 // Custom Components & Functions

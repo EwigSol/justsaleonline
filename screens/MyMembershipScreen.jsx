@@ -17,13 +17,14 @@ import { __ } from "../language/stringPicker";
 import { routes } from "../navigation/routes";
 import { AntDesign } from "@expo/vector-icons";
 import api, { removeAuthToken, setAuthToken } from "../api/client";
+import { useIsFocused } from "@react-navigation/native";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("screen");
 const MyMembershipScreen = ({ navigation }) => {
   const [{ appSettings, auth_token, config, rtl_support }] = useStateValue();
-
   const [loading, setLoading] = useState(true);
   const [tempUser, setTempUser] = useState();
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     getMyMembershipStatus();
@@ -44,10 +45,12 @@ const MyMembershipScreen = ({ navigation }) => {
     api
       .get("my")
       .then((res) => {
-        if (res.ok) {
-          setTempUser(res?.data);
-        } else {
-          // TODO handle error
+        if (isFocused) {
+          if (res.ok) {
+            setTempUser(res?.data);
+          } else {
+            // TODO handle error
+          }
         }
       })
       .then(() => {
@@ -325,7 +328,7 @@ const MyMembershipScreen = ({ navigation }) => {
                                   style={styles.promotionLabel}
                                   numberOfLines={1}
                                 >
-                                  {config?.promotions[promo] || promo}
+                                  {__(`promotions.${promo}`, appSettings.lng)}
                                 </Text>
                               </View>
                               <View

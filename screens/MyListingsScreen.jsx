@@ -34,13 +34,14 @@ import DeleteIcon from "../components/svgComponents/DeleteIcon";
 import PenIcon from "../components/svgComponents/PenIcon";
 import moment from "moment";
 import "moment/locale/en-gb";
+import { useIsFocused } from "@react-navigation/native";
 
 const { height: windowHeight, width: windowWidth } = Dimensions.get("window");
 const extraHeight = 50;
 
 const MyListingsScreen = ({ navigation }) => {
   const [
-    { auth_token, is_connected, config, appSettings, rtl_support, ios },
+    { auth_token, is_connected, config, appSettings, rtl_support },
     dispatch,
   ] = useStateValue();
   const [myListings, setMyListings] = useState([]);
@@ -58,6 +59,7 @@ const MyListingsScreen = ({ navigation }) => {
   );
   const [flashNotification, setFlashNotification] = useState(false);
   const [flashNotificationMessage, setFlashNotificationMessage] = useState();
+  const isFocused = useIsFocused();
 
   // Initial get listing call
   useEffect(() => {
@@ -93,47 +95,49 @@ const MyListingsScreen = ({ navigation }) => {
   const handleLoadAdsList = (arg) => {
     setAuthToken(auth_token);
     api.get("my/listings", arg).then((res) => {
-      if (res.ok) {
-        if (refreshing) {
-          setRefreshing(false);
-        }
-        if (moreLoading) {
-          setMyListings((prevMyListings) => [
-            ...prevMyListings,
-            ...res.data.data,
-          ]);
-          setMoreLoading(false);
+      if (isFocused) {
+        if (res.ok) {
+          if (refreshing) {
+            setRefreshing(false);
+          }
+          if (moreLoading) {
+            setMyListings((prevMyListings) => [
+              ...prevMyListings,
+              ...res.data.data,
+            ]);
+            setMoreLoading(false);
+          } else {
+            setMyListings(res.data.data);
+          }
+          setPagination(res.data.pagination ? res.data.pagination : {});
+          removeAuthToken();
+          if (loading) {
+            setLoading(false);
+          }
         } else {
-          setMyListings(res.data.data);
-        }
-        setPagination(res.data.pagination ? res.data.pagination : {});
-        removeAuthToken();
-        if (loading) {
-          setLoading(false);
-        }
-      } else {
-        // TODO handle error
+          // TODO handle error
 
-        if (refreshing) {
-          setRefreshing(false);
-        }
+          if (refreshing) {
+            setRefreshing(false);
+          }
 
-        if (moreLoading) {
-          setMoreLoading(false);
+          if (moreLoading) {
+            setMoreLoading(false);
+          }
+          handleError(
+            res?.data?.error_message ||
+              res?.data?.error ||
+              res?.problem ||
+              __(
+                "myListingsScreenTexts.customServerErrorMessage",
+                appSettings.lng
+              )
+          );
+          if (loading) {
+            setLoading(false);
+          }
+          removeAuthToken();
         }
-        handleError(
-          res?.data?.error_message ||
-            res?.data?.error ||
-            res?.problem ||
-            __(
-              "myListingsScreenTexts.customServerErrorMessage",
-              appSettings.lng
-            )
-        );
-        if (loading) {
-          setLoading(false);
-        }
-        removeAuthToken();
       }
     });
   };

@@ -16,12 +16,14 @@ const DrawerNavigator = (props) => {
         drawerStyle: {
           width: "85%",
         },
-        headerShown: false,
       }}
     >
       <Drawer.Screen
         name={routes.tabNavigator}
         component={miscConfig?.oldBottomTabBar ? TabNavigatorOld : TabNavigator}
+        options={{
+          header: () => null,
+        }}
       />
     </Drawer.Navigator>
   );

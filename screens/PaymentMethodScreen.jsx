@@ -28,6 +28,7 @@ import { __ } from "../language/stringPicker";
 import api, { apiKey, removeAuthToken, setAuthToken } from "../api/client";
 import { AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
+// import RazorpayCheckout from "react-native-razorpay";
 
 const PaymentMethodScreen = ({ navigation, route }) => {
   const [{ config, ios, appSettings, auth_token, user, rtl_support }] =
@@ -46,6 +47,7 @@ const PaymentMethodScreen = ({ navigation, route }) => {
   const [paypalData, setPaypalData] = useState(null);
   const [razorpayData, setRazorpayData] = useState(null);
   const [razorpaySuccess, setRazorpaySuccess] = useState(null);
+  const [razorpayLoading, setRazorpayLoading] = useState(false);
   const [stripe3dConfirming, setStripe3dConfirming] = useState(false);
   const [wooCom, setWooCom] = useState(false);
   const [wooLoading, setWooLoading] = useState(false);
@@ -142,8 +144,6 @@ const PaymentMethodScreen = ({ navigation, route }) => {
       setPaymentModal(true);
       handlePaypalPayment(args);
     } else if (selectedMethod?.id === "razorpay") {
-      setPaymentLoading(true);
-      setPaymentModal(true);
       handleRazorpayPayment(args);
     } else {
       setPaymentLoading(true);
@@ -182,17 +182,30 @@ const PaymentMethodScreen = ({ navigation, route }) => {
   };
   const handleRazorpayPayment = (args) => {
     setAuthToken(auth_token);
-
-    // return;
+    setRazorpayLoading(true);
     api
       .post("checkout", args)
       .then((res) => {
         if (res.ok) {
           setPaymentData(res.data);
-          setPaypalLoading(true);
-          setPaymentLoading(false);
           if (args?.gateway_id === "razorpay" && res?.data?.redirect) {
-            setRazorpayData(res.data);
+            alert(JSON.stringify(res.data));
+            alert("orderMade");
+            var options = {
+              key: res.data.checkout_data.key,
+              currency: res.data.checkout_data.currency,
+              description: res.data.checkout_data.description,
+              name: res.data.checkout_data.name,
+              order_id: res.data.checkout_data.order_id,
+              notes: {
+                rtcl_payment_id: res.data.id,
+              },
+            };
+
+            RazorpayCheckout.open(options).then((data) => {
+              // handle success
+              razorpayConfirm(data);
+            });
           }
         } else {
           setPaymentError(
@@ -201,11 +214,53 @@ const PaymentMethodScreen = ({ navigation, route }) => {
               res?.problem ||
               __("paymentMethodScreen.unknownError", appSettings.lng)
           );
+
           // TODO handle error
         }
       })
       .then(() => {
         removeAuthToken();
+        setRazorpayLoading(false);
+      });
+  };
+
+  const razorpayConfirm = (rpData) => {
+    if (!rpData?.razorpay_payment_id || !rpData?.razorpay_signature) {
+      //
+      setPaymentError(__("paymentMethodScreen.unknownError", appSettings.lng));
+      setPaypalLoading(false);
+      setPaymentLoading(false);
+      return;
+    }
+    setRazorpaySuccess(true);
+    setPaymentLoading(true);
+    setPaymentModal(true);
+    var formdata = new FormData();
+    formdata.append("payment_id", paymentData.id);
+    formdata.append("rest_api", 1);
+    formdata.append("razorpay_payment_id", rpData.razorpay_payment_id);
+    formdata.append("razorpay_order_id", rpData.razorpay_order_id);
+    formdata.append("razorpay_signature", rpData.razorpay_signature);
+    const myHeaders = new Headers();
+    myHeaders.append("Accept", "application/json");
+    myHeaders.append("X-API-KEY", apiKey);
+    myHeaders.append("Authorization", "Bearer " + auth_token);
+
+    fetch(paymentData.auth_api_url, {
+      method: "POST",
+      body: formdata,
+      headers: myHeaders,
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        if (json?.success) {
+          setPaymentData(json.data);
+        }
+      })
+      .catch((error) => alert(error))
+      .finally(() => {
+        setPaypalLoading(false);
+        setPaymentLoading(false);
       });
   };
 
@@ -268,7 +323,6 @@ const PaymentMethodScreen = ({ navigation, route }) => {
     api
       .post("checkout", args)
       .then(async (res) => {
-        console.log(res);
         if (res.ok) {
           if (
             res?.data?.requiresAction &&
@@ -326,7 +380,7 @@ const PaymentMethodScreen = ({ navigation, route }) => {
   };
 
   const handleAuthorizeCardPayment = (args) => {
-    if (!cardData?.valid) {
+    if (!cardData?.complete) {
       Alert.alert(
         __("paymentMethodScreen.invalidCardMessage", appSettings.lng)
       );
@@ -336,10 +390,10 @@ const PaymentMethodScreen = ({ navigation, route }) => {
     setAuthToken(auth_token);
     api
       .post("checkout", {
-        card_number: cardData?.values?.number,
-        card_exp_month: cardData?.values?.expiry.split("/")[0],
-        card_exp_year: cardData?.values?.expiry.split("/")[1],
-        card_cvc: cardData?.values?.cvc,
+        card_number: cardData?.number,
+        card_exp_month: cardData?.expiryMonth,
+        card_exp_year: cardData?.expiryYear,
+        card_cvc: cardData?.cvc,
         ...args,
       })
       .then((res) => {
@@ -395,16 +449,6 @@ const PaymentMethodScreen = ({ navigation, route }) => {
   const rtlView = rtl_support && {
     flexDirection: "row-reverse",
   };
-
-  let HTML = `<html>
-		<head>
-			<title>Payment</title>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-		<head>
-		<body  style="height:100vh">
-		</body>
-    </html>`;
 
   const handleWooPayment = () => {
     Keyboard.dismiss();
@@ -1325,6 +1369,8 @@ const PaymentMethodScreen = ({ navigation, route }) => {
                         <WebView
                           style={{ marginTop: 20, opacity: 0.99 }}
                           startInLoadingState={true}
+                          javaScriptCanOpenWindowsAutomatically={true}
+                          setSupportMultipleWindows={true}
                           renderLoading={() => (
                             <View
                               style={{
@@ -1445,12 +1491,14 @@ const PaymentMethodScreen = ({ navigation, route }) => {
                             </View>
                           )}
                           source={{ html: HTML }}
+                          javaScriptCanOpenWindowsAutomatically={true}
+                          setSupportMultipleWindows={true}
                           injectedJavaScript={`(function(){
-                    if(!window.Razorpay){ 
-                        var resp = {reason:'Could not initiate Razerpay', success:false, payment:null};
-                        window.ReactNativeWebView.postMessage(JSON.stringify(resp));
-                      }else{
-                        var razorpayCheckout = new Razorpay({
+                          if(!window.Razorpay){ 
+                          var resp = {reason:'Could not initiate Razerpay', success:false, payment:null};
+                          window.ReactNativeWebView.postMessage(JSON.stringify(resp));
+                          }else{
+                          var razorpayCheckout = new Razorpay({
                           key: "${paymentData.checkout_data.key}",
                           currency: "${paymentData.checkout_data.currency}",
                           description: "${paymentData.checkout_data.description}",
@@ -1476,6 +1524,7 @@ const PaymentMethodScreen = ({ navigation, route }) => {
                           onMessage={(event) => {
                             // var response = JSON.parse(event);
                             const result = event.nativeEvent.data;
+                            console.log(result);
                             if (result) {
                               const res = JSON.parse(result);
                               if (res.success) {
@@ -1885,6 +1934,21 @@ const PaymentMethodScreen = ({ navigation, route }) => {
           <ActivityIndicator size={"large"} color={COLORS.primary} />
         </View>
       </Modal>
+      {razorpayLoading && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <ActivityIndicator size={"large"} color={COLORS.primary} />
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 };

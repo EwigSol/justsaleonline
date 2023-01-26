@@ -445,7 +445,7 @@ const MyDocumentsScreen = (props) => {
       >
         <TouchableWithoutFeedback
           onPress={() =>
-            setModalVisible((prevPickerVisible) => !prevPickerVisible)
+            setPickerVisible((prevPickerVisible) => !prevPickerVisible)
           }
         >
           <View style={styles.modalOverlay} />

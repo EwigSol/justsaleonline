@@ -15,7 +15,6 @@ import {
 import { FontAwesome5 } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Octicons } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
 
 // Custom Components & Functions
 import AppSeparator from "../components/AppSeparator";
@@ -29,6 +28,7 @@ import { decodeString } from "../helper/helper";
 import { __ } from "../language/stringPicker";
 import { routes } from "../navigation/routes";
 import EditIcon from "../components/svgComponents/EditIcon";
+import { useIsFocused } from "@react-navigation/native";
 
 const NewListingScreen = ({ navigation }) => {
   const [
@@ -53,6 +53,7 @@ const NewListingScreen = ({ navigation }) => {
   const [locationsData, setLocationsData] = useState([]);
   const [newListingConfig, setNewListingConfig] = useState({});
   const [osmOverlay, setOsmOverlay] = useState(true);
+  const isFocused = useIsFocused();
 
   const handleClear = () => {
     setAdType();
@@ -82,19 +83,27 @@ const NewListingScreen = ({ navigation }) => {
     if (!newListingScreen) return;
     if (user) {
       setAuthToken(auth_token);
-
-      api.get("config-new-listing").then((res) => {
-        if (res.ok) {
-          setNewListingConfig(res.data);
-          removeAuthToken();
-          setLoading(false);
-        } else {
-          alert(res?.data?.error_message || res?.data?.error || res?.problem);
-          // print error
-          // TODO handle error
-          removeAuthToken();
-        }
-      });
+      api
+        .get("config-new-listing")
+        .then((res) => {
+          if (isFocused) {
+            if (res.ok) {
+              setNewListingConfig(res.data);
+              if (res?.data?.hidden_fields?.includes("ad_type")) {
+                getCategories();
+              } else {
+                setLoading(false);
+              }
+            } else {
+              alert(
+                res?.data?.error_message || res?.data?.error || res?.problem
+              );
+              // print error
+              // TODO handle error
+            }
+          }
+        })
+        .finally(() => removeAuthToken());
 
       api.get("locations").then((res) => {
         if (res.ok) {
@@ -121,9 +130,13 @@ const NewListingScreen = ({ navigation }) => {
   useEffect(() => {
     if (!adType) return;
     setLoading(true);
+    getCategories();
+  }, [adType]);
+
+  const getCategories = () => {
     api
       .get("categories", {
-        listing_type: adType.id,
+        listing_type: adType?.id || "",
       })
       .then((res) => {
         if (res.ok) {
@@ -134,7 +147,7 @@ const NewListingScreen = ({ navigation }) => {
           // TODO handle error
         }
       });
-  }, [adType]);
+  };
 
   const handleSelectedCatPress = (arg) => {
     setCurrentCategories((prevCurrentCategories) =>
@@ -399,7 +412,6 @@ const NewListingScreen = ({ navigation }) => {
                   </View>
                 </View>
               )}
-
               {/* For not eligible users */}
               {!newListingConfig?.eligible && !loading && (
                 <View style={styles.notEligible}>
@@ -438,25 +450,111 @@ const NewListingScreen = ({ navigation }) => {
               )}
               {/* For eligible users */}
               {/* Ad Type Selector */}
-              {newListingConfig.eligible && (
-                <View
-                  style={
-                    !!currentCategories.length &&
-                    noSubCat &&
-                    ((!!listing_locations && !!listing_locations.length) ||
-                      config.location_type === "geo")
-                      ? styles.displayNone
-                      : styles.typeWrap
-                  }
-                >
-                  <View style={[styles.typeTitleWrap]}>
-                    <Text style={[styles.typeTitle, rtlTextA]}>
-                      {__("newListingScreenTexts.selectType", appSettings.lng)}
-                    </Text>
+              {newListingConfig?.eligible &&
+                !newListingConfig?.hidden_fields?.includes("ad_type") &&
+                newListingConfig && (
+                  <View
+                    style={
+                      !!currentCategories.length &&
+                      noSubCat &&
+                      ((!!listing_locations && !!listing_locations.length) ||
+                        config.location_type === "geo")
+                        ? styles.displayNone
+                        : styles.typeWrap
+                    }
+                  >
+                    <View style={[styles.typeTitleWrap]}>
+                      <Text style={[styles.typeTitle, rtlTextA]}>
+                        {__(
+                          "newListingScreenTexts.selectType",
+                          appSettings.lng
+                        )}
+                      </Text>
+                    </View>
+                    <AppSeparator style={styles.formSeparator} />
+                    <View style={styles.adType}>
+                      {!newListingConfig["listing_types"].length && loading ? (
+                        <View style={styles.loading}>
+                          <ActivityIndicator
+                            size="large"
+                            color={COLORS.primary}
+                          />
+                        </View>
+                      ) : (
+                        <>
+                          {adType ? (
+                            <TouchableOpacity
+                              style={[styles.typePickerFieldWrap, rtlView]}
+                              onPress={() => {
+                                setAdType();
+                                setCategories({});
+                                setCurrentCategories([]);
+                                setNoSubCat(false);
+                              }}
+                            >
+                              <Text style={[styles.types, rtlText]}>
+                                {adType
+                                  ? decodeString(adType.name)
+                                  : `-- ${__(
+                                      "newListingScreenTexts.selectType",
+                                      appSettings.lng
+                                    )} --`}
+                              </Text>
+                              <FontAwesome5
+                                name="chevron-down"
+                                size={14}
+                                color={COLORS.primary}
+                              />
+                            </TouchableOpacity>
+                          ) : (
+                            <View style={styles.typePickerWrap}>
+                              {newListingConfig.listing_types.map((typ) => (
+                                <TouchableOpacity
+                                  style={styles.typePickerOptions}
+                                  key={typ.id}
+                                  onPress={() => {
+                                    setAdType(typ);
+                                    setCurrentCategories([]);
+                                    setNoSubCat(false);
+                                  }}
+                                >
+                                  <Text style={[styles.types, rtlTextA]}>
+                                    {typ.name}
+                                  </Text>
+                                </TouchableOpacity>
+                              ))}
+                            </View>
+                          )}
+                        </>
+                      )}
+                    </View>
                   </View>
-                  <AppSeparator style={styles.formSeparator} />
-                  <View style={styles.adType}>
-                    {!newListingConfig["listing_types"].length && loading ? (
+                )}
+              {/* Ad Category & Location Selector */}
+              {/* Category Selector Wrap */}
+              {(adType ||
+                newListingConfig?.hidden_fields?.includes("ad_type")) &&
+                newListingConfig && (
+                  <View
+                    style={
+                      !!currentCategories.length &&
+                      noSubCat &&
+                      ((!!listing_locations && !!listing_locations.length) ||
+                        config.location_type === "geo")
+                        ? styles.displayNone
+                        : styles.categoryWrap
+                    }
+                  >
+                    <View style={styles.categoryTitleWrap}>
+                      <Text style={[styles.categoryTitle, rtlText]}>
+                        {__(
+                          "newListingScreenTexts.selectCategory",
+                          appSettings.lng
+                        )}
+                      </Text>
+                      <AppSeparator style={styles.separator} />
+                    </View>
+                    {loading && !Object.keys(categories).length ? (
                       <View style={styles.loading}>
                         <ActivityIndicator
                           size="large"
@@ -464,141 +562,68 @@ const NewListingScreen = ({ navigation }) => {
                         />
                       </View>
                     ) : (
-                      <>
-                        {adType ? (
-                          <TouchableOpacity
-                            style={[styles.typePickerFieldWrap, rtlView]}
-                            onPress={() => {
-                              setAdType();
-                              setCategories({});
-                              setCurrentCategories([]);
-                              setNoSubCat(false);
-                            }}
-                          >
-                            <Text style={[styles.types, rtlText]}>
-                              {adType
-                                ? decodeString(adType.name)
-                                : `-- ${__(
-                                    "newListingScreenTexts.selectType",
-                                    appSettings.lng
-                                  )} --`}
-                            </Text>
-                            <FontAwesome5
-                              name="chevron-down"
-                              size={14}
-                              color={COLORS.primary}
-                            />
-                          </TouchableOpacity>
-                        ) : (
-                          <View style={styles.typePickerWrap}>
-                            {newListingConfig.listing_types.map((typ) => (
-                              <TouchableOpacity
-                                style={styles.typePickerOptions}
-                                key={typ.id}
-                                onPress={() => {
-                                  setAdType(typ);
-                                  setCurrentCategories([]);
-                                  setNoSubCat(false);
-                                }}
-                              >
-                                <Text style={[styles.types, rtlTextA]}>
-                                  {typ.name}
-                                </Text>
-                              </TouchableOpacity>
-                            ))}
-                          </View>
+                      <View style={styles.adCategory}>
+                        {Object.keys(categories).map((_cat, index) =>
+                          catPicker(index)
                         )}
-                      </>
+                      </View>
                     )}
                   </View>
-                </View>
-              )}
-              {/* Ad Category & Location Selector */}
-              {/* Category Selector Wrap */}
-              {adType && (
-                <View
-                  style={
-                    !!currentCategories.length &&
-                    noSubCat &&
-                    ((!!listing_locations && !!listing_locations.length) ||
-                      config.location_type === "geo")
-                      ? styles.displayNone
-                      : styles.categoryWrap
-                  }
-                >
-                  <View style={styles.categoryTitleWrap}>
-                    <Text style={[styles.categoryTitle, rtlText]}>
-                      {__(
-                        "newListingScreenTexts.selectCategory",
-                        appSettings.lng
-                      )}
-                    </Text>
-                    <AppSeparator style={styles.separator} />
-                  </View>
-                  {loading && !Object.keys(categories).length ? (
-                    <View style={styles.loading}>
-                      <ActivityIndicator size="large" color={COLORS.primary} />
-                    </View>
-                  ) : (
-                    <View style={styles.adCategory}>
-                      {Object.keys(categories).map((_cat, index) =>
-                        catPicker(index)
-                      )}
-                    </View>
-                  )}
-                </View>
-              )}
+                )}
               {/* Location Selector Wrap */}
-              {adType && !!currentCategories?.length && noSubCat && (
-                <View
-                  style={
-                    !!currentCategories.length &&
-                    noSubCat &&
-                    ((!!listing_locations && !!listing_locations?.length) ||
-                      config.location_type === "geo")
-                      ? styles.displayNone
-                      : styles.locationWrap
-                  }
-                >
-                  <View style={styles.categoryTitleWrap}>
-                    <Text style={[styles.categoryTitle, rtlText]}>
-                      {__(
-                        "newListingScreenTexts.selectLocation",
-                        appSettings.lng
-                      )}
-                    </Text>
-                  </View>
-                  <AppSeparator
-                    style={[styles.formSeparator, { marginBottom: 15 }]}
-                  />
-                  {/* Location Selection Button */}
-                  <TouchableOpacity
-                    style={[styles.locationSelector, rtlView]}
-                    onPress={handleLocationButtonPress}
+              {(adType ||
+                newListingConfig?.hidden_fields?.includes("ad_type")) &&
+                !!currentCategories?.length &&
+                noSubCat && (
+                  <View
+                    style={
+                      !!currentCategories.length &&
+                      noSubCat &&
+                      ((!!listing_locations && !!listing_locations?.length) ||
+                        config.location_type === "geo")
+                        ? styles.displayNone
+                        : styles.locationWrap
+                    }
                   >
-                    <View
-                      style={{
-                        alignItems: "center",
-                        justifyContent: "center",
-                        paddingHorizontal: 5,
-                        paddingVertical: 1,
-                      }}
-                    >
-                      <MaterialCommunityIcons
-                        name="map-marker"
-                        size={18}
-                        color={COLORS.white}
-                      />
+                    <View style={styles.categoryTitleWrap}>
+                      <Text style={[styles.categoryTitle, rtlText]}>
+                        {__(
+                          "newListingScreenTexts.selectLocation",
+                          appSettings.lng
+                        )}
+                      </Text>
                     </View>
-                    <Text style={[styles.locationSelectorText, rtlText]}>
-                      {__(
-                        "newListingScreenTexts.selectLocation",
-                        appSettings.lng
-                      )}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
+                    <AppSeparator
+                      style={[styles.formSeparator, { marginBottom: 15 }]}
+                    />
+                    {/* Location Selection Button */}
+                    <TouchableOpacity
+                      style={[styles.locationSelector, rtlView]}
+                      onPress={handleLocationButtonPress}
+                    >
+                      <View
+                        style={{
+                          alignItems: "center",
+                          justifyContent: "center",
+                          paddingHorizontal: 5,
+                          paddingVertical: 1,
+                        }}
+                      >
+                        <MaterialCommunityIcons
+                          name="map-marker"
+                          size={18}
+                          color={COLORS.white}
+                        />
+                      </View>
+                      <Text style={[styles.locationSelectorText, rtlText]}>
+                        {__(
+                          "newListingScreenTexts.selectLocation",
+                          appSettings.lng
+                        )}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
               {/* Category & Location Change Button Wrap */}
               <View
                 style={
@@ -657,7 +682,8 @@ const NewListingScreen = ({ navigation }) => {
                   </View>
                 )}
               </View>
-              {adType &&
+              {(adType ||
+                newListingConfig?.hidden_fields?.includes("ad_type")) &&
                 !!currentCategories.length &&
                 noSubCat &&
                 ((!!listing_locations && !!listing_locations.length) ||
@@ -666,7 +692,7 @@ const NewListingScreen = ({ navigation }) => {
                     catId={
                       currentCategories[currentCategories.length - 1].term_id
                     }
-                    type={adType}
+                    type={adType || ""}
                     goBack={handleGoBackonSuccess}
                     osmOverlay={osmOverlay}
                     changeOsmOverlay={changeOsmOverlay}

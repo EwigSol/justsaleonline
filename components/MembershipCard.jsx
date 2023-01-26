@@ -166,7 +166,7 @@ const MembershipCard = ({ memPlan, onSelect, selected }) => {
                       </View>
                       <View style={styles.tableRowContent}>
                         <Text style={[styles.contentText, rtlText]}>
-                          {memPlan?.promotion?.membership[memPkg].ads}
+                          {__(`promotions.${memPkg}`, appSettings.lng)}
                         </Text>
                       </View>
                       <View style={styles.tableRowContent}>

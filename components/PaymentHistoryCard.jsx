@@ -79,7 +79,10 @@ const PaymentHistoryCard = ({ item, onCardPress }) => {
                 style={[
                   styles.price,
                   {
-                    textDecorationLine: "line-through",
+                    textDecorationLine:
+                      config?.coupon && item?.coupon?.discount
+                        ? "line-through"
+                        : "none",
                     color:
                       config?.coupon && item?.coupon?.discount
                         ? COLORS.red

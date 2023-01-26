@@ -70,6 +70,10 @@ const optionsExtraData = {
     routeName: routes.settingsScreen,
     id: "settings",
   },
+  share: {
+    routeName: routes.settingsScreen,
+    id: "share",
+  },
 };
 
 export function getOptionsExtraData() {

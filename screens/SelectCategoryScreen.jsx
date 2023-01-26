@@ -11,9 +11,6 @@ import {
   ScrollView,
 } from "react-native";
 
-// Expo Libraries
-import Constants from "expo-constants";
-
 // Vector Icons
 import { Entypo } from "@expo/vector-icons";
 
@@ -47,42 +44,56 @@ const SelectCategoryScreen = ({ route, navigation }) => {
         height: (screenWidth * 0.88 * 1.04) / 3,
         marginBottom: screenWidth * 0.03,
         borderRadius: 5,
-        overflow: "hidden",
-        shadowColor: COLORS.black,
+        shadowColor: COLORS.border_light,
         shadowOpacity: 0.2,
-        shadowRadius: 2,
+        shadowRadius: 1,
         shadowOffset: {
-          height: 2,
-          width: 2,
+          height: 0,
+          width: 0,
         },
-        elevation: 5,
+        elevation: 1,
       }}
     >
-      {item?.icon?.url ? (
-        <CategoryImage size={(screenWidth * 0.88) / 9} uri={item.icon.url} />
-      ) : (
-        <CategoryIcon
-          iconName={item.icon.class}
-          iconSize={(screenWidth * 0.88) / 9}
-          iconColor={
-            currentCategory.includes(item.term_id)
-              ? COLORS.white
-              : COLORS.primary
-          }
-        />
-      )}
       <View
         style={{
-          paddingTop: "12%",
           alignItems: "center",
-          paddingHorizontal: 5,
-          flex: 1,
-          justifyContent: "center",
+          height: (screenWidth * 0.88 * 1.04) / 3,
+          width: (screenWidth * 0.88) / 3,
+          overflow: "hidden",
         }}
       >
-        <Text style={{ textAlign: "center", marginTop: 5 }} numberOfLines={2}>
-          {decodeString(item.name)}
-        </Text>
+        {item?.icon?.url ? (
+          <CategoryImage size={(screenWidth * 0.88) / 9} uri={item.icon.url} />
+        ) : (
+          <CategoryIcon
+            iconName={item.icon.class}
+            iconSize={(screenWidth * 0.88) / 9}
+            iconColor={
+              currentCategory.includes(item.term_id)
+                ? COLORS.white
+                : COLORS.primary
+            }
+          />
+        )}
+        <View
+          style={{
+            paddingTop: "12%",
+            alignItems: "center",
+            paddingHorizontal: 5,
+          }}
+        >
+          <Text
+            style={{
+              color: COLORS.text_dark,
+              fontWeight: "bold",
+              fontSize: 13,
+              textAlign: "center",
+            }}
+            numberOfLines={2}
+          >
+            {decodeString(item.name)}
+          </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );

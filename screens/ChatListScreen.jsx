@@ -32,6 +32,7 @@ import FlashNotification from "../components/FlashNotification";
 import { getRelativeTimeConfig, __ } from "../language/stringPicker";
 import { decodeString } from "../helper/helper";
 import { routes } from "../navigation/routes";
+import { useIsFocused } from "@react-navigation/native";
 const chatListItemFallbackImageUrl = require("../assets/200X150.png");
 
 const { width: screenWidth } = Dimensions.get("screen");
@@ -54,6 +55,7 @@ const ChatListScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [flashNotification, setFlashNotification] = useState(false);
   const [flashNotificationMessage, setFlashNotificationMessage] = useState();
+  const isFocused = useIsFocused();
 
   // initial for externel event
   useEffect(() => {
@@ -89,20 +91,22 @@ const ChatListScreen = ({ navigation }) => {
     setAutoload(true);
     setAuthToken(auth_token);
     api.get("my/chat").then((res) => {
-      if (res.ok) {
-        setChatListData(res.data);
-        removeAuthToken();
-        setLoading(false);
-        setAutoload(false);
-        if (refreshing) {
+      if (isFocused) {
+        if (res.ok) {
+          setChatListData(res.data);
+          removeAuthToken();
+          setLoading(false);
+          setAutoload(false);
+          if (refreshing) {
+            setRefreshing(false);
+          }
+        } else {
+          //TODO print error
+          removeAuthToken();
+          setLoading(false);
+          setAutoload(false);
           setRefreshing(false);
         }
-      } else {
-        //TODO print error
-        removeAuthToken();
-        setLoading(false);
-        setAutoload(false);
-        setRefreshing(false);
       }
     });
   };

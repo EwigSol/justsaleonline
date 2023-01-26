@@ -12,7 +12,7 @@ import { COLORS } from "../variables/color";
 import { useStateValue } from "../StateProvider";
 import { __ } from "../language/stringPicker";
 
-const Screen = ({ children, style }) => {
+const Screen = ({ children, style, onLayout }) => {
   const [{ appSettings, ios }, dispatch] = useStateValue();
   const [initial, setInitial] = useState(true);
   const netInfo = useNetInfo();
@@ -36,7 +36,7 @@ const Screen = ({ children, style }) => {
   }, [netInfo]);
 
   return (
-    <SafeAreaView style={[styles.screen, style]}>
+    <SafeAreaView style={[styles.screen, style]} onLayout={onLayout}>
       {netInfo.isInternetReachable === false && netInfo.type !== "unknown" && (
         <View
           style={{

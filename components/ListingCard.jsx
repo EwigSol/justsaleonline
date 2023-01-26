@@ -126,7 +126,7 @@ const ListingCard = ({ onPress, item }) => {
                     color: COLORS.white,
                   }}
                 >
-                  {config.promotions.featured}
+                  {config?.promotions?.featured || "Featured"}
                 </Text>
               </View>
               <View
@@ -289,7 +289,12 @@ const ListingCard = ({ onPress, item }) => {
             </View>
             <Text style={[styles.featuredItemPrice, rtlText]} numberOfLines={1}>
               {getPrice(
-                config.currency,
+                item?.currency
+                  ? {
+                      ...config.currency,
+                      ...item.currency,
+                    }
+                  : config.currency,
                 {
                   pricing_type: item.pricing_type,
                   price_type: item.price_type,
