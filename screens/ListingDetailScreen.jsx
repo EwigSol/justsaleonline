@@ -575,7 +575,7 @@ const ListingDetailScreen = ({ route, navigation }) => {
   const getListingTime = () => {
     if (config?.timezone) {
       return moment
-        .parseZone(listingData.created_at + config.timezone.timezone)
+        .parseZone(listingData.created_at)
         .fromNow();
     } else {
       // TODO:  This method will be depricated from app and plugin in future version (3.0)

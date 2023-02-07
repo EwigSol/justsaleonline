@@ -309,7 +309,7 @@ const StoreDetailsScreen = ({ route, navigation }) => {
                   <Text style={[styles.listingCardText, rtlText]}>
                     {/* {moment(item.created_at).fromNow()} */}
                     {moment
-                      .parseZone(item.created_at + config.timezone.timezone)
+                      .parseZone(item.created_at)
                       .fromNow()}
                   </Text>
                 </View>

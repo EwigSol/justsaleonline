@@ -190,9 +190,11 @@ const MyAdsFlatList = ({ onClick, item, onAction, onActionTouch }) => {
                   </View>
                   <Text style={[styles.detailsLeftRowText, rtlText]}>
                     {/* {moment(item.created_at).fromNow()} */}
-                    {moment
-                      .parseZone(item.created_at + config.timezone.timezone)
-                      .fromNow()}
+                    {
+                      moment
+                      .parseZone(item.created_at)
+                      .fromNow()
+                      }
                   </Text>
                 </View>
                 <View style={[styles.detailsLeftRow, rtlView]}>

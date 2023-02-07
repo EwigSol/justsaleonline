@@ -203,7 +203,7 @@ const FavoritesFlatList = ({ onDelete, item, onClick }) => {
                   <Text style={[styles.detailsLeftRowText, rtlTextA]}>
                     {/* {moment(item.created_at).fromNow()} */}
                     {moment
-                      .parseZone(item.created_at + config.timezone.timezone)
+                      .parseZone(item.created_at)
                       .fromNow()}
                   </Text>
                 </View>
